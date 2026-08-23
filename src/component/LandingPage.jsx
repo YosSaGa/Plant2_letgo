@@ -1,12 +1,20 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CloudSun, Droplets, Sparkles, Sun } from 'lucide-react';
+import { ArrowRight, CloudSun, Droplets, Sparkles, Sun, UserRound } from 'lucide-react';
 import './landing.css';
 import './landing-wow.css';
 import ActionLoader from './ActionLoader';
+import { useAuth } from '../context/AuthContext';
 
 export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, isLoggedIn }) {
+  const { user, profile, updateProfile } = useAuth();
   const [isStarting, setIsStarting] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profileForm, setProfileForm] = useState({ display_name: '', email: '' });
+  const openProfile = () => { setProfileForm({ display_name: profile?.display_name || 'ผู้ใช้ทดสอบ', email: user?.email || 'guest@plookploen.demo' }); setIsProfileOpen(false); setIsProfileModalOpen(true); };
+  const saveProfile = (event) => { event.preventDefault(); updateProfile(profileForm); setIsProfileModalOpen(false); };
   const [space, setSpace] = useState('ระเบียง');
   const plantMatch = space === 'แดดจัด' ? { icon: '🌶️', name: 'พริก', note: 'ชอบแดดจัด และให้ผลต่อเนื่อง' } : space === 'มุมร่ม' ? { icon: '🥬', name: 'ผักกาดหอม', note: 'เหมาะกับแสงรำไร ดูแลง่าย' } : { icon: '🌿', name: 'โหระพา', note: 'เหมาะกับกระถางและเก็บใบได้ไว' };
   const start = () => { if (isStarting) return; setIsStarting(true); window.setTimeout(onStart, 1100); };
@@ -23,6 +31,6 @@ export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, is
       <section className="lp-dashboard"><div className="lp-dashboard-copy"><p className="lp-eyebrow">ALL YOUR GARDEN, IN ONE PLACE</p><h2>ผู้ช่วยคนเล็ก<br />สำหรับสวนของคุณ</h2><p>จัดการงานประจำวันได้ง่ายขึ้น รู้ว่าต้นไหนต้องรดน้ำ และวางแผนดูแลโดยไม่ต้องจดจำเอง</p><ul><li>บันทึกพืชได้หลายชนิด</li><li>ดูคำแนะนำเฉพาะต้นและสภาพอากาศ</li><li>เลือกดูคลังข้อมูลพืชก่อนเริ่มปลูก</li></ul></div><div className="lp-mini-app"><div className="lp-mini-head"><span>🌿 สวนของฉัน</span><i>วันนี้</i></div><div className="lp-mini-weather">☀️ <div><b>29°C</b><small>อากาศแจ่มใส</small></div><em>ความชื้น 68%</em></div><div className="lp-mini-task"><span>💧</span><div><b>รดน้ำต้นพริก</b><small>แนะนำ 300 มล. ในช่วงเช้า</small></div><strong>วันนี้</strong></div><div className="lp-mini-task"><span>🔎</span><div><b>ตรวจใบมะเขือเทศ</b><small>สังเกตรอยจุดและแมลงใต้ใบ</small></div><strong>พรุ่งนี้</strong></div></div></section>
       <section className="lp-steps"><p className="lp-eyebrow">START IN THREE SIMPLE STEPS</p><h2>เริ่มดูแลสวนได้ในไม่กี่นาที</h2><div><article><b>01</b><span>เลือกพืช</span><p>เลือกชนิดพืช ระยะเติบโต และวิธีปลูก</p></article><article><b>02</b><span>รับแผนดูแล</span><p>ดูงานรดน้ำ ใส่ปุ๋ย และตรวจสุขภาพพืช</p></article><article><b>03</b><span>ปลูกอย่างมั่นใจ</span><p>ติดตามคำแนะนำและสนุกกับการเห็นพืชเติบโต</p></article></div></section>
       <section className="lp-bottom-cta"><div><p>เริ่มต้นสวนของคุณวันนี้</p><h2>ทุกต้นที่ดี เริ่มจากการดูแลที่พอดี</h2></div><button className="lp-primary" onClick={start}>เริ่มเพิ่มพืช →</button></section>
-    </motion.main>
+    {isLoggedIn && createPortal(<><div className="lp-profile-menu"><button className="lp-profile-icon" type="button" title="โปรไฟล์ผู้ใช้" aria-label="โปรไฟล์ผู้ใช้" aria-expanded={isProfileOpen} onClick={() => setIsProfileOpen((open) => !open)}><UserRound size={18}/></button>{isProfileOpen && <div className="lp-profile-popover"><strong>{profile?.display_name || 'ผู้ใช้ทดสอบ'}</strong><span>{user?.email || 'guest@plookploen.demo'}</span><button type="button" onClick={openProfile}>ดูโปรไฟล์</button></div>}</div>{isProfileModalOpen && <div className="lp-profile-modal-backdrop" onClick={() => setIsProfileModalOpen(false)}><form className="lp-profile-modal" onSubmit={saveProfile} onClick={(event) => event.stopPropagation()}><div><p>โปรไฟล์ผู้ใช้ · Mock</p><button type="button" aria-label="ปิด" onClick={() => setIsProfileModalOpen(false)}>×</button></div><h2>ข้อมูลของฉัน</h2><label>ชื่อผู้ใช้<input value={profileForm.display_name} onChange={(event) => setProfileForm({ ...profileForm, display_name: event.target.value })}/></label><label>อีเมล<input type="email" value={profileForm.email} onChange={(event) => setProfileForm({ ...profileForm, email: event.target.value })}/></label><section><span>จังหวัด<small>{profile?.province || 'กรุงเทพมหานคร'}</small></span><span>อำเภอ / เขต<small>{profile?.district || 'ปทุมวัน'}</small></span></section><button className="lp-profile-save" type="submit">บันทึกข้อมูล</button></form></div>}</>, document.body)}</motion.main>
   );
 }
