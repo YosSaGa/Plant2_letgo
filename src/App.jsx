@@ -159,7 +159,7 @@ function App() {
   if (page === 'adminReports') return <AdminDetails type="reports" />;
   // หน้าแรกเริ่มด้วยการเข้าสู่ระบบตาม flow หลักของแอป
   if (page === 'landing') return <LandingPage isLoggedIn={Boolean(user)} onStart={() => goTo('add')} onPlantInfo={() => goTo('info')} onLogin={() => user ? goTo('add') : goTo('login')} onAdmin={() => navigate('/admin/login')} />;
-  if (page === 'info') return <PlantInfoPage onBack={() => goTo('home')} onStart={() => goTo('add')} />;
+  if (page === 'info') return <PlantInfoPage onBack={() => goTo('home')} onStart={(type) => { setFormData((current) => ({ ...current, type })); goTo('add'); }} />;
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const toggleChoice = (name, value) => setFormData((prev) => ({ ...prev, [name]: prev[name] === value ? '' : value }));
