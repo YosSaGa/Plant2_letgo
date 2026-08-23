@@ -13,6 +13,7 @@ import ActionLoader from './component/ActionLoader';
 import AdminDashboard from './component/admin/AdminDashboard';
 import AdminUserMap from './component/admin/AdminUserMap';
 import AdminDetails from './component/admin/AdminDetails';
+import AdminPlantMaster from './component/admin/AdminPlantMaster';
 import Login from './component/auth/Login';
 import Register from './component/auth/Register';
 import AdminLogin from './component/admin/AdminLogin';
@@ -154,7 +155,7 @@ function App() {
   if (page === 'adminDashboard') return <AdminDashboard />;
   if (page === 'adminUserMap') return <AdminUserMap />;
   if (page === 'adminUsers') return <AdminDetails type="users" />;
-  if (page === 'adminPlants') return <AdminDetails type="plants" />;
+  if (page === 'adminPlants') return <AdminPlantMaster />;
   if (page === 'adminReports') return <AdminDetails type="reports" />;
   // หน้าแรกเริ่มด้วยการเข้าสู่ระบบตาม flow หลักของแอป
   if (page === 'landing') return <LandingPage isLoggedIn={Boolean(user)} onStart={() => goTo('add')} onPlantInfo={() => goTo('info')} onLogin={() => user ? goTo('add') : goTo('login')} onAdmin={() => navigate('/admin/login')} />;
