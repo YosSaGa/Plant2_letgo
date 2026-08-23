@@ -19,6 +19,8 @@ import Register from './component/auth/Register';
 import AdminLogin from './component/admin/AdminLogin';
 import { useAuth } from './context/AuthContext';
 import { supabase } from './lib/supabaseClient';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import './component/dashboard.css';
 
 function App() {
   const { user } = useAuth();
@@ -40,6 +42,7 @@ function App() {
   const showLoginPrompt = false;
   const [currentSeed, setCurrentSeed] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [plantFilter, setPlantFilter] = useState({ type: 'all', stage: 'all', method: 'all', sort: 'newest' });
   const pageByPath = {
     '/': 'landing',
     '/add-plant': 'add',
@@ -220,6 +223,24 @@ function App() {
 
   const recentPlants = plants.slice(0, 3);
   const uniqueTypeCount = new Set(plants.map((p) => p.type)).size;
+  const filterOptions = {
+    types: [...new Set(plants.map((plant) => plant.type))],
+    stages: [...new Set(plants.map((plant) => plant.stage))],
+    methods: [...new Set(plants.map((plant) => plant.method))],
+  };
+  const filteredPlants = plants
+    .filter((plant) => (plantFilter.type === 'all' || plant.type === plantFilter.type)
+      && (plantFilter.stage === 'all' || plant.stage === plantFilter.stage)
+      && (plantFilter.method === 'all' || plant.method === plantFilter.method))
+    .sort((a, b) => plantFilter.sort === 'amount' ? Number(b.amount || 0) - Number(a.amount || 0) : new Date(b.plantedAt) - new Date(a.plantedAt));
+  const plantChartData = Object.values(plants.reduce((groups, plant) => {
+    if (!groups[plant.type]) groups[plant.type] = { name: plant.type, value: 0 };
+    groups[plant.type].value += Number(plant.amount || 0);
+    return groups;
+  }, {}));
+  const chartColors = ['#059669', '#84cc16', '#f59e0b', '#0ea5e9', '#ec4899'];
+  const latestPlant = plants[0];
+  const pottedAmount = plants.filter((plant) => plant.potSize).reduce((sum, plant) => sum + Number(plant.amount || 0), 0);
 
   const renderPlantCard = (plant) => {
     const plantInfo = plantOptions.find((p) => p.name === plant.type);
@@ -549,25 +570,32 @@ function App() {
             >
               <motion.button whileHover={{ x: -5 }} className="sg-back-btn" onClick={() => goTo('home')}>← กลับหน้าหลัก</motion.button>
 
-              <section className="sg-card sg-stats-card">
-                <motion.div 
-                  className="sg-stats-icon"
-                  initial={{ rotate: -180, scale: 0 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ type: 'spring', damping: 10 }}
-                >🏆</motion.div>
-                <p className="sg-stats-sub">คุณปลูกพืชไปแล้วทั้งหมด</p>
-                <p className="sg-stats-number">{uniqueTypeCount} <span>ชนิด</span></p>
-                <p className="sg-stats-detail">จากพืชทั้งหมด {totalPlantAmount} ต้นที่บันทึกไว้</p>
+              <section className="sg-dashboard-heading">
+                <div><p>GARDEN OVERVIEW</p><h1 className="sg-display">สรุปสวนของฉัน</h1><span>ภาพรวมพืชที่คุณบันทึกไว้ทั้งหมด</span></div>
+                <div className="sg-dashboard-total"><b>{totalPlantAmount}</b><span>ต้นในสวน</span></div>
               </section>
 
-              <section>
-                <h2 className="sg-display sg-section-title">📋 รายการพืชทั้งหมด</h2>
-                <div className="sg-plant-list sg-plant-list-full">
-                  <AnimatePresence>
-                    {plants.map(renderPlantCard)}
-                  </AnimatePresence>
+              <section className="sg-dashboard-grid">
+                <article className="sg-dashboard-stat sg-dashboard-stat-primary"><span>🌱</span><div><small>พืชทั้งหมด</small><strong>{totalPlantAmount} <em>ต้น</em></strong></div></article>
+                <article className="sg-dashboard-stat"><span>🪴</span><div><small>ชนิดพืช</small><strong>{uniqueTypeCount} <em>ชนิด</em></strong></div></article>
+                <article className="sg-dashboard-stat"><span>🏺</span><div><small>ปลูกในกระถาง</small><strong>{pottedAmount} <em>ต้น</em></strong></div></article>
+                <article className="sg-dashboard-stat"><span>🗓️</span><div><small>เพิ่มล่าสุด</small><strong className="sg-dashboard-latest">{latestPlant ? latestPlant.type : 'ยังไม่มีข้อมูล'}</strong></div></article>
+              </section>
+
+              <section className="sg-dashboard-insight">
+                <div className="sg-dashboard-chart"><div><p>สัดส่วนพืชในสวน</p><h2>แยกตามชนิดพืช</h2></div>{plantChartData.length ? <ResponsiveContainer width="100%" height={230}><PieChart><Pie data={plantChartData} dataKey="value" nameKey="name" innerRadius={56} outerRadius={86} paddingAngle={3}>{plantChartData.map((item, index) => <Cell key={item.name} fill={chartColors[index % chartColors.length]} />)}</Pie><Tooltip formatter={(value) => [`${value} ต้น`, 'จำนวน']} /></PieChart></ResponsiveContainer> : <p className="sg-dashboard-empty">เพิ่มพืชเพื่อดูกราฟสรุป</p>}<div className="sg-dashboard-legend">{plantChartData.map((item, index) => <span key={item.name}><i style={{ background: chartColors[index % chartColors.length] }} />{item.name} <b>{item.value}</b></span>)}</div></div>
+                <div className="sg-dashboard-note"><span>💡</span><p>เริ่มต้นง่าย ๆ</p><h2>{latestPlant ? `พืชล่าสุดของคุณคือ ${latestPlant.type}` : 'เพิ่มพืชต้นแรกของคุณ'}</h2><small>{latestPlant ? `บันทึกเมื่อ ${formatPlantedTime(latestPlant.plantedAt)}` : 'เมื่อบันทึกพืชแล้ว สรุปสวนจะอัปเดตที่นี่ทันที'}</small><button onClick={() => goTo('add')}>+ เพิ่มพืชในสวน</button></div>
+              </section>
+
+              <section className="sg-dashboard-list-section">
+                <div className="sg-dashboard-list-heading"><div><p>PLANT LIBRARY</p><h2 className="sg-display">รายการพืช</h2></div><span>{filteredPlants.length} รายการ</span></div>
+                <div className="sg-dashboard-filters">
+                  <select value={plantFilter.type} onChange={(event) => setPlantFilter({ ...plantFilter, type: event.target.value })}><option value="all">ทุกชนิดพืช</option>{filterOptions.types.map((item) => <option key={item}>{item}</option>)}</select>
+                  <select value={plantFilter.stage} onChange={(event) => setPlantFilter({ ...plantFilter, stage: event.target.value })}><option value="all">ทุกระยะ</option>{filterOptions.stages.map((item) => <option key={item}>{item}</option>)}</select>
+                  <select value={plantFilter.method} onChange={(event) => setPlantFilter({ ...plantFilter, method: event.target.value })}><option value="all">ทุกวิธีปลูก</option>{filterOptions.methods.map((item) => <option key={item}>{item}</option>)}</select>
+                  <select value={plantFilter.sort} onChange={(event) => setPlantFilter({ ...plantFilter, sort: event.target.value })}><option value="newest">เรียง: ล่าสุด</option><option value="amount">เรียง: จำนวนมากสุด</option></select>
                 </div>
+                {filteredPlants.length ? <div className="sg-plant-list sg-plant-list-full"><AnimatePresence>{filteredPlants.map(renderPlantCard)}</AnimatePresence></div> : <div className="sg-dashboard-no-results">ไม่พบพืชตามตัวกรองที่เลือก</div>}
               </section>
             </motion.div>
           ) : page === 'disease' ? (
