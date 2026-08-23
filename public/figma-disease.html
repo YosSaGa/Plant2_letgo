@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plant Disease Detection — Figma import</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f5fbf6; color: #12352a; font-family: Arial, sans-serif; }
+      .page { min-height: 100vh; padding: 28px 24px 44px; background: radial-gradient(circle at 96% 0, #d8f4db 0 170px, transparent 171px), radial-gradient(circle at 3% 100%, #edf6ca 0 125px, transparent 126px), #f5fbf6; }
+      .wrap { width: min(1180px, 100%); margin: auto; }
+      .back, .secure, .health { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; font-weight: 700; }
+      .back { padding: 10px 15px; border: 1px solid #d4eade; background: #fff; color: #166143; font-size: 14px; }
+      .hero { display: flex; gap: 17px; margin: 28px 0 25px; align-items: flex-start; }
+      .hero-icon { width: 58px; height: 58px; border-radius: 19px; display: grid; place-items: center; background: linear-gradient(140deg, #159b68, #62bd4f); color: white; font-size: 27px; }
+      .eyebrow, .kicker { color: #27855e; font-size: 11px; font-weight: 700; letter-spacing: .09em; margin: 0 0 4px; }
+      h1 { margin: 0; color: #123c2c; font-size: 42px; line-height: 1.1; } h2 { color: #348660; font-size: 18px; margin: 5px 0; font-weight: 500; }
+      .hero-desc { max-width: 650px; color: #61736a; font-size: 15px; margin: 0; }
+      .layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 22px; }
+      .panel { background: #ffffff; border: 1px solid #dbede2; border-radius: 25px; padding: 24px; box-shadow: 0 16px 40px -27px #17634342; }
+      .heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; } h3 { font-size: 20px; color: #153e2c; margin: 0; }
+      .secure { background: #effaf2; color: #218259; padding: 6px 9px; font-size: 11px; }
+      .plants { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 16px; }.plant { padding: 8px 3px; min-height: 59px; border: 1px solid #e2eee5; background: #fbfefb; border-radius: 13px; color: #567065; text-align: center; font-size: 11px; }.plant.active { border-color: #53ad71; background: #effbf1; color: #176b48; }.plant span { display: block; font-size: 20px; margin-bottom: 3px; }
+      .upload { min-height: 275px; border: 2px dashed #9dd7af; border-radius: 19px; background: #f9fdf9; display: grid; place-items: center; text-align: center; }.upload-icon { width: 59px; height: 59px; margin: auto; display: grid; place-items: center; border-radius: 18px; color: #29925c; background: #e8f8ed; font-size: 30px; }.upload strong { display: block; color: #285343; margin-top: 13px; font-size: 16px; }.upload p { color: #75857d; font-size: 13px; margin: 5px; }.upload button, .analyze { border: 0; color: white; background: #168b5a; border-radius: 10px; padding: 9px 13px; margin: 10px 0; font-weight: 700; }.upload small { display: block; color: #98a8a0; font-size: 10px; }.analyze { width: 100%; padding: 14px; margin: 15px 0 0; border-radius: 13px; background: #a8bbb0; font-size: 15px; }
+      .empty { min-height: 425px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }.empty-icon { font-size: 63px; }.empty h4 { color: #244e3b; font-size: 19px; margin: 16px 0 5px; }.empty p { max-width: 310px; color: #718279; line-height: 1.55; margin: 0; font-size: 14px; }.empty small { margin-top: 23px; padding: 8px 12px; border-radius: 9px; background: #f1f8f1; color: #779082; font-size: 11px; }.disclaimer { display: flex; justify-content: center; gap: 5px; margin: 20px 0 0; color: #789085; font-size: 12px; }
+      @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } h1 { font-size: 32px; } } @media (max-width: 520px) { .page { padding: 18px 14px 30px; } .hero-icon { width: 46px; height: 46px; }.secure { display: none; } }
+    </style>
+  </head>
+  <body>
+    <main class="page"><div class="wrap">
+      <div class="back">← กลับหน้าหลัก</div>
+      <header class="hero"><div class="hero-icon">🩺</div><div><p class="eyebrow">✦ PLOOKPLOEN AI CARE</p><h1>Plant Disease Detection</h1><h2>ระบบตรวจสอบโรคพืชด้วย AI</h2><p class="hero-desc">Upload a plant image to detect possible diseases and get plant care recommendations.</p></div></header>
+      <div class="layout">
+        <section class="panel"><div class="heading"><div><p class="kicker">STEP 01</p><h3>เลือกภาพพืชเพื่อตรวจสอบ</h3></div><span class="secure">✓ Mock AI</span></div>
+          <div class="plants"><div class="plant active"><span>🌶️</span>พริก</div><div class="plant"><span>🌿</span>โหระพา</div><div class="plant"><span>🍃</span>กะเพรา</div><div class="plant"><span>🍅</span>มะเขือเทศ</div><div class="plant"><span>🥬</span>ผักกาดหอม</div></div>
+          <div class="upload"><div><div class="upload-icon">⇧</div><strong>Drag &amp; drop your plant image here</strong><p>or select a photo from your device</p><button>⇧ &nbsp;Upload image</button><small>PNG, JPG or WEBP · image stays in this browser</small></div></div><button class="analyze">⌁ &nbsp;Analyze plant image</button>
+        </section>
+        <section class="panel"><div class="heading"><div><p class="kicker">STEP 02</p><h3>ผลการวิเคราะห์</h3></div><span style="font-size:22px">🍃</span></div><div class="empty"><div class="empty-icon">🌿</div><h4>Ready to check your plant</h4><p>Select a plant, upload a clear photo, then start the mock AI scan.</p><small>This demonstration uses pre-defined plant disease data.</small></div></section>
+      </div><p class="disclaimer">✦ This is a simulated AI result for demonstration purposes only. For persistent symptoms, consult a local plant specialist.</p>
+    </div></main>
+  </body>
+</html>

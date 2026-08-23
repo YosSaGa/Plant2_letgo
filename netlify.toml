@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# React Router routes have no physical HTML files.  Return the SPA entry point
+# so a direct visit (including an incognito session) can load the route.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,50 @@
+.figma-export {
+  min-width: 1280px;
+  padding: 56px;
+  background: #f4f8f1;
+}
+
+.figma-export__header {
+  margin: 0 auto 72px;
+  max-width: 1280px;
+  color: #183b2b;
+}
+
+.figma-export__header p {
+  margin: 0 0 8px;
+  color: #3d8c63;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.figma-export__header h1 {
+  margin: 0;
+  font-size: 42px;
+}
+
+.figma-export__header span {
+  display: block;
+  margin-top: 10px;
+  color: #587062;
+}
+
+.figma-export__screen {
+  max-width: 1280px;
+  margin: 0 auto 96px;
+}
+
+.figma-export__screen h2 {
+  margin: 0 0 16px;
+  color: #183b2b;
+  font-size: 20px;
+}
+
+.figma-export__screen iframe {
+  display: block;
+  width: 100%;
+  border: 1px solid #d9e6d9;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 18px 45px rgba(27, 71, 45, .12);
+}

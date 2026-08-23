@@ -1,0 +1,6 @@
+/* Keep the map as the primary canvas on desktop; the detail panel floats over it. */
+@media (min-width: 1025px) {
+  .aum-layout { display: block; position: relative; height: calc(100svh - 150px); }
+  .aum-map-wrap { height: 100%; }
+  .aum-panel { position: absolute; z-index: 700; top: 18px; right: 18px; bottom: 18px; width: min(370px, calc(100% - 36px)); box-sizing: border-box; }
+}
