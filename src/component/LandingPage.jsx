@@ -4,7 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CloudSun, Droplets, Sparkles, Sun, UserRound } from 'lucide-react';
 import './landing.css';
 import './landing-wow.css';
+import './landing-login-redirect.css';
 import ActionLoader from './ActionLoader';
+import { showLoginRedirect } from './loginRedirectNotice';
 import { useAuth } from '../context/AuthContext';
 
 export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, isLoggedIn }) {
@@ -17,7 +19,19 @@ export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, is
   const saveProfile = (event) => { event.preventDefault(); updateProfile(profileForm); setIsProfileModalOpen(false); };
   const [space, setSpace] = useState('ระเบียง');
   const plantMatch = space === 'แดดจัด' ? { icon: '🌶️', name: 'พริก', note: 'ชอบแดดจัด และให้ผลต่อเนื่อง' } : space === 'มุมร่ม' ? { icon: '🥬', name: 'ผักกาดหอม', note: 'เหมาะกับแสงรำไร ดูแลง่าย' } : { icon: '🌿', name: 'โหระพา', note: 'เหมาะกับกระถางและเก็บใบได้ไว' };
-  const start = () => { if (isStarting) return; setIsStarting(true); window.setTimeout(onStart, 1100); };
+  const start = () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    window.setTimeout(() => {
+      setIsStarting(false);
+      if (!isLoggedIn) {
+        const dismissNotice = showLoginRedirect();
+        window.setTimeout(() => { dismissNotice(); onStart(); }, 1600);
+        return;
+      }
+      onStart();
+    }, 1100);
+  };
   return (
     <motion.main className="lp-root" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}><AnimatePresence>{isStarting && <ActionLoader title="กำลังเตรียมแปลงปลูก" detail="จัดเครื่องมือให้พร้อมสำหรับต้นแรกของคุณ" />}</AnimatePresence>
       <motion.nav className="lp-nav" initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}><div className="lp-brand"><motion.span animate={{ rotate: [0, 10, -8, 0] }} transition={{ duration: 2.6, repeat: Infinity }}>🌿</motion.span> PlookPloen</div><div className="lp-nav-actions"><button onClick={onPlantInfo}>ข้อมูลพืช</button><button onClick={onAdmin}>ดูข้อมูลแอดมิน</button><motion.button className="lp-login" onClick={onLogin} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: .97 }} animate={{ boxShadow: ['0 5px 13px #1f8b4c33','0 8px 18px #1f8b4c55','0 5px 13px #1f8b4c33'] }} transition={{ boxShadow: { duration: 2.4, repeat: Infinity } }}>{isLoggedIn ? 'เข้าดูข้อมูล' : 'เข้าสู่ระบบ'}</motion.button></div></motion.nav>

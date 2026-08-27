@@ -1,0 +1,2 @@
+/* Keep page content in the document flow so browser full-page capture includes it. */
+html,body{min-height:100%;overflow-x:hidden;overflow-y:auto}#root{min-height:100svh;overflow:visible}.sg-root,.adv-root,.dd-root{position:relative!important;inset:auto!important;min-height:100svh;overflow:visible!important}

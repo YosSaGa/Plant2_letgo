@@ -9,6 +9,7 @@ import { dashboardStats, diseaseRanks, plantingMethods, plantTotals, registratio
 import './admin.css';
 import './admin-interactions.css';
 import './admin-polish.css';
+import './admin-requirements.css';
 import AdminLayout from './AdminLayout';
 
 const periods = Object.keys(registrationSeries);

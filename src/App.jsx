@@ -16,6 +16,8 @@ import AdminDetails from './component/admin/AdminDetails';
 import AdminPlantMaster from './component/admin/AdminPlantMaster';
 import Login from './component/auth/Login';
 import Register from './component/auth/Register';
+import ForgotPassword from './component/auth/ForgotPassword';
+import ResetPassword from './component/auth/ResetPassword';
 import AdminLogin from './component/admin/AdminLogin';
 import { useAuth } from './context/AuthContext';
 import { supabase } from './lib/supabaseClient';
@@ -53,12 +55,13 @@ function App() {
     '/plant-info': 'info',
     '/login': 'login',
     '/register': 'register',
+    '/forgot-password': 'forgotPassword',
+    '/reset-password': 'resetPassword',
     '/admin/login': 'adminLogin',
     '/admin/dashboard': 'adminDashboard',
     '/admin/dashboard/user-map': 'adminUserMap',
     '/admin/users': 'adminUsers',
     '/admin/plants': 'adminPlants',
-    '/admin/disease-reports': 'adminReports',
   };
   const page = pageByPath[location.pathname] || 'landing';
   const goTo = (nextPage) => navigate({
@@ -154,14 +157,16 @@ function App() {
   if (location.pathname === '/figma-export') return <FigmaExport />;
   if (page === 'login') return <Login onNavigate={navigate} />;
   if (page === 'register') return <Register onNavigate={navigate} />;
+  if (page === 'forgotPassword') return <ForgotPassword onNavigate={navigate} />;
+  if (page === 'resetPassword') return <ResetPassword onNavigate={navigate} />;
+  if (page === 'add' && !user) return <Login onNavigate={navigate} />;
   if (page === 'adminLogin') return <AdminLogin onNavigate={navigate} />;
   if (page === 'adminDashboard') return <AdminDashboard />;
   if (page === 'adminUserMap') return <AdminUserMap />;
   if (page === 'adminUsers') return <AdminDetails type="users" />;
   if (page === 'adminPlants') return <AdminPlantMaster />;
-  if (page === 'adminReports') return <AdminDetails type="reports" />;
   // หน้าแรกเริ่มด้วยการเข้าสู่ระบบตาม flow หลักของแอป
-  if (page === 'landing') return <LandingPage isLoggedIn={Boolean(user)} onStart={() => goTo('add')} onPlantInfo={() => goTo('info')} onLogin={() => user ? goTo('add') : goTo('login')} onAdmin={() => navigate('/admin/login')} />;
+  if (page === 'landing') return <LandingPage isLoggedIn={Boolean(user)} onStart={() => user ? goTo('add') : goTo('login')} onPlantInfo={() => goTo('info')} onLogin={() => user ? goTo('add') : goTo('login')} onAdmin={() => navigate('/admin/login')} />;
   if (page === 'info') return <PlantInfoPage onBack={() => goTo('home')} onStart={(type) => { setFormData((current) => ({ ...current, type })); goTo('add'); }} />;
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
