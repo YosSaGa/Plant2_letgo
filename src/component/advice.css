@@ -3,11 +3,11 @@
   inset: 0;
   overflow-y: auto;
   background: #fafaf9;
-  font-family: 'Sarabun', sans-serif;
+  font-family: 'Prompt', sans-serif;
   color: #1c1917;
 }
 .adv-root * { box-sizing: border-box; }
-.adv-display { font-family: 'Kanit', 'Sarabun', sans-serif; }
+.adv-display { font-family: 'Prompt', sans-serif; }
 
 .adv-wrap { max-width: 68rem; margin: 0 auto; padding: 1.5rem; }
 @media (min-width: 768px) { .adv-wrap { padding: 2.5rem; } }
@@ -18,7 +18,7 @@
   border: 1px solid #d1fae5;
   border-radius: 999px;
   padding: 0.55rem 1.15rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.88rem;
   color: #065f46;
@@ -68,7 +68,7 @@
 
 .adv-stat { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.25rem 1.4rem; }
 .adv-stat-label { font-size: 0.78rem; color: #78716c; font-weight: 500; }
-.adv-stat-value { font-family: 'Kanit', sans-serif; font-size: 1.2rem; font-weight: 600; color: #022c22; }
+.adv-stat-value { font-family: 'Prompt', sans-serif; font-size: 1.2rem; font-weight: 600; color: #022c22; }
 .adv-health { font-size: 1rem; }
 .adv-next-task { font-size: 1rem; }
 
@@ -288,7 +288,7 @@
   border: none;
   border-radius: 0.9rem;
   padding: 0.7rem 1rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -378,7 +378,7 @@
   border: 1.5px solid #a7f3d0;
   background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
   color: #065f46;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
@@ -416,7 +416,7 @@
   color: #047857;
   border-radius: 999px;
   padding: 0.32rem 0.75rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -562,7 +562,7 @@
   border: none;
   padding: 0.72rem 1rem;
   border-radius: 0.85rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -603,7 +603,7 @@
 .adv-sync-text-btn {
   background: none;
   border: none;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.82rem;
   color: #78716c;
   cursor: pointer;

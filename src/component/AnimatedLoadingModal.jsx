@@ -189,7 +189,7 @@ export function AnimatedLoadingModal({ isOpen, plantName }) {
                   fontSize: '18px',
                   fontWeight: '700',
                   margin: '0 0 4px',
-                  fontFamily: 'Kanit, sans-serif',
+                  fontFamily: 'Prompt, sans-serif',
                 }}
               >
                 {steps[stepIndex].title}

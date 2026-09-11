@@ -431,7 +431,7 @@ export default function DiseaseDetection({ onBack }) {
                     <span style={{ display: 'inline-block', background: '#ffedd5', color: '#c2410c', padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>
                       Confidence: {result.confidence}% (ต่ำกว่าเกณฑ์ 60%)
                     </span>
-                    <h4 style={{ color: '#9a3412', fontFamily: 'Kanit, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
+                    <h4 style={{ color: '#9a3412', fontFamily: 'Prompt, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
                       ไม่สามารถวินิจฉัยได้อย่างมั่นใจ
                     </h4>
                     <p style={{ fontSize: '13px', color: '#7c2d12', background: '#fffbeb', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fef3c7', lineHeight: '1.55', margin: '0 0 16px', textAlign: 'left' }}>

@@ -182,7 +182,7 @@ export default function SystemTestingSuite({ onBack }) {
   const copyTableForWord = () => {
     // Generate formatted HTML table that pastes cleanly into Microsoft Word
     const htmlTable = `
-      <table border="1" style="border-collapse:collapse; font-family:Sarabun, sans-serif; font-size:12px; width:100%;">
+      <table border="1" style="border-collapse:collapse; font-family:'Prompt', sans-serif; font-size:12px; width:100%;">
         <thead>
           <tr style="background-color:#059669; color:#ffffff;">
             <th style="padding:8px;">รหัส (ID)</th>

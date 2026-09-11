@@ -8,7 +8,7 @@
   position: fixed;
   inset: 0;
   overflow: hidden;
-  font-family: 'Sarabun', sans-serif;
+  font-family: 'Prompt', sans-serif;
   color: #1e293b;
   user-select: none;
   -webkit-font-smoothing: antialiased;
@@ -19,7 +19,7 @@
 }
 
 .wx-display {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
 }
 
 /* ---------- TOP NAVIGATION & HUD ---------- */
@@ -46,7 +46,7 @@
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 9999px;
   padding: 0.6rem 1.15rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   color: #064e3b;
@@ -100,7 +100,7 @@
 }
 
 .wx-hud-title {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   color: #0f172a;
@@ -554,7 +554,7 @@
 }
 
 .wx-tray-header {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   color: #fef3c7;
@@ -612,7 +612,7 @@
   border: 1px solid #a7f3d0;
   padding: 0.45rem 1.25rem;
   border-radius: 9999px;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.88rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
@@ -645,7 +645,7 @@
   border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 9999px;
   padding: 0.75rem 1.4rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
   color: #064e3b;
@@ -736,7 +736,7 @@
 
 .wx-info-names h2 {
   margin: 0;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 1.4rem;
   font-weight: 700;
   color: #064e3b;
@@ -753,7 +753,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   background: #ecfdf5;
@@ -847,7 +847,7 @@
 }
 
 .wx-stat-number {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: #0f172a;
@@ -905,7 +905,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   color: #1e293b;
@@ -917,7 +917,7 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 700;
   font-size: 0.82rem;
   color: #065f46;
@@ -943,7 +943,7 @@
 }
 
 .wx-water-amount {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 2rem;
   font-weight: 800;
   color: #064e3b;
@@ -1063,7 +1063,7 @@
 }
 
 .wx-step-calc {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   color: #0f172a;
@@ -1086,7 +1086,7 @@
   color: white;
   border-radius: 1rem;
   padding: 0.8rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -1112,7 +1112,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 50;
-  font-family: 'Sarabun', sans-serif;
+  font-family: 'Prompt', sans-serif;
   user-select: none;
 }
 
@@ -1143,7 +1143,7 @@
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 9999px;
   padding: 0.55rem 1.15rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   color: #064e3b;
@@ -1186,7 +1186,7 @@
   font-weight: 700;
   color: #064e3b;
   margin: 0;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Prompt', sans-serif;
 }
 
 .wx-stage-sub {
