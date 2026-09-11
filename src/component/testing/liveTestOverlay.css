@@ -1,0 +1,719 @@
+/**
+ * liveTestOverlay.css
+ * Floating Live Test Controller for running automated tests directly on the real web app.
+ */
+
+.live-qa-controller {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.live-qa-controller.minimized {
+  width: auto;
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  background: #064e3b;
+  border-color: #34d399;
+}
+
+.live-qa-min-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #34d399;
+}
+
+/* Header */
+.live-qa-header {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #064e3b, #0f766e);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.live-qa-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-qa-icon-badge {
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.live-qa-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.live-qa-sub {
+  margin: 0;
+  font-size: 11px;
+  color: #a7f3d0;
+}
+
+.live-qa-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-qa-icon-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.live-qa-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Body */
+.live-qa-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.live-qa-scenario-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.live-qa-scenario-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin: 2px 0 0 0;
+  line-height: 1.4;
+}
+
+/* Big Run Button */
+.live-qa-run-btn {
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s;
+}
+.live-qa-run-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.45);
+}
+.live-qa-run-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+/* Progress & Status */
+.live-qa-progress-wrap {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.live-qa-progress-fill {
+  height: 100%;
+  background: #34d399;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.live-qa-step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.live-qa-dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+  animation: live-qa-pulse 1.5s infinite;
+}
+@keyframes live-qa-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* Footer info */
+.live-qa-footer {
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+.live-qa-sheet-link {
+  color: #34d399;
+  text-decoration: none;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.live-qa-sheet-link:hover {
+  text-decoration: underline;
+}
+
+/* Floating Test Runner / Recording HUD Banner */
+.live-qa-top-banner {
+  position: fixed;
+  z-index: 999999;
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.98), rgba(15, 118, 110, 0.98));
+  backdrop-filter: blur(16px);
+  border: 1.5px solid #34d399;
+  padding: 6px 12px 6px 10px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(52, 211, 153, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto !important;
+  animation: live-qa-banner-glow 2s infinite alternate;
+  max-width: min(580px, calc(100vw - 420px));
+  user-select: none;
+}
+
+/* Position options: Default is bottom-left to NEVER block the top navbar! */
+.live-qa-top-banner.pos-bottom {
+  bottom: 24px;
+  left: 24px;
+  top: auto;
+  transform: none;
+}
+
+.live-qa-top-banner.pos-top {
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: auto;
+}
+
+@media (max-width: 900px) {
+  .live-qa-top-banner.pos-bottom {
+    bottom: 84px;
+    left: 16px;
+    max-width: calc(100vw - 32px);
+  }
+}
+
+.live-qa-banner-drag-handle {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: grab;
+  padding: 2px 2px;
+  transition: color 0.15s;
+}
+
+.live-qa-banner-drag-handle:hover,
+.live-qa-banner-drag-handle:active {
+  color: #34d399;
+  cursor: grabbing;
+}
+
+.live-qa-banner-icon-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.live-qa-banner-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.live-qa-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.live-qa-banner-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 380px;
+}
+
+.live-qa-banner-stop-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.6);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.live-qa-banner-stop-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: scale(1.04);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.8);
+}
+
+.live-qa-banner-stop-btn:active {
+  transform: scale(0.96);
+}
+
+.live-qa-min-stop-btn {
+  background: #dc2626;
+  border: none;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: all 0.15s;
+}
+
+.live-qa-min-stop-btn:hover {
+  background: #b91c1c;
+}
+
+.live-qa-header-stop-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.live-qa-header-stop-btn:hover {
+  background: #b91c1c;
+  transform: scale(1.02);
+}
+
+@keyframes live-qa-banner-glow {
+  from { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), 0 0 15px rgba(52, 211, 153, 0.2); }
+  to { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), 0 0 28px rgba(52, 211, 153, 0.5); }
+}
+
+/* Virtual Animated Cursor */
+.live-qa-virtual-cursor {
+  position: fixed;
+  z-index: 9999999;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.live-qa-cursor-pointer {
+  position: relative;
+  margin-top: -2px;
+  margin-left: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 2px 2px;
+}
+
+.live-qa-cursor-badge {
+  background: rgba(6, 78, 59, 0.95);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin-top: 8px;
+  backdrop-filter: blur(8px);
+}
+
+/* Click Ripple Ring */
+.live-qa-click-ripple {
+  position: fixed;
+  z-index: 9999998;
+  pointer-events: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid #10b981;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0) 70%);
+  transform: translate(-50%, -50%);
+  animation: live-qa-ripple-expand 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes live-qa-ripple-expand {
+  0% { transform: translate(-50%, -50%) scale(0.15); opacity: 1; border-width: 4px; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; border-width: 1px; }
+}
+
+/* Spotlight pulse on the real button when simulated */
+.live-qa-spotlight {
+  position: relative !important;
+  z-index: 9999 !important;
+  box-shadow: 0 0 0 4px #10b981, 0 0 35px #10b981, inset 0 0 15px rgba(52, 211, 153, 0.3) !important;
+  animation: live-qa-glow 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+@keyframes live-qa-glow {
+  from { transform: scale(1); filter: brightness(1); }
+  to { transform: scale(1.05); filter: brightness(1.15); }
+}
+
+/* Mode Switcher Pill Group inside Controller */
+.live-qa-mode-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.live-qa-mode-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.live-qa-mode-btn.active {
+  background: #059669;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+}
+
+/* Functional Testing Dropdown & Controls */
+.live-qa-select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.live-qa-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  border-radius: 12px;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  transition: all 0.2s ease;
+}
+
+.live-qa-select:hover,
+.live-qa-select:focus {
+  border-color: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+.live-qa-select option {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 8px;
+}
+
+/* Functional Preview Card */
+.live-qa-func-preview {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.live-qa-func-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.live-qa-page-pill {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+/* Repeat Count Controls */
+.live-qa-repeat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-qa-repeat-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.live-qa-repeat-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.live-qa-repeat-btn.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border-color: #34d399;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.live-qa-repeat-input {
+  width: 52px;
+  padding: 6px 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+
+.live-qa-repeat-input:focus {
+  border-color: #34d399;
+}
+
+/* Loop Badge */
+.live-qa-loop-tag {
+  background: #f59e0b;
+  color: #000000;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* Mode Switcher Bar */
+.live-qa-mode-switch-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+}
+
+.live-qa-mode-btn {
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.live-qa-mode-btn:hover {
+  color: #ffffff;
+}
+
+.live-qa-mode-btn.active {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Manual Mode Container */
+.live-qa-manual-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px dashed rgba(56, 189, 248, 0.35);
+  border-radius: 12px;
+}
+
+.live-qa-manual-info {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.live-qa-manual-info b {
+  color: #38bdf8;
+}
+
+.live-qa-recording-badge-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Timeline Trigger Button */
+.live-qa-timeline-trigger-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.5), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 10px;
+  color: #93c5fd;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.live-qa-timeline-trigger-btn:hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.6), rgba(30, 58, 138, 0.8));
+  color: #ffffff;
+  border-color: #60a5fa;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+
+

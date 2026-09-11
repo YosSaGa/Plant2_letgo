@@ -1,0 +1,393 @@
+import { supabase } from '../../lib/supabaseClient';
+
+const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+const thaiDays = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+
+export function formatThaiDate(dateString) {
+  if (!dateString) return '-';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return '-';
+  return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+
+// 1. ดึงสรุปตัวเลขสถิติบนการ์ดด้านบน (Summary Cards)
+export async function fetchAdminSummary() {
+  if (!supabase) {
+    return { totalUsers: 0, userGrowth: '0%', totalPlants: 0, totalDetections: 0 };
+  }
+
+  try {
+    const [usersRes, plantsRes, detectionsRes] = await Promise.all([
+      supabase.from('profiles').select('id, created_at', { count: 'exact' }),
+      supabase.from('user_plants').select('amount'),
+      supabase.from('disease_checks').select('check_id', { count: 'exact', head: true }),
+    ]);
+
+    const totalUsers = usersRes.count || usersRes.data?.length || 0;
+    const totalPlants = (plantsRes.data || []).reduce((sum, item) => sum + Number(item.amount || 1), 0);
+    const totalDetections = detectionsRes.count || 0;
+
+    // คำนวณอัตราการเติบโตของผู้ใช้ (30 วันที่ผ่านมา)
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const recentUsers = (usersRes.data || []).filter((u) => new Date(u.created_at) >= thirtyDaysAgo).length;
+    const userGrowth = totalUsers > 0 ? `+${Math.round((recentUsers / totalUsers) * 100)}%` : '0%';
+
+    return {
+      totalUsers,
+      userGrowth,
+      totalPlants,
+      totalDetections,
+    };
+  } catch (error) {
+    console.error('fetchAdminSummary error:', error);
+    return { totalUsers: 0, userGrowth: '0%', totalPlants: 0, totalDetections: 0 };
+  }
+}
+
+// 2. ดึงแนวโน้มการลงทะเบียนผู้ใช้งานแยกตามช่วงเวลา (7 วัน, 30 วัน, รายเดือน)
+export async function fetchRegistrationSeries() {
+  const defaultSeries = {
+    '7 วัน': [
+      { label: 'จ.', total: 0 }, { label: 'อ.', total: 0 }, { label: 'พ.', total: 0 },
+      { label: 'พฤ.', total: 0 }, { label: 'ศ.', total: 0 }, { label: 'ส.', total: 0 }, { label: 'อา.', total: 0 },
+    ],
+    '30 วัน': [
+      { label: '1-5', total: 0 }, { label: '6-10', total: 0 }, { label: '11-15', total: 0 },
+      { label: '16-20', total: 0 }, { label: '21-25', total: 0 }, { label: '26-30', total: 0 },
+    ],
+    รายเดือน: thaiMonths.slice(-6).map((m) => ({ label: m, total: 0 })),
+  };
+
+  if (!supabase) return defaultSeries;
+
+  try {
+    const { data: users, error } = await supabase
+      .from('profiles')
+      .select('created_at')
+      .order('created_at', { ascending: true });
+
+    if (error || !users || users.length === 0) return defaultSeries;
+
+    const now = new Date();
+
+    // 7 วันล่าสุด: นับตามวันในสัปดาห์ (จันทร์ - อาทิตย์)
+    const weekMap = { 'จ.': 0, 'อ.': 0, 'พ.': 0, 'พฤ.': 0, 'ศ.': 0, 'ส.': 0, 'อา.': 0 };
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // 30 วันล่าสุด: นับแบ่งตามช่วง 5 วัน
+    const monthBins = [
+      { label: '1-5 วัน', min: 0, max: 5, total: 0 },
+      { label: '6-10 วัน', min: 6, max: 10, total: 0 },
+      { label: '11-15 วัน', min: 11, max: 15, total: 0 },
+      { label: '16-20 วัน', min: 16, max: 20, total: 0 },
+      { label: '21-25 วัน', min: 21, max: 25, total: 0 },
+      { label: '26-30 วัน', min: 26, max: 30, total: 0 },
+    ];
+
+    // รายเดือน: ย้อนหลัง 6 เดือน
+    const monthlyMap = {};
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const mLabel = thaiMonths[d.getMonth()];
+      monthlyMap[mLabel] = 0;
+    }
+
+    users.forEach((user) => {
+      if (!user.created_at) return;
+      const uDate = new Date(user.created_at);
+
+      // สำหรับ 7 วัน
+      if (uDate >= sevenDaysAgo) {
+        const dayName = thaiDays[uDate.getDay()];
+        if (weekMap[dayName] !== undefined) weekMap[dayName]++;
+      }
+
+      // สำหรับ 30 วัน
+      const diffDays = Math.floor((now.getTime() - uDate.getTime()) / (24 * 60 * 60 * 1000));
+      if (diffDays >= 0 && diffDays <= 30) {
+        const bin = monthBins.find((b) => diffDays >= b.min && diffDays <= b.max);
+        if (bin) bin.total++;
+      }
+
+      // สำหรับรายเดือน
+      const monthLabel = thaiMonths[uDate.getMonth()];
+      if (monthlyMap[monthLabel] !== undefined) {
+        monthlyMap[monthLabel]++;
+      }
+    });
+
+    return {
+      '7 วัน': Object.keys(weekMap).map((label) => ({ label, total: weekMap[label] })),
+      '30 วัน': monthBins.map((b) => ({ label: b.label, total: b.total })),
+      รายเดือน: Object.keys(monthlyMap).map((label) => ({ label, total: monthlyMap[label] })),
+    };
+  } catch (err) {
+    console.error('fetchRegistrationSeries error:', err);
+    return defaultSeries;
+  }
+}
+
+// 3. ดึงอันดับโรคพืชที่พบบ่อยจากตาราง disease_checks
+export async function fetchDiseaseRankings() {
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('disease_checks')
+      .select('detected_disease');
+
+    if (error || !data || data.length === 0) return [];
+
+    const frequencyMap = {};
+    data.forEach((row) => {
+      const disease = row.detected_disease?.trim() || 'ไม่ระบุชื่อโรค';
+      frequencyMap[disease] = (frequencyMap[disease] || 0) + 1;
+    });
+
+    return Object.entries(frequencyMap)
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  } catch (err) {
+    console.error('fetchDiseaseRankings error:', err);
+    return [];
+  }
+}
+
+// 4. ดึงสถิติพืชแยกตามชนิดและวิธีปลูกจาก user_plants + plant_master
+export async function fetchPlantStatistics() {
+  const defaultResult = {
+    plantTotals: [],
+    plantingMethods: [
+      { name: 'กระถาง', value: 0, total: 0, color: '#10b981' },
+      { name: 'ลงดิน', value: 0, total: 0, color: '#84cc16' },
+    ],
+  };
+
+  if (!supabase) return defaultResult;
+
+  try {
+    const [userPlantsRes, mastersRes] = await Promise.all([
+      supabase.from('user_plants').select('amount, planting_method, plant_id, plant_master(name_th)'),
+      supabase.from('plant_master').select('plant_id, name_th'),
+    ]);
+
+    const userPlants = userPlantsRes.data || [];
+    const masters = mastersRes.data || [];
+
+    // แผนที่ชื่อพืช
+    const masterMap = {};
+    masters.forEach((m) => {
+      masterMap[m.plant_id] = m.name_th;
+    });
+
+    // 4.1 รวมจำนวนพืชแยกตามชนิด
+    const typeCounts = {};
+    masters.forEach((m) => {
+      typeCounts[m.name_th] = 0;
+    });
+
+    let potCount = 0;
+    let groundCount = 0;
+
+    userPlants.forEach((item) => {
+      const name = item.plant_master?.name_th || masterMap[item.plant_id] || 'พืชอื่น ๆ';
+      const amt = Number(item.amount || 1);
+      typeCounts[name] = (typeCounts[name] || 0) + amt;
+
+      if (item.planting_method === 'ลงดิน') {
+        groundCount += amt;
+      } else {
+        potCount += amt;
+      }
+    });
+
+    const plantTotals = Object.entries(typeCounts)
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+
+    const totalMethods = potCount + groundCount;
+    const potPercent = totalMethods > 0 ? Math.round((potCount / totalMethods) * 100) : 0;
+    const groundPercent = totalMethods > 0 ? 100 - potPercent : 0;
+
+    const plantingMethods = [
+      { name: 'กระถาง', value: potPercent, total: potCount, color: '#10b981' },
+      { name: 'ลงดิน', value: groundPercent, total: groundCount, color: '#84cc16' },
+    ];
+
+    return { plantTotals, plantingMethods };
+  } catch (err) {
+    console.error('fetchPlantStatistics error:', err);
+    return defaultResult;
+  }
+}
+
+// 5. ดึงรายชื่อผู้ใช้งานจริงทั้งหมด (สำหรับหน้า /admin/users)
+export async function fetchAdminUsersList() {
+  if (!supabase) return [];
+
+  try {
+    const [usersRes, plantsRes, checksRes] = await Promise.all([
+      supabase.from('profiles').select('id, display_name, email, role, province, district, created_at').order('created_at', { ascending: false }),
+      supabase.from('user_plants').select('user_id, amount'),
+      supabase.from('disease_checks').select('user_id'),
+    ]);
+
+    const users = usersRes.data || [];
+    const plants = plantsRes.data || [];
+    const checks = checksRes.data || [];
+
+    const plantCountMap = {};
+    plants.forEach((p) => {
+      if (p.user_id) plantCountMap[p.user_id] = (plantCountMap[p.user_id] || 0) + Number(p.amount || 1);
+    });
+
+    const checkCountMap = {};
+    checks.forEach((c) => {
+      if (c.user_id) checkCountMap[c.user_id] = (checkCountMap[c.user_id] || 0) + 1;
+    });
+
+    return users.map((u) => [
+      u.display_name || u.email?.split('@')[0] || 'ผู้ใช้งาน',
+      u.email || '-',
+      formatThaiDate(u.created_at),
+      `${plantCountMap[u.id] || 0} ต้น`,
+      `${checkCountMap[u.id] || 0} ครั้ง`,
+    ]);
+  } catch (err) {
+    console.error('fetchAdminUsersList error:', err);
+    return [];
+  }
+}
+
+// 6. ดึงบันทึกการปลูกพืชจริง (สำหรับหน้า /admin/plants หรือ tab พืช)
+export async function fetchAdminPlantsList() {
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('user_plants')
+      .select('user_plant_id, growth_stage, planting_method, pot_size, amount, planted_date, plant_master(name_th, icon), profiles(display_name, email)')
+      .order('planted_date', { ascending: false });
+
+    if (error || !data) return [];
+
+    return data.map((item) => {
+      const plantName = item.plant_master?.name_th ? `${item.plant_master.icon || '🌱'} ${item.plant_master.name_th}` : 'พืชไม่ระบุ';
+      const ownerName = item.profiles?.display_name || item.profiles?.email || 'ผู้ใช้ทั่วไป';
+      const method = item.planting_method === 'กระถาง' && item.pot_size ? `กระถาง ${item.pot_size}` : (item.planting_method || 'กระถาง');
+      return [
+        plantName,
+        ownerName,
+        method,
+        item.growth_stage || 'ต้นกล้า',
+        formatThaiDate(item.planted_date),
+      ];
+    });
+  } catch (err) {
+    console.error('fetchAdminPlantsList error:', err);
+    return [];
+  }
+}
+
+// 7. ดึงรายงานประวัติการตรวจโรคพืชจริง (สำหรับหน้า /admin/disease-reports)
+export async function fetchAdminDiseaseReports() {
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('disease_checks')
+      .select('check_id, detected_disease, confidence_score, checked_at, plant_master(name_th), profiles(display_name, email)')
+      .order('checked_at', { ascending: false });
+
+    if (error || !data) return [];
+
+    return data.map((item) => {
+      const plantName = item.plant_master?.name_th || 'พืชที่ตรวจ';
+      const diseaseName = item.detected_disease || 'ไม่พบโรค/ปกติ';
+      const confidence = item.confidence_score ? `${Math.round(item.confidence_score * (item.confidence_score <= 1 ? 100 : 1))}%` : '85%';
+      const severity = item.confidence_score > 0.8 ? 'สูง' : item.confidence_score > 0.5 ? 'ปานกลาง' : 'ต่ำ';
+      return [
+        plantName,
+        diseaseName,
+        severity,
+        confidence,
+        formatThaiDate(item.checked_at),
+      ];
+    });
+  } catch (err) {
+    console.error('fetchAdminDiseaseReports error:', err);
+    return [];
+  }
+}
+
+// 8. CRUD สำหรับจัดการข้อมูลพืชกลาง (plant_master)
+export async function fetchPlantMasterList() {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('plant_master')
+    .select('*')
+    .order('plant_id', { ascending: true });
+
+  if (error) {
+    console.error('fetchPlantMasterList error:', error);
+    return [];
+  }
+
+  return (data || []).map((p) => ({
+    id: p.plant_id,
+    emoji: p.icon || '🌱',
+    name: p.name_th,
+    nameEn: p.name_en,
+    category: p.category || 'ผักสวนครัว',
+    scientificName: p.scientific_name || '',
+    status: 'เปิดใช้งาน',
+  }));
+}
+
+export async function insertPlantMaster(plant) {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('plant_master')
+    .insert({
+      name_th: plant.name,
+      name_en: plant.nameEn || plant.name,
+      scientific_name: plant.scientificName || '-',
+      category: plant.category || 'พืชผักสวนครัวยอดนิยม',
+      icon: plant.emoji || '🌱',
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updatePlantMaster(id, plant) {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('plant_master')
+    .update({
+      name_th: plant.name,
+      name_en: plant.nameEn || plant.name,
+      scientific_name: plant.scientificName || '-',
+      category: plant.category,
+      icon: plant.emoji,
+    })
+    .eq('plant_id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deletePlantMaster(id) {
+  if (!supabase) return;
+  const { error } = await supabase
+    .from('plant_master')
+    .delete()
+    .eq('plant_id', id);
+
+  if (error) throw error;
+}

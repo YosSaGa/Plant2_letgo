@@ -1,524 +1,1389 @@
+/* Fonts loaded via index.html preconnect */
+
+/* ==========================================================================
+   WEATHER & ENVIRONMENT SCENE (Clean Botanical & Cozy Natural Garden)
+   ========================================================================== */
+
 .wx-root {
   position: fixed;
   inset: 0;
   overflow: hidden;
   font-family: 'Sarabun', sans-serif;
-  color: #1c1917;
+  color: #1e293b;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
-.wx-root * { box-sizing: border-box; }
-.wx-display { font-family: 'Kanit', 'Sarabun', sans-serif; }
+
+.wx-root * {
+  box-sizing: border-box;
+}
+
+.wx-display {
+  font-family: 'Kanit', sans-serif;
+}
+
+/* ---------- TOP NAVIGATION & HUD ---------- */
+.wx-top-nav {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
 
 .wx-back-btn {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 30;
-  background: rgba(255,255,255,0.85);
-  border: none;
-  border-radius: 999px;
-  padding: 0.6rem 1.2rem;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 9999px;
+  padding: 0.6rem 1.15rem;
   font-family: 'Kanit', sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #065f46;
+  color: #064e3b;
   cursor: pointer;
-  box-shadow: 0 4px 14px -4px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+.wx-back-btn:hover {
+  background: rgba(255, 255, 255, 0.98);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.16);
+  color: #047857;
+}
+
+.wx-weather-hud-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 9999px;
+  padding: 0.45rem 1rem 0.45rem 0.65rem;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.wx-weather-hud-pill:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+}
+
+.wx-hud-icon-wrap {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.wx-hud-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.wx-hud-title {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.wx-hud-meta {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   ATMOSPHERIC SKY (Cinematic, Soft, Harmonious)
+   ========================================================================== */
 
 .wx-sky {
   position: absolute;
   inset: 0;
-  transition: background 1.2s ease;
   overflow: hidden;
+  transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ---------- ฉากต่างๆ ---------- */
-.wx-scene-day .wx-sky { background: linear-gradient(180deg, #7dd3fc 0%, #bae6fd 45%, #e0f2fe 100%); }
-.wx-scene-hot .wx-sky { background: linear-gradient(180deg, #fb923c 0%, #fdba74 40%, #fef3c7 100%); }
-.wx-scene-cloudy .wx-sky { background: linear-gradient(180deg, #94a3b8 0%, #cbd5e1 45%, #e2e8f0 100%); }
-.wx-scene-rain .wx-sky { background: linear-gradient(180deg, #334155 0%, #475569 45%, #64748b 100%); }
-.wx-scene-evening .wx-sky { background: linear-gradient(180deg, #0f172a 0%, #1e293b 45%, #334155 100%); }
+/* --- DAY --- */
+.wx-scene-day .wx-sky {
+  background: radial-gradient(circle at 75% 20%, rgba(254, 240, 138, 0.35) 0%, transparent 45%),
+              linear-gradient(180deg, #60a5fa 0%, #93c5fd 32%, #dbeafe 70%, #fef3c7 100%);
+}
 
-/* ---------- พระอาทิตย์ ---------- */
-.wx-sun {
+/* --- HOT --- */
+.wx-scene-hot .wx-sky {
+  background: radial-gradient(circle at 75% 20%, rgba(254, 215, 170, 0.5) 0%, transparent 50%),
+              linear-gradient(180deg, #f97316 0%, #fb923c 30%, #fed7aa 70%, #fef3c7 100%);
+}
+
+/* --- CLOUDY --- */
+.wx-scene-cloudy .wx-sky {
+  background: radial-gradient(circle at 50% 25%, rgba(241, 245, 249, 0.4) 0%, transparent 55%),
+              linear-gradient(180deg, #64748b 0%, #94a3b8 35%, #cbd5e1 70%, #f1f5f9 100%);
+}
+
+/* --- RAIN --- */
+.wx-scene-rain .wx-sky {
+  background: radial-gradient(circle at 45% 20%, rgba(100, 116, 139, 0.3) 0%, transparent 55%),
+              linear-gradient(180deg, #1e293b 0%, #334155 35%, #475569 70%, #64748b 100%);
+}
+
+/* --- EVENING / NIGHT --- */
+.wx-scene-evening .wx-sky {
+  background: radial-gradient(circle at 75% 20%, rgba(199, 210, 254, 0.25) 0%, transparent 50%),
+              linear-gradient(180deg, #090d16 0%, #111827 30%, #1e1b4b 65%, #312e81 90%, #3730a3 100%);
+}
+
+/* ==========================================================================
+   CELESTIAL LIGHTING (Soft Sun & Glowing Moon)
+   ========================================================================== */
+
+/* --- Gentle Sun --- */
+.wx-sun-container {
   position: absolute;
-  top: 12%;
-  right: 15%;
-  width: 6.5rem;
-  height: 6.5rem;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #fef9c3, #fbbf24 70%);
-  box-shadow: 0 0 70px 20px rgba(251,191,36,0.55);
-}
-.wx-sun-hot {
-  background: radial-gradient(circle at 35% 35%, #fef08a, #f97316 75%);
-  box-shadow: 0 0 90px 30px rgba(249,115,22,0.6);
+  top: 9%;
+  right: 14%;
+  width: 8rem;
+  height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
-/* ---------- พระจันทร์ + ดาว ---------- */
-.wx-moon {
+.wx-sun-glow {
   position: absolute;
-  top: 10%;
-  right: 15%;
-  width: 5rem;
-  height: 5rem;
+  inset: -1.5rem;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #f8fafc, #cbd5e1 75%);
-  box-shadow: 0 0 50px 14px rgba(226,232,240,0.35);
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.45) 0%, rgba(251, 191, 36, 0.15) 55%, transparent 75%);
+  filter: blur(14px);
+  animation: sunGlowPulse 5s ease-in-out infinite alternate;
 }
+
+.wx-sun-core {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fef08a 35%, #fbbf24 80%, #f59e0b 100%);
+  box-shadow: 0 0 45px 14px rgba(251, 191, 36, 0.6),
+              0 0 90px 30px rgba(245, 158, 11, 0.25);
+}
+
+.wx-scene-hot .wx-sun-core {
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fef08a 25%, #f97316 75%, #ea580c 100%);
+  box-shadow: 0 0 60px 20px rgba(249, 115, 22, 0.7),
+              0 0 110px 45px rgba(234, 88, 12, 0.35);
+}
+
+@keyframes sunGlowPulse {
+  0% { transform: scale(0.95); opacity: 0.85; }
+  100% { transform: scale(1.08); opacity: 1; }
+}
+
+/* --- Moon --- */
+.wx-moon-container {
+  position: absolute;
+  top: 9%;
+  right: 15%;
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.wx-moon-halo {
+  position: absolute;
+  inset: -1.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(199, 210, 254, 0.35) 0%, rgba(165, 180, 252, 0.1) 60%, transparent 80%);
+  filter: blur(12px);
+}
+
+.wx-moon-core {
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f1f5f9 45%, #cbd5e1 80%, #94a3b8 100%);
+  box-shadow: 0 0 40px 10px rgba(226, 232, 240, 0.45);
+}
+
+/* --- Stars --- */
 .wx-star {
   position: absolute;
   border-radius: 50%;
-  background: #f8fafc;
+  background: #ffffff;
+  pointer-events: none;
+  box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.8);
 }
 
-/* ---------- เมฆ ---------- */
-.wx-cloud { position: absolute; left: 0; }
-.wx-cloud-shape {
-  position: relative;
-  display: block;
-  width: 5.5rem;
-  height: 2rem;
-  background: rgba(255,255,255,0.9);
-  border-radius: 999px;
+/* --- Fireflies (หิ่งห้อยค่ำคืน) --- */
+.wx-firefly {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #bef264;
+  box-shadow: 0 0 10px 3px #a3e635, 0 0 20px 6px rgba(163, 230, 53, 0.45);
+  pointer-events: none;
+  animation: fireflyFloat 6s infinite ease-in-out;
 }
-.wx-cloud-shape::before,
-.wx-cloud-shape::after {
+
+@keyframes fireflyFloat {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
+  25% { transform: translate(20px, -25px) scale(1.2); opacity: 0.95; }
+  50% { transform: translate(-15px, -50px) scale(0.85); opacity: 0.4; }
+  75% { transform: translate(20px, -30px) scale(1.1); opacity: 0.9; }
+  100% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
+}
+
+/* --- Sun Dust --- */
+.wx-sun-dust {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 6px 2px rgba(254, 240, 138, 0.7);
+  pointer-events: none;
+  animation: sunDustDrift 9s infinite linear;
+}
+
+@keyframes sunDustDrift {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-100px) translateX(30px) scale(1); opacity: 0; }
+}
+
+/* ==========================================================================
+   PARTICLES (Clouds, Rain, Heat Haze)
+   ========================================================================== */
+
+/* --- Clouds --- */
+.wx-cloud-wrapper {
+  position: absolute;
+  pointer-events: none;
+}
+
+.wx-cloud-body {
+  position: relative;
+  width: 130px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.08);
+}
+
+.wx-cloud-body::before,
+.wx-cloud-body::after {
   content: '';
   position: absolute;
-  background: rgba(255,255,255,0.9);
+  background: inherit;
   border-radius: 50%;
 }
-.wx-cloud-shape::before { width: 2.6rem; height: 2.6rem; top: -1.2rem; left: 0.6rem; }
-.wx-cloud-shape::after { width: 2rem; height: 2rem; top: -0.8rem; left: 3rem; }
-.wx-scene-cloudy .wx-cloud-shape,
-.wx-scene-cloudy .wx-cloud-shape::before,
-.wx-scene-cloudy .wx-cloud-shape::after { background: rgba(226,232,240,0.9); }
-.wx-scene-rain .wx-cloud-shape,
-.wx-scene-rain .wx-cloud-shape::before,
-.wx-scene-rain .wx-cloud-shape::after { background: rgba(71,85,105,0.85); }
 
-/* ---------- ฝน ---------- */
+.wx-cloud-body::before {
+  width: 58px;
+  height: 58px;
+  top: -26px;
+  left: 18px;
+}
+
+.wx-cloud-body::after {
+  width: 45px;
+  height: 45px;
+  top: -18px;
+  right: 20px;
+}
+
+.wx-scene-cloudy .wx-cloud-body {
+  background: rgba(226, 232, 240, 0.92);
+  box-shadow: 0 12px 28px -6px rgba(30, 41, 59, 0.2);
+}
+
+.wx-scene-rain .wx-cloud-body {
+  background: rgba(71, 85, 105, 0.9);
+  box-shadow: 0 14px 30px -8px rgba(15, 23, 42, 0.4);
+}
+
+/* --- Raindrops --- */
 .wx-raindrop {
   position: absolute;
-  top: 0;
+  top: -20px;
   width: 2px;
-  height: 1.4rem;
-  background: linear-gradient(180deg, rgba(224,242,254,0), rgba(224,242,254,0.85));
+  height: 24px;
+  background: linear-gradient(180deg, transparent 0%, rgba(186, 230, 253, 0.85) 100%);
   border-radius: 999px;
+  transform: rotate(10deg);
+  pointer-events: none;
 }
 
-/* ---------- คลื่นความร้อน ---------- */
-.wx-heat-haze {
+/* --- Heat Shimmer --- */
+.wx-heat-shimmer {
   position: absolute;
-  bottom: 18%;
-  left: 0;
-  right: 0;
-  height: 30%;
-  background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.5));
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, 
+    transparent 50%, 
+    rgba(254, 215, 170, 0.08) 70%, 
+    rgba(251, 146, 60, 0.16) 90%, 
+    transparent 100%
+  );
+  animation: heatWiggle 2.5s infinite ease-in-out;
 }
 
-/* ---------- พื้นดิน ---------- */
-.wx-ground {
+@keyframes heatWiggle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
+}
+
+/* ==========================================================================
+   GENTLE MEADOW LANDSCAPE (Natural, Relaxing, Rolling Hills)
+   ========================================================================== */
+
+.wx-landscape-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* --- Distant Mountain Ridges --- */
+.wx-layer-distant-mountains {
+  position: absolute;
+  bottom: 22%;
+  left: -5%;
+  width: 110%;
+  height: 30%;
+  opacity: 0.55;
+}
+
+/* --- Midground Gentle Hill --- */
+.wx-midground-hill {
+  position: absolute;
+  bottom: 14%;
+  left: -15%;
+  width: 130%;
+  height: 18%;
+  border-radius: 60% 40% 0 0 / 40% 40% 0 0;
+  background: linear-gradient(180deg, rgba(132, 204, 22, 0.35) 0%, rgba(77, 124, 15, 0.45) 100%);
+  filter: blur(2px);
+}
+
+.wx-scene-evening .wx-midground-hill {
+  background: linear-gradient(180deg, rgba(30, 58, 138, 0.35) 0%, rgba(15, 23, 42, 0.6) 100%);
+}
+
+/* --- Butterfly --- */
+.wx-butterfly-actor {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1.5rem;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.18));
+  animation: butterflyFlight 12s infinite ease-in-out alternate;
+  z-index: 15;
+}
+
+@keyframes butterflyFlight {
+  0% { transform: translate(0, 0) rotate(8deg); }
+  35% { transform: translate(-45px, -35px) rotate(-10deg); }
+  70% { transform: translate(35px, -65px) rotate(6deg); }
+  100% { transform: translate(45px, -30px) rotate(12deg); }
+}
+
+/* ==========================================================================
+   FOREGROUND GROUND STAGE & PLANT
+   ========================================================================== */
+
+.wx-ground-stage {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 42%;
+  height: 40%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* Natural Rolling Meadow (Smooth, Clean, Organic) */
+.wx-main-mound {
+  position: absolute;
+  bottom: -4rem;
+  left: -10%;
+  right: -10%;
+  height: 14rem;
+  border-radius: 75% 75% 0 0 / 35% 35% 0 0;
+  background: linear-gradient(180deg, #65a30d 0%, #4d7c0f 30%, #365314 70%, #1a2e05 100%);
+  box-shadow: inset 0 6px 18px rgba(255, 255, 255, 0.22),
+              0 -10px 30px rgba(0, 0, 0, 0.1);
+  transition: background 1.5s ease;
+}
+
+.wx-scene-hot .wx-main-mound {
+  background: linear-gradient(180deg, #84cc16 0%, #65a30d 30%, #3f6212 70%, #1a2e05 100%);
+}
+
+.wx-scene-cloudy .wx-main-mound {
+  background: linear-gradient(180deg, #4d7c0f 0%, #3f6212 35%, #273e0b 75%, #142006 100%);
+}
+
+.wx-scene-rain .wx-main-mound {
+  background: linear-gradient(180deg, #273e0b 0%, #1a2e05 35%, #142006 75%, #0d1504 100%);
+}
+
+.wx-scene-evening .wx-main-mound {
+  background: linear-gradient(180deg, #1e3a08 0%, #142805 35%, #0d1c03 75%, #050b01 100%);
+}
+
+/* --- Plant Pedestal & Cartoon Plant --- */
+.wx-plant-pedestal {
+  position: relative;
+  z-index: 25;
+  margin-bottom: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Soft ground shadow under plant */
+.wx-pot-ground-shadow {
+  width: 9rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.08) 60%, transparent 80%);
+  margin-top: -1rem;
+}
+
+/* Plant Breathing Aura */
+.wx-plant-aura {
+  position: absolute;
+  bottom: 3.5rem;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167, 243, 208, 0.3) 0%, transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+  animation: auraGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes auraGlow {
+  0% { transform: scale(0.9); opacity: 0.35; }
+  100% { transform: scale(1.15); opacity: 0.75; }
+}
+
+/* Cartoon Potted Plant Image */
+.wx-plant-sprite-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.wx-cartoon-plant-img {
+  width: min(72vw, 16.5rem);
+  max-height: 20rem;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.22));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: block;
+}
+
+.wx-cartoon-plant-img:hover {
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .wx-cartoon-plant-img {
+    width: 19rem;
+    max-height: 24rem;
+  }
+  .wx-pot-ground-shadow {
+    width: 11.5rem;
+    height: 2.2rem;
+  }
+}
+
+/* ==========================================================================
+   SEED GAME (Artisan Wooden Planter Tray)
+   ========================================================================== */
+
+.wx-seed-game {
+  position: relative;
+  z-index: 25;
+  margin-bottom: 4.5rem;
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
-.wx-ground-mound {
-  position: absolute;
-  bottom: -6rem;
-  left: -10%;
-  right: -10%;
-  height: 12rem;
-  background: linear-gradient(180deg, #4d7c0f, #365314);
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-}
-.wx-scene-evening .wx-ground-mound,
-.wx-scene-rain .wx-ground-mound { background: linear-gradient(180deg, #1a2e05, #14290a); }
 
-/* ---------- ต้นไม้ ---------- */
-.wx-plant-wrap {
+.wx-wooden-tray {
+  background: linear-gradient(180deg, #78350f 0%, #582408 100%);
+  border: 3px solid #92400e;
+  border-radius: 1.5rem;
+  padding: 1.1rem 1.6rem 1rem;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.4),
+              inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.wx-tray-header {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fef3c7;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.wx-soil-holes-row {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+}
+
+.wx-soil-hole {
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, #23140a 0%, #120904 85%);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.8),
+              0 2px 4px rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   position: relative;
-  z-index: 10;
-  margin-bottom: 4.5rem;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wx-soil-hole:hover:not(:disabled) {
+  transform: scale(1.12);
+}
+
+.wx-soil-hole:disabled {
+  cursor: default;
+}
+
+.wx-seed-sprout-success {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.wx-plant-emoji {
-  font-size: 6.5rem;
-  filter: drop-shadow(0 12px 18px rgba(0,0,0,0.25));
-  line-height: 1;
-}
-.wx-pot {
-  width: 4.5rem;
-  height: 2.4rem;
-  margin-top: -0.4rem;
-  background: linear-gradient(180deg, #b45309, #78350f);
-  clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+
+.wx-sprout-icon {
+  font-size: 5.5rem;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.25));
 }
 
-/* Seed stage: this is intentionally placed inside the original sky-and-ground scene. */
-.wx-seed-game {
-  position: relative;
-  z-index: 12;
-  margin-bottom: 3.8rem;
-  min-width: 17rem;
-  min-height: 12rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-.wx-sowing-soil { text-align: center; }
-.wx-sowing-label {
-  display: inline-block;
-  margin-bottom: 0.45rem;
-  color: #fef3c7;
+.wx-sprout-badge {
+  margin-top: 0.5rem;
+  background: rgba(236, 253, 245, 0.95);
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  padding: 0.45rem 1.25rem;
+  border-radius: 9999px;
   font-family: 'Kanit', sans-serif;
-  font-size: 0.9rem;
   font-weight: 600;
-  text-shadow: 0 1px 4px rgba(0,0,0,.3);
-}
-.wx-soil-bed {
-  width: 14.5rem;
-  height: 4.5rem;
-  border-radius: 50% 50% 1rem 1rem;
-  background: linear-gradient(180deg, #a16238 0 18%, #704323 20%, #4a2b17 100%);
-  box-shadow: inset 0 .55rem rgba(222, 174, 112, .45), 0 .5rem .9rem rgba(0,0,0,.18);
-  position: relative;
-}
-.wx-soil-bed i { position: absolute; width: .7rem; height: .3rem; background: #2e1b10; border-radius: 50%; top: 1.2rem; }
-.wx-soil-bed i:nth-child(1) { left: 22%; }.wx-soil-bed i:nth-child(2) { left: 49%; top: 2.1rem; }.wx-soil-bed i:nth-child(3) { right: 19%; top: 1.45rem; }
-.wx-seed-actions { display: flex; justify-content: center; gap: 1rem; margin: -7.2rem 0 4.2rem; min-height: 2.5rem; }
-.wx-seed-actions button { border: none; background: transparent; cursor: pointer; font-size: 1.75rem; padding: 0; filter: drop-shadow(0 3px 2px rgba(0,0,0,.2)); }
-.wx-seed-actions button:disabled { cursor: default; }
-.wx-sowing-soil small { color: #fef3c7; font-size: .75rem; text-shadow: 0 1px 3px rgba(0,0,0,.35); }
-.wx-seed-sprout { font-size: 5rem; line-height: 1; text-align: center; filter: drop-shadow(0 10px 10px rgba(0,0,0,.18)); }
-.wx-seed-sprout p { margin: .6rem -3.5rem 0; padding: .45rem .8rem; border-radius: 999px; color: #166534; background: rgba(236,253,245,.94); font-family: 'Kanit', sans-serif; font-size: .8rem; font-weight: 600; white-space: nowrap; }
-
-@media (min-width: 768px) {
-  .wx-plant-emoji { font-size: 8.5rem; }
-  .wx-pot { width: 6rem; height: 3rem; }
+  font-size: 0.88rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* ---------- การ์ดข้อมูลด้านล่าง ---------- */
-/* ---------- การ์ดข้อมูลด้านล่าง (ปรับให้เป็น Popup Overlay) ---------- */
+/* ==========================================================================
+   FLOATING BOTTOM BAR & INFO MODAL
+   ========================================================================== */
+
+.wx-bottom-bar {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.wx-view-info-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 9999px;
+  padding: 0.75rem 1.4rem;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #064e3b;
+  cursor: pointer;
+  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.18);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wx-view-info-btn:hover {
+  background: rgba(255, 255, 255, 0.98);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.24);
+  color: #047857;
+}
+
+.wx-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* ==========================================================================
+   GLASSMORPHISM INFO CARD & BOTTOM SHEET
+   ========================================================================== */
+
 .wx-info-overlay {
   position: fixed;
   inset: 0;
-  z-index: 40;
-  background: rgba(15, 23, 42, 0.2);
-  backdrop-filter: blur(3px);
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 2rem;
+  padding: 1.25rem;
 }
 
 .wx-info-card {
   position: relative;
-  width: min(92%, 32rem);
-  background: rgba(255,255,255,0.95);
-  border-radius: 1.75rem;
-  padding: 1.25rem 1.5rem;
-  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35);
-  z-index: 50;
+  width: min(100%, 34rem);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 2rem;
+  padding: 1.6rem 1.75rem;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.35);
+  z-index: 55;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.wx-info-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.wx-info-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.wx-info-emoji-badge {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);
+}
+
+.wx-info-names h2 {
+  margin: 0;
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #064e3b;
+  line-height: 1.2;
+}
+
+.wx-info-badge-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.wx-scene-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #ecfdf5;
+  color: #047857;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
 }
 
 .wx-close-card-btn {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  background: #f1f5f9;
-  border: none;
+  width: 2.2rem;
+  height: 2.2rem;
   border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
-  font-size: 1rem;
-  font-weight: bold;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wx-close-card-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+.wx-info-desc {
+  margin: 0 0 1.2rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+/* --- STATS GRID --- */
+.wx-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1.1rem;
+}
+
+.wx-stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.wx-stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.wx-stat-icon-wrapper {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wx-stat-icon-temp {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #ffedd5;
+}
+
+.wx-stat-icon-humidity {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #e0f2fe;
+}
+
+.wx-stat-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.wx-stat-title {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.wx-stat-number {
+  font-family: 'Kanit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.wx-humidity-track {
+  width: 100%;
+  height: 0.38rem;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  margin-top: 0.4rem;
+  overflow: hidden;
+}
+
+.wx-humidity-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+/* --- WATER CARD --- */
+.wx-water-card {
+  border-radius: 1.25rem;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.1rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid;
+}
+
+.wx-water-normal {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #86efac;
+}
+
+.wx-water-increase {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-color: #fdba74;
+}
+
+.wx-water-decrease {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+}
+
+.wx-water-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wx-water-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.wx-formula-trigger-btn {
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #065f46;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
 }
-.wx-close-card-btn:hover { background: #e2e8f0; color: #0f172a; }
 
-/* ---------- ปุ่มเปิดข้อมูลต้นไม้ (ย้ายมาซ้ายล่าง) ---------- */
-.wx-view-info-btn {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem; /* ย้ายมาอยู่ซ้ายล่างตามที่ต้องการ */
-  z-index: 30;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  padding: 0.75rem 1.25rem;
-  font-family: 'Kanit', sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #065f46;
-  cursor: pointer;
-  box-shadow: 0 8px 20px -6px rgba(0,0,0,0.25);
+.wx-formula-trigger-btn:hover {
+  transform: scale(1.1);
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.wx-water-metric-row {
   display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0.35rem;
+}
+
+.wx-water-amount {
+  font-family: 'Kanit', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #064e3b;
+  line-height: 1;
+}
+
+.wx-water-unit {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.wx-water-advice-badge {
+  display: inline-flex;
   align-items: center;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+.wx-advice-normal { color: #047857; }
+.wx-advice-increase { color: #c2410c; }
+.wx-advice-decrease { color: #0369a1; }
+
+/* --- Plant Meta Tags --- */
+.wx-meta-tags-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-/* ---------- ของตกแต่ง (ไม่ให้ฉากโล่ง) ---------- */
-.wx-decor-layer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  pointer-events: none; /* ไม่ให้กั้นการคลิก */
-}
-
-.wx-decor-item {
-  position: absolute;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
-}
-
-.wx-grass-line {
-  position: absolute;
-  bottom: -0.5rem;
-  left: 0;
-  right: 0;
-  font-size: 2.2rem;
-  line-height: 1;
-  white-space: nowrap;
-  text-align: center;
-  overflow: hidden;
-  opacity: 0.9;
-  letter-spacing: -4px;
-}
-
-.wx-butterfly {
-  animation: float-fly 8s infinite alternate ease-in-out;
-}
-
-@keyframes float-fly {
-  0% { transform: translate(0, 0) rotate(-10deg); }
-  50% { transform: translate(-40px, -30px) rotate(10deg); }
-  100% { transform: translate(30px, -50px) rotate(-5deg); }
-}
-.wx-info-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-.wx-info-top h2 { margin: 0; font-size: 1.35rem; font-weight: 600; color: #064e3b; }
-.wx-scene-chip {
+.wx-meta-tag {
+  background: #f1f5f9;
+  color: #334155;
+  border-radius: 9999px;
+  padding: 0.3rem 0.8rem;
   font-size: 0.8rem;
   font-weight: 500;
-  background: #ecfdf5;
-  color: #047857;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.wx-info-desc { margin: 0.5rem 0 0.85rem; font-size: 0.9rem; color: #57534e; }
-
-/* ---------- สถิติอากาศ (อุณหภูมิ + ความชื้น จริงจาก OpenWeather) ---------- */
-.wx-stats-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 0.9rem;
-}
-.wx-stat-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  padding: 0.65rem 0.85rem;
-}
-.wx-stat-icon { font-size: 1.4rem; flex-shrink: 0; }
-.wx-stat-body { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0; }
-.wx-stat-label { font-size: 0.72rem; color: #78716c; font-weight: 500; }
-.wx-stat-value { font-family: 'Kanit', sans-serif; font-size: 1.05rem; font-weight: 600; color: #022c22; }
-.wx-humidity-bar {
-  width: 100%;
-  height: 0.35rem;
-  border-radius: 999px;
-  background: #e2e8f0;
-  overflow: hidden;
-  margin-top: 0.2rem;
-}
-.wx-humidity-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
 }
 
-.wx-info-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  font-size: 0.82rem;
-  color: #059669;
-  font-weight: 500;
-}
+/* ==========================================================================
+   FORMULA MODAL
+   ========================================================================== */
 
-/* ---------- ใหม่: คำแนะนำปริมาณน้ำ (ในการ์ดข้อมูลด้านล่าง) ---------- */
-.wx-water-section {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  padding: 0.75rem 0.9rem;
-  margin-bottom: 0.9rem;
-}
-.wx-water-increase { border-left: 3px solid #f97316; }
-.wx-water-decrease { border-left: 3px solid #0ea5e9; }
-.wx-water-normal { border-left: 3px solid #10b981; }
-
-.wx-water-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-.wx-water-label { font-size: 0.78rem; font-weight: 600; color: #78716c; }
-
-.wx-info-btn {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 999px;
-  border: 1.5px solid #a7f3d0;
-  background: #ecfdf5;
-  color: #047857;
-  font-family: 'Kanit', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-.wx-info-btn:hover { background: #d1fae5; border-color: #6ee7b7; }
-
-.wx-water-value {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: #022c22;
-  line-height: 1;
-  margin-top: 0.4rem;
-}
-.wx-water-value span { font-size: 0.78rem; font-weight: 500; color: #78716c; margin-left: 0.3rem; }
-
-.wx-water-advice {
-  margin: 0.35rem 0 0;
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-.wx-water-advice-increase { color: #c2410c; }
-.wx-water-advice-decrease { color: #0369a1; }
-.wx-water-advice-normal { color: #047857; }
-
-/* ---------- ใหม่: Popup อธิบายสูตรคำนวณน้ำ ---------- */
 .wx-formula-overlay {
   position: fixed;
   inset: 0;
-  z-index: 60;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(2px);
+  z-index: 65;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1.25rem;
 }
 
 .wx-formula-modal {
-  width: min(100%, 26rem);
+  width: min(100%, 28rem);
+  background: #ffffff;
+  border-radius: 1.75rem;
+  padding: 1.75rem;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.4);
   max-height: 85vh;
   overflow-y: auto;
-  background: white;
-  border-radius: 1.5rem;
-  padding: 1.75rem 1.5rem;
-  text-align: left;
-  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35);
 }
 
-.wx-formula-icon {
+.wx-formula-icon-wrap {
   width: 3.5rem;
   height: 3.5rem;
-  margin: 0 auto 0.9rem;
-  border-radius: 999px;
-  background: #f5f5f4;
+  border-radius: 1.1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  margin: 0 auto 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.7rem;
+  font-size: 1.75rem;
 }
 
 .wx-formula-title {
   margin: 0 0 0.5rem;
-  font-size: 1.05rem;
+  text-align: center;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #022c22;
-  text-align: center;
+  color: #064e3b;
 }
 
-.wx-formula-intro {
-  margin: 0 0 1rem;
-  font-size: 0.85rem;
-  color: #57534e;
+.wx-formula-desc {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.88rem;
+  margin: 0 0 1.25rem;
   line-height: 1.5;
-  text-align: center;
 }
 
-.wx-formula-list {
-  margin: 0 0 1rem;
-  padding: 0;
-  list-style: none;
+.wx-steps-list {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
-.wx-formula-list li {
+
+.wx-step-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 0.9rem;
-  padding: 0.65rem 0.85rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-.wx-formula-step { font-size: 0.78rem; color: #78716c; font-weight: 500; }
-.wx-formula-eq { font-family: 'Kanit', sans-serif; font-size: 0.9rem; font-weight: 600; color: #022c22; }
-.wx-formula-final { color: #047857; }
-
-.wx-formula-note {
-  margin: 0 0 1.25rem;
-  font-size: 0.76rem;
-  color: #a8a29e;
-  line-height: 1.5;
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
 }
 
-.wx-formula-ok {
+.wx-step-name {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.wx-step-calc {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.wx-step-highlight {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.wx-step-highlight .wx-step-calc {
+  color: #047857;
+  font-size: 1.1rem;
+}
+
+.wx-formula-confirm-btn {
   width: 100%;
   border: none;
-  border-radius: 0.9rem;
-  padding: 0.7rem 1rem;
-  font-family: 'Kanit', sans-serif;
-  font-weight: 600;
-  font-size: 0.88rem;
-  cursor: pointer;
   background: #059669;
   color: white;
+  border-radius: 1rem;
+  padding: 0.8rem;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 18px -3px rgba(5, 150, 105, 0.4);
 }
-.wx-formula-ok:hover { background: #047857; }
+
+.wx-formula-confirm-btn:hover {
+  background: #047857;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   GARDEN SCENE FULL INTEGRATION STYLES
+   ========================================================================== */
+
+.wx-garden-page {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #eef8f2;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 50;
+  font-family: 'Sarabun', sans-serif;
+  user-select: none;
+}
+
+.wx-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+  z-index: 60;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  backdrop-filter: blur(8px);
+}
+
+.wx-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wx-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 9999px;
+  padding: 0.55rem 1.15rem;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #064e3b;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wx-back-button:hover {
+  background: #ffffff;
+  color: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.wx-plant-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.wx-plant-emoji {
+  font-size: 1.5rem;
+}
+
+.wx-plant-name-group {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.wx-plant-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #064e3b;
+  margin: 0;
+  font-family: 'Kanit', sans-serif;
+}
+
+.wx-stage-sub {
+  font-size: 0.72rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.wx-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.wx-time-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  padding: 3px 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  gap: 3px;
+}
+
+.wx-time-pill-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.wx-time-pill-btn:hover {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.wx-time-pill-btn.active {
+  background: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
+}
+
+.wx-time-pill-btn.active.auto {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.wx-garden-canvas-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0.5rem 1.25rem;
+  min-height: 420px;
+}
+
+.wx-garden-scene-container {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.wx-toast-planted {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  padding: 0.85rem 1.4rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 16px 36px rgba(5, 150, 105, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  z-index: 70;
+  max-width: 90%;
+}
+.wx-toast-planted p {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+.wx-toast-icon {
+  font-size: 1.8rem;
+}
+
+.wx-bottom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem 1.25rem;
+  z-index: 40;
+  gap: 1rem;
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.wx-stage-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.wx-stepper-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wx-stepper-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wx-step-node {
+  border: none;
+  background: transparent;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wx-step-node:hover {
+  color: #065f46;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.wx-step-node.passed {
+  color: #059669;
+  font-weight: 700;
+}
+
+.wx-step-node.current {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #6ee7b7;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+}
+
+.wx-step-icon {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .wx-top-header {
+    padding: 0.65rem 1rem;
+  }
+  .wx-header-left, .wx-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .wx-bottom-controls {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 1rem 1.25rem;
+  }
+  .wx-stage-stepper {
+    justify-content: center;
+    overflow-x: auto;
+  }
+  .wx-view-info-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

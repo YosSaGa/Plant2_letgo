@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
-
+/* Fonts loaded via index.html preconnect */
 .sg-root {
   position: fixed;
   inset: 0;
@@ -11,7 +10,14 @@
 .sg-root * { box-sizing: border-box; }
 .sg-display { font-family: 'Kanit', 'Sarabun', sans-serif; }
 
-.sg-blob { position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; }
+.sg-blob { 
+  position: absolute; 
+  border-radius: 50%; 
+  filter: blur(55px); 
+  pointer-events: none; 
+  will-change: transform;
+  transform: translateZ(0);
+}
 .sg-blob1 { top: -6rem; left: -6rem; width: 24rem; height: 24rem; background: #d1fae5; opacity: 0.6; }
 .sg-blob2 { top: 33%; right: -8rem; width: 28rem; height: 28rem; background: #f7fee7; opacity: 0.7; }
 .sg-blob3 { bottom: 0; left: 25%; width: 20rem; height: 20rem; background: #ccfbf1; opacity: 0.6; }
@@ -61,19 +67,225 @@
   .sg-logo { width: 4.2rem; height: 4.2rem; font-size: 1.8rem; }
 }
 
-.sg-weather { display: flex; align-items: center; gap: 1rem; }
-.sg-temp { font-size: 2.1rem; font-weight: 700; color: #022c22; line-height: 1; text-align: right; }
-.sg-weather-label { font-size: 0.75rem; color: #059669; max-width: 11rem; text-align: right; margin-top: 0.35rem; }
+.sg-weather {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.32rem 0.85rem 0.32rem 0.4rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
 .sg-weather-icon {
-  width: 3.6rem; height: 3.6rem; border-radius: 999px;
-  background: #ecfccb; display: flex; align-items: center; justify-content: center;
-  font-size: 1.7rem;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ecfccb, #d9f99d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
+
+.sg-weather-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+}
+
+.sg-temp {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #022c22;
+  margin: 0;
+  line-height: 1;
+}
+
+.sg-weather-label {
+  font-size: 0.72rem;
+  color: #059669;
+  font-weight: 500;
+  margin: 0.15rem 0 0;
+  white-space: nowrap;
+}
+
 @media (min-width: 1024px) {
-  .sg-temp { font-size: 2.6rem; }
-  .sg-weather-label { max-width: 13rem; font-size: 0.8rem; }
-  .sg-weather-icon { width: 4.4rem; height: 4.4rem; font-size: 2.1rem; }
+  .sg-temp { font-size: 1.25rem; }
+  .sg-weather-label { font-size: 0.74rem; }
 }
+
+.sg-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.sg-disease-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.46rem 0.95rem;
+  border-radius: 999px;
+  border: 1.5px solid #a7f3d0;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  color: #065f46;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+.sg-disease-nav:hover {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #34d399;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.16);
+}
+
+.sg-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #ffffff;
+  border: 1.5px solid #e7e5e4;
+  border-radius: 999px;
+  padding: 0.3rem 0.45rem 0.3rem 0.35rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sg-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  user-select: none;
+  padding-right: 0.2rem;
+}
+
+.sg-user-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+  flex-shrink: 0;
+}
+
+.sg-user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.18;
+}
+
+.sg-user-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #064e3b;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-user-loc {
+  font-size: 0.7rem;
+  color: #059669;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.sg-user-divider {
+  width: 1px;
+  height: 1.4rem;
+  background: #e7e5e4;
+  flex-shrink: 0;
+}
+
+.sg-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #f1f5f9;
+  background: #f8fafc;
+  color: #64748b;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.sg-logout-btn svg {
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.sg-logout-btn:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.12);
+}
+
+.sg-logout-btn:hover svg {
+  color: #dc2626;
+  transform: translateX(1.5px);
+}
+
+.sg-btn-login-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid #1f8b4c;
+  background: #1f8b4c;
+  color: #ffffff;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(31, 139, 76, 0.25);
+  white-space: nowrap;
+}
+
+.sg-btn-login-nav:hover {
+  background: #176f3d;
+  border-color: #176f3d;
+  box-shadow: 0 6px 16px rgba(23, 111, 61, 0.35);
+}
+
+@media (max-width: 640px) {
+  .sg-user-meta {
+    display: none;
+  }
+  .sg-logout-btn span {
+    display: none;
+  }
+  .sg-logout-btn {
+    padding: 0.45rem;
+  }
+}
+
 
 .sg-section-title { font-size: 1.3rem; font-weight: 600; color: #022c22; margin: 0 0 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
 .sg-badge { font-size: 0.8rem; font-weight: 400; background: #d1fae5; color: #047857; padding: 0.2rem 0.65rem; border-radius: 999px; }

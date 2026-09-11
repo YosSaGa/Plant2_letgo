@@ -1,35 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import './component/first.css';
-import Weather from "./component/Weather";
-import PlantAdvice from "./component/PlantAdvice";
-import DiseaseDetection from "./component/DiseaseDetection";
-import FigmaExport from './FigmaExport';
 import LandingPage from './component/LandingPage';
-import PlantInfoPage from './component/PlantInfoPage';
 import ActionLoader from './component/ActionLoader';
-import AdminDashboard from './component/admin/AdminDashboard';
-import AdminUserMap from './component/admin/AdminUserMap';
-import AdminDetails from './component/admin/AdminDetails';
-import AdminPlantMaster from './component/admin/AdminPlantMaster';
 import Login from './component/auth/Login';
 import Register from './component/auth/Register';
-import ForgotPassword from './component/auth/ForgotPassword';
-import ResetPassword from './component/auth/ResetPassword';
-import AdminLogin from './component/admin/AdminLogin';
 import { useAuth } from './context/AuthContext';
 import { supabase } from './lib/supabaseClient';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { LogOut } from 'lucide-react';
 import './component/dashboard.css';
 
+// Code Splitting (Lazy Loading) for ultra-fast initial bundle
+const Weather = lazy(() => import("./component/Weather"));
+const PlantAdvice = lazy(() => import("./component/PlantAdvice"));
+const DiseaseDetection = lazy(() => import("./component/DiseaseDetection"));
+const FigmaExport = lazy(() => import('./FigmaExport'));
+const PlantInfoPage = lazy(() => import('./component/PlantInfoPage'));
+const AdminDashboard = lazy(() => import('./component/admin/AdminDashboard'));
+const AdminUserMap = lazy(() => import('./component/admin/AdminUserMap'));
+const AdminDetails = lazy(() => import('./component/admin/AdminDetails'));
+const AdminPlantMaster = lazy(() => import('./component/admin/AdminPlantMaster'));
+const ForgotPassword = lazy(() => import('./component/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('./component/auth/ResetPassword'));
+const AdminLogin = lazy(() => import('./component/admin/AdminLogin'));
+const SystemTestingSuite = lazy(() => import('./component/testing/SystemTestingSuite'));
+import LiveTestOverlay, { globalTestRunner } from './component/testing/LiveTestOverlay';
+
+const thaiDateFormatter = new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+
 function App() {
-  const { user } = useAuth();
+  const { user, profile, loading, logout, requestLogout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [plants, setPlants] = useState([]);
-  const [weather, setWeather] = useState({ temp: 0, humidity: 0, condition: 'Clear', location: 'กำลังค้นหา...' });
+  const [weather, setWeather] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('plookploen_cached_weather');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed.temp === 'number') return parsed;
+      }
+    } catch (_) {}
+    return { temp: 29, humidity: 65, condition: 'Clear', location: 'กำลังค้นหา...' };
+  });
   const [formData, setFormData] = useState({
     type: '',
     stage: 'เมล็ด',
@@ -62,8 +78,41 @@ function App() {
     '/admin/dashboard/user-map': 'adminUserMap',
     '/admin/users': 'adminUsers',
     '/admin/plants': 'adminPlants',
+    '/admin/disease-reports': 'adminReports',
+    '/system-test': 'systemTest',
+    '/qa': 'systemTest',
+    '/live-test': 'landing',
   };
-  const page = pageByPath[location.pathname] || 'landing';
+  const [liveTestActive, setLiveTestActive] = useState(() => {
+    try {
+      return (
+        location.pathname === '/live-test' ||
+        Boolean(sessionStorage.getItem('plookploen_autorun')) ||
+        localStorage.getItem('plookploen_livetest_active') === 'true'
+      );
+    } catch (_) {
+      return false;
+    }
+  });
+
+  const [, setAppTestTick] = useState(0);
+  useEffect(() => {
+    return globalTestRunner.subscribe(() => {
+      setAppTestTick((t) => t + 1);
+    });
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (location.pathname === '/live-test' || sessionStorage.getItem('plookploen_autorun')) {
+        setLiveTestActive(true);
+        localStorage.setItem('plookploen_livetest_active', 'true');
+      }
+    } catch (_) {}
+  }, [location.pathname]);
+
+  const cleanPath = location.pathname.replace(/\/+$/, '') || '/';
+  const page = pageByPath[cleanPath] || pageByPath[location.pathname] || 'landing';
   const goTo = (nextPage) => navigate({
     home: '/',
     add: '/add-plant',
@@ -74,6 +123,8 @@ function App() {
     info: '/plant-info',
     login: '/login',
     register: '/register',
+    forgotPassword: '/forgot-password',
+    resetPassword: '/reset-password',
   }[nextPage]);
 
   const plantOptions = [
@@ -113,12 +164,16 @@ function App() {
           mainCondition = 'Clear'; 
         }
 
-        setWeather({ 
+        const newWeather = { 
           temp: Math.round(data.main.temp), 
           humidity: data.main.humidity,
           condition: mainCondition, 
           location: data.name 
-        });
+        };
+        setWeather(newWeather);
+        try {
+          sessionStorage.setItem('plookploen_cached_weather', JSON.stringify(newWeather));
+        } catch (_) {}
       } catch (error) {
         console.error("Error fetching weather: ", error);
         setWeather((prev) => ({ ...prev, location: 'ดึงข้อมูลไม่สำเร็จ' }));
@@ -142,9 +197,26 @@ function App() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.from('plants').select('*').order('created_at', { ascending: false }).then(({ data, error }) => {
-      if (!error && data) setPlants(data.map((plant) => ({ ...plant, plantedAt: new Date(plant.created_at), potSize: plant.pot_size })));
-    });
+    supabase
+      .from('user_plants')
+      .select('*, plant_master(*)')
+      .order('planted_date', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          setPlants(
+            data.map((item) => ({
+              id: item.user_plant_id,
+              user_id: item.user_id,
+              type: item.plant_master?.name_th || 'พืชทั่วไป',
+              stage: item.growth_stage,
+              method: item.planting_method,
+              amount: Number(item.amount || 1),
+              potSize: item.pot_size,
+              plantedAt: new Date(item.planted_date || item.updated_at),
+            }))
+          );
+        }
+      });
   }, []);
 
   const weatherTheme = {
@@ -154,20 +226,154 @@ function App() {
   };
   const currentWeather = weatherTheme[weather.condition] || weatherTheme.Clear;
 
-  if (location.pathname === '/figma-export') return <FigmaExport />;
-  if (page === 'login') return <Login onNavigate={navigate} />;
-  if (page === 'register') return <Register onNavigate={navigate} />;
-  if (page === 'forgotPassword') return <ForgotPassword onNavigate={navigate} />;
-  if (page === 'resetPassword') return <ResetPassword onNavigate={navigate} />;
-  if (page === 'add' && !user) return <Login onNavigate={navigate} />;
-  if (page === 'adminLogin') return <AdminLogin onNavigate={navigate} />;
-  if (page === 'adminDashboard') return <AdminDashboard />;
-  if (page === 'adminUserMap') return <AdminUserMap />;
-  if (page === 'adminUsers') return <AdminDetails type="users" />;
-  if (page === 'adminPlants') return <AdminPlantMaster />;
+  const effectiveUser = user;
+
+  const sampleChili = useMemo(() => ({
+    id: 'live-test-chili',
+    user_id: user?.id || 'live-tester-id',
+    type: 'พริก',
+    stage: 'ต้นกล้า',
+    method: 'กระถาง',
+    potSize: '8',
+    amount: 1,
+    plantedAt: new Date(),
+  }), [user]);
+
+  const activePlants = useMemo(() => {
+    if (Array.isArray(plants) && plants.length > 0) return plants;
+    if (liveTestActive || location.pathname === '/live-test') return [sampleChili];
+    return [];
+  }, [plants, liveTestActive, location.pathname, sampleChili]);
+
+  // React Hook Rules: All useMemo hooks must execute unconditionally before any early return!
+  const totalPlantAmount = useMemo(
+    () => (Array.isArray(activePlants) ? activePlants.reduce((sum, p) => sum + Number(p.amount || 0), 0) : 0),
+    [activePlants]
+  );
+  const recentPlants = useMemo(() => (Array.isArray(activePlants) ? activePlants.slice(0, 3) : []), [activePlants]);
+  const uniqueTypeCount = useMemo(
+    () => (Array.isArray(activePlants) ? new Set(activePlants.map((p) => p.type)).size : 0),
+    [activePlants]
+  );
+  const filterOptions = useMemo(
+    () => ({
+      types: Array.isArray(activePlants) ? [...new Set(activePlants.map((plant) => plant.type))] : [],
+      stages: Array.isArray(activePlants) ? [...new Set(activePlants.map((plant) => plant.stage))] : [],
+      methods: Array.isArray(activePlants) ? [...new Set(activePlants.map((plant) => plant.method))] : [],
+    }),
+    [activePlants]
+  );
+
+  const filteredPlants = useMemo(() => {
+    if (!Array.isArray(activePlants)) return [];
+    return activePlants
+      .filter(
+        (plant) =>
+          (plantFilter.type === 'all' || plant.type === plantFilter.type) &&
+          (plantFilter.stage === 'all' || plant.stage === plantFilter.stage) &&
+          (plantFilter.method === 'all' || plant.method === plantFilter.method)
+      )
+      .sort((a, b) =>
+        plantFilter.sort === 'amount'
+          ? Number(b.amount || 0) - Number(a.amount || 0)
+          : new Date(b.plantedAt) - new Date(a.plantedAt)
+      );
+  }, [activePlants, plantFilter]);
+
+  const plantChartData = useMemo(() => {
+    if (!Array.isArray(activePlants)) return [];
+    return Object.values(
+      activePlants.reduce((groups, plant) => {
+        if (!groups[plant.type]) groups[plant.type] = { name: plant.type, value: 0 };
+        groups[plant.type].value += Number(plant.amount || 0);
+        return groups;
+      }, {})
+    );
+  }, [activePlants]);
+
+  const chartColors = ['#059669', '#84cc16', '#f59e0b', '#0ea5e9', '#ec4899'];
+  const latestPlant = Array.isArray(activePlants) && activePlants.length ? activePlants[0] : null;
+  const pottedAmount = useMemo(
+    () =>
+      Array.isArray(activePlants)
+        ? activePlants.filter((plant) => plant.potSize).reduce((sum, plant) => sum + Number(plant.amount || 0), 0)
+        : 0,
+    [activePlants]
+  );
+
+  const renderLiveOverlay = () => {
+    if (location.pathname === '/system-test' || location.pathname === '/qa') return null;
+    if (!liveTestActive && location.pathname !== '/live-test' && !globalTestRunner.isRunning && !globalTestRunner.isManualRecording) return null;
+    return (
+      <LiveTestOverlay
+        page={page}
+        goTo={goTo}
+        user={effectiveUser}
+        plants={activePlants}
+        setSelectedPlant={setSelectedPlant}
+        weather={weather}
+        onClose={() => {
+          setLiveTestActive(false);
+          try {
+            localStorage.removeItem('plookploen_livetest_active');
+            sessionStorage.removeItem('plookploen_autorun');
+          } catch (_) {}
+          globalTestRunner.stop('ปิดแถบควบคุม');
+          if (location.pathname === '/live-test') goTo('home');
+        }}
+        onOpenPortal={() => navigate('/system-test')}
+      />
+    );
+  };
+
+  // รอเช็กสถานะการล็อกอินก่อนเรนเดอร์ เพื่อป้องกันหน้ากะพริบหรือจอดำ
+  if (loading) {
+    return (
+      <div className="sg-root" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+        <ActionLoader title="กำลังเตรียมระบบ..." detail="กรุณารอสักครู่" />
+      </div>
+    );
+  }
+
+  if (location.pathname === '/figma-export') return <Suspense fallback={<ActionLoader title="กำลังเปิด..." />}><FigmaExport />{renderLiveOverlay()}</Suspense>;
+  if (page === 'login') return (user && !globalTestRunner.isRunning) ? <Navigate to="/" replace /> : <><Login onNavigate={navigate} />{renderLiveOverlay()}</>;
+  if (page === 'register') return (user && !globalTestRunner.isRunning) ? <Navigate to="/" replace /> : <><Register onNavigate={navigate} />{renderLiveOverlay()}</>;
+  if (page === 'forgotPassword') return <Suspense fallback={<ActionLoader title="กำลังเตรียมหน้ากู้รหัสผ่าน..." />}><ForgotPassword onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
+  if (page === 'resetPassword') return <Suspense fallback={<ActionLoader title="กำลังเตรียมหน้ารีเซ็ตรหัส..." />}><ResetPassword onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
+  if (page === 'add' && !user && !globalTestRunner.isRunning && !liveTestActive) return <><Login onNavigate={navigate} />{renderLiveOverlay()}</>;
+  if (page === 'adminLogin') return <Suspense fallback={<ActionLoader title="กำลังเปิดหน้าแอดมิน..." />}><AdminLogin onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
+  if (page === 'adminDashboard') return <Suspense fallback={<ActionLoader title="กำลังโหลดแดชบอร์ด..." />}><AdminDashboard />{renderLiveOverlay()}</Suspense>;
+  if (page === 'adminUserMap') return <Suspense fallback={<ActionLoader title="กำลังโหลดแผนที่..." />}><AdminUserMap />{renderLiveOverlay()}</Suspense>;
+  if (page === 'adminUsers') return <Suspense fallback={<ActionLoader title="กำลังโหลดรายชื่อผู้ใช้..." />}><AdminDetails type="users" />{renderLiveOverlay()}</Suspense>;
+  if (page === 'adminPlants') return <Suspense fallback={<ActionLoader title="กำลังโหลดข้อมูลพืช..." />}><AdminPlantMaster />{renderLiveOverlay()}</Suspense>;
+  if (page === 'adminReports') return <Suspense fallback={<ActionLoader title="กำลังโหลดรายงานโรคพืช..." />}><AdminDetails type="reports" />{renderLiveOverlay()}</Suspense>;
+  if (page === 'systemTest') return <Suspense fallback={<ActionLoader title="กำลังเปิดศูนย์ทดสอบระบบ..." />}><SystemTestingSuite onBack={() => goTo('home')} />{renderLiveOverlay()}</Suspense>;
   // หน้าแรกเริ่มด้วยการเข้าสู่ระบบตาม flow หลักของแอป
-  if (page === 'landing') return <LandingPage isLoggedIn={Boolean(user)} onStart={() => user ? goTo('add') : goTo('login')} onPlantInfo={() => goTo('info')} onLogin={() => user ? goTo('add') : goTo('login')} onAdmin={() => navigate('/admin/login')} />;
-  if (page === 'info') return <PlantInfoPage onBack={() => goTo('home')} onStart={(type) => { setFormData((current) => ({ ...current, type })); goTo('add'); }} />;
+  if (page === 'landing') return (
+    <>
+      <LandingPage 
+        isLoggedIn={Boolean(user)} 
+        onStart={() => user ? goTo('add') : goTo('login')} 
+        onPlantInfo={() => goTo('info')} 
+        onLogin={() => user ? goTo('add') : goTo('login')} 
+        onAdmin={() => navigate('/admin/login')} 
+        onLogout={async () => {
+          await logout();
+          goTo('home');
+        }}
+      />
+      {renderLiveOverlay()}
+    </>
+  );
+  if (page === 'info') return (
+    <Suspense fallback={<ActionLoader title="กำลังเปิดคลังข้อมูลพืช..." />}>
+      <PlantInfoPage 
+        onBack={() => goTo('home')} 
+        onStart={(type) => { setFormData((current) => ({ ...current, type })); goTo('add'); }} 
+      />
+      {renderLiveOverlay()}
+    </Suspense>
+  );
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const toggleChoice = (name, value) => setFormData((prev) => ({ ...prev, [name]: prev[name] === value ? '' : value }));
@@ -193,8 +399,46 @@ function App() {
     window.setTimeout(() => setIsPlanting(false), 1300);
 
     if (supabase) {
-      const { data, error } = await supabase.from('plants').insert({ user_id: null, type: formData.type, stage: formData.stage, method: formData.method, pot_size: potSize, amount: Number(formData.amount) }).select().single();
-      if (!error && data) newPlant = { ...data, potSize: data.pot_size, plantedAt: new Date(data.created_at) };
+      try {
+        let plantId = 1;
+        const { data: pm } = await supabase
+          .from('plant_master')
+          .select('plant_id')
+          .eq('name_th', formData.type)
+          .maybeSingle();
+
+        if (pm?.plant_id) {
+          plantId = pm.plant_id;
+        }
+
+        const { data, error } = await supabase
+          .from('user_plants')
+          .insert({
+            user_id: user?.id || null,
+            plant_id: plantId,
+            growth_stage: formData.stage,
+            planting_method: formData.method,
+            pot_size: potSize,
+            amount: Number(formData.amount) || 1,
+          })
+          .select('*, plant_master(*)')
+          .single();
+
+        if (!error && data) {
+          newPlant = {
+            id: data.user_plant_id,
+            user_id: data.user_id,
+            type: data.plant_master?.name_th || formData.type,
+            stage: data.growth_stage,
+            method: data.planting_method,
+            potSize: data.pot_size,
+            amount: Number(data.amount || 1),
+            plantedAt: new Date(data.planted_date || data.updated_at),
+          };
+        }
+      } catch (err) {
+        console.warn('user_plants insert error:', err);
+      }
     }
     setPlants((prev) => [newPlant, ...prev]);
 
@@ -222,30 +466,15 @@ function App() {
     goTo('detail');
   };
 
-  const formatPlantedTime = (date) =>
-    new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
-  const totalPlantAmount = plants.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-
-  const recentPlants = plants.slice(0, 3);
-  const uniqueTypeCount = new Set(plants.map((p) => p.type)).size;
-  const filterOptions = {
-    types: [...new Set(plants.map((plant) => plant.type))],
-    stages: [...new Set(plants.map((plant) => plant.stage))],
-    methods: [...new Set(plants.map((plant) => plant.method))],
+  const formatPlantedTime = (date) => {
+    try {
+      return thaiDateFormatter.format(date instanceof Date ? date : new Date(date));
+    } catch (_) {
+      return '';
+    }
   };
-  const filteredPlants = plants
-    .filter((plant) => (plantFilter.type === 'all' || plant.type === plantFilter.type)
-      && (plantFilter.stage === 'all' || plant.stage === plantFilter.stage)
-      && (plantFilter.method === 'all' || plant.method === plantFilter.method))
-    .sort((a, b) => plantFilter.sort === 'amount' ? Number(b.amount || 0) - Number(a.amount || 0) : new Date(b.plantedAt) - new Date(a.plantedAt));
-  const plantChartData = Object.values(plants.reduce((groups, plant) => {
-    if (!groups[plant.type]) groups[plant.type] = { name: plant.type, value: 0 };
-    groups[plant.type].value += Number(plant.amount || 0);
-    return groups;
-  }, {}));
-  const chartColors = ['#059669', '#84cc16', '#f59e0b', '#0ea5e9', '#ec4899'];
-  const latestPlant = plants[0];
-  const pottedAmount = plants.filter((plant) => plant.potSize).reduce((sum, plant) => sum + Number(plant.amount || 0), 0);
+
+  // (useMemo hooks moved above early returns to strictly adhere to React Rules of Hooks)
 
   const renderPlantCard = (plant) => {
     const plantInfo = plantOptions.find((p) => p.name === plant.type);
@@ -370,20 +599,65 @@ function App() {
               <p className="sg-location">📍 {weather.location}</p>
             </div>
               </motion.button>
+          <div className="sg-header-right">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="sg-disease-nav"
+              onClick={() => goTo('disease')}
+            >
+              🔬 ตรวจโรคพืช
+            </motion.button>
+            <div className="sg-weather">
+              <div className="sg-weather-icon">{currentWeather.icon}</div>
+              <div className="sg-weather-info">
+                <span className="sg-temp">{weather.temp}°C</span>
+                <span className="sg-weather-label">{currentWeather.label}</span>
+              </div>
+            </div>
+            {user ? (
+              <div className="sg-user-badge">
+                <div className="sg-user-pill" title={user.email}>
+                  <div className="sg-user-avatar">
+                    {profile?.display_name ? profile.display_name.slice(0, 1).toUpperCase() : '🌱'}
+                  </div>
+                  <div className="sg-user-meta">
+                    <span className="sg-user-name">{profile?.display_name || user.email?.split('@')[0] || 'ผู้ใช้งาน'}</span>
+                    <span className="sg-user-loc">📍 {profile?.province || 'สุราษฎร์ธานี'}</span>
+                  </div>
+                </div>
+                <div className="sg-user-divider" />
+                <motion.button
+                  type="button"
+                  className="sg-logout-btn"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    if (typeof requestLogout === 'function') {
+                      requestLogout(() => goTo('home'));
+                    } else {
+                      logout().then(() => goTo('home'));
+                    }
+                  }}
+                  title="ออกจากระบบ"
+                >
+                  <LogOut size={14} />
+                  <span>ออกจากระบบ</span>
+                </motion.button>
+              </div>
+            ) : (
               <motion.button
+                type="button"
+                className="sg-btn-login-nav"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="sg-disease-nav"
-                onClick={() => goTo('disease')}
+                onClick={() => goTo('login')}
+                title="เข้าสู่ระบบ"
               >
-                🔬 ตรวจโรคพืช
+                เข้าสู่ระบบ
               </motion.button>
-              <div className="sg-weather">
-            <div>
-              <div className="sg-display sg-temp">{weather.temp}°C</div>
-              <div className="sg-weather-label">{currentWeather.label}</div>
-            </div>
-            <div className="sg-weather-icon">{currentWeather.icon}</div>
+            )}
+
           </div>
         </motion.header>
 
@@ -611,7 +885,9 @@ function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <DiseaseDetection onBack={() => goTo('home')} />
+              <Suspense fallback={<ActionLoader title="กำลังเปิดระบบตรวจโรคพืช..." />}>
+                <DiseaseDetection onBack={() => (user ? goTo('stats') : goTo('home'))} />
+              </Suspense>
             </motion.div>
           ) : page === 'detail' ? (
             <motion.div
@@ -621,11 +897,13 @@ function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Weather
-                plant={selectedPlant}
-                weather={weather}
-                onBack={() => goTo('home')}
-              />
+              <Suspense fallback={<ActionLoader title="กำลังโหลดข้อมูลพืชและสภาพอากาศ..." />}>
+                <Weather
+                  plant={selectedPlant || (liveTestActive ? sampleChili : null)}
+                  weather={weather}
+                  onBack={() => (user ? goTo('stats') : goTo('home'))}
+                />
+              </Suspense>
             </motion.div>
           ) : (
             <motion.div
@@ -635,15 +913,19 @@ function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <PlantAdvice
-                plant={selectedPlant}
-                weather={weather}
-                onBack={() => goTo('home')}
-              />
+              <Suspense fallback={<ActionLoader title="กำลังเปิดคำแนะนำการดูแล..." />}>
+                <PlantAdvice
+                  plant={selectedPlant || (liveTestActive ? sampleChili : null)}
+                  weather={weather}
+                  onBack={() => (user ? goTo('stats') : goTo('home'))}
+                />
+              </Suspense>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {renderLiveOverlay()}
     </div>
   );
 }

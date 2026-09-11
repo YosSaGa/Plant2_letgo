@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  getSavedReminders,
+  saveReminderStatus,
+  batchCreateCalendarEvents,
+  createGoogleCalendarEvent,
+  getGoogleCalendarWebIntentUrl,
+  downloadIcsFile,
+} from '../lib/googleCalendar';
 import './advice.css';
 
 const plantEmoji = {
@@ -13,11 +21,11 @@ const plantEmoji = {
 
 // ประเภทงานดูแล
 const TASK_TYPES = {
-  water: { label: 'รดน้ำ', icon: '💧', color: '#0ea5e9' },
-  fertilize: { label: 'ใส่ปุ๋ย', icon: '🌾', color: '#ca8a04' },
-  prune: { label: 'ตัดแต่งกิ่ง', icon: '✂️', color: '#db2777' },
-  sunlight: { label: 'ย้ายรับแดด', icon: '☀️', color: '#f97316' },
-  inspect: { label: 'ตรวจใบ/ศัตรูพืช', icon: '🔍', color: '#65a30d' },
+  water: { label: 'รดน้ำ', icon: '💧', color: '#0ea5e9', defaultHour: 7, defaultMinute: 30 },
+  fertilize: { label: 'ใส่ปุ๋ย', icon: '🌾', color: '#ca8a04', defaultHour: 9, defaultMinute: 0 },
+  prune: { label: 'ตัดแต่งกิ่ง', icon: '✂️', color: '#db2777', defaultHour: 10, defaultMinute: 0 },
+  sunlight: { label: 'ย้ายรับแดด', icon: '☀️', color: '#f97316', defaultHour: 8, defaultMinute: 0 },
+  inspect: { label: 'ตรวจใบ/ศัตรูพืช', icon: '🔍', color: '#65a30d', defaultHour: 16, defaultMinute: 30 },
 };
 
 // mock: รอบการดูแลพื้นฐาน (ทุกกี่วัน) ของพืชแต่ละชนิด ตอนโตเต็มวัยปกติ
@@ -209,7 +217,182 @@ function PlantAdvice({ plant, weather, onBack }) {
     setSelectedDay(todayDate);
   }, [plant?.id]);
 
+  // Google Calendar Integration states
+  const [savedReminders, setSavedReminders] = useState({});
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
+  const [syncFeedback, setSyncFeedback] = useState(null);
+
+  useEffect(() => {
+    setSavedReminders(getSavedReminders());
+  }, []);
+
   const taskKey = (y, m, d, t) => `${y}-${m}-${d}:${t}`;
+
+  // Helper สร้าง Event Object สำหรับ Google Calendar
+  const buildEventPayload = (y, m, d, taskTypeKey) => {
+    const tInfo = TASK_TYPES[taskTypeKey] || { label: taskTypeKey, icon: '🌱' };
+    const plantLabel = `${plantType} (ระยะ${stage})`;
+    const doaTips = plan.tips?.length ? plan.tips.map((tip, idx) => `• ${tip}`).join('\n') : '';
+
+    const title = `🌱 [ปลูกเพลิน] ${tInfo.label}: ${plantLabel}`;
+    const description = [
+      `🌿 กิจกรรมดูแลพืช: ${tInfo.label} (${tInfo.icon})`,
+      `🪴 ชนิดพืช: ${plantType}`,
+      `🌱 ระยะการเติบโต: ${stage}`,
+      `🪴 วิธีการปลูก: ${method === 'กระถาง' ? `กระถาง ${potSize || '-'} นิ้ว` : 'ลงดิน'}`,
+      `----------------------------------------`,
+      `📋 คำแนะนำตามหลักวิชาการของกรมวิชาการเกษตร:`,
+      doaTips,
+      `----------------------------------------`,
+      `💡 บันทึกอัตโนมัติจากแอปพลิเคชันปลูกเพลิน (PlookPloen)`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const hour = tInfo.defaultHour ?? (taskTypeKey === 'water' ? 7 : taskTypeKey === 'fertilize' ? 9 : 16);
+    const minute = tInfo.defaultMinute ?? (taskTypeKey === 'water' ? 30 : 0);
+
+    return {
+      title,
+      description,
+      year: y,
+      month: m,
+      day: d,
+      hour,
+      minute,
+      durationMinutes: 30,
+      userPlantId: plant?.id || null,
+      activityType: tInfo.label,
+      uniqueKey: taskKey(y, m, d, taskTypeKey),
+    };
+  };
+
+  // รวมรายการงานทั้งหมดของเดือนที่กำลังแสดงผล
+  const allMonthEvents = useMemo(() => {
+    const currentMonthEntry = monthsData[monthIndex];
+    if (!currentMonthEntry?.map) return [];
+    const events = [];
+    Object.entries(currentMonthEntry.map).forEach(([dayStr, tasks]) => {
+      const d = parseInt(dayStr, 10);
+      tasks.forEach((t) => {
+        events.push(buildEventPayload(currentMonthEntry.year, currentMonthEntry.month, d, t));
+      });
+    });
+    return events;
+  }, [monthsData, monthIndex, plan, plantType, stage, method, potSize]);
+
+  // รวมรายการงานของวันที่เลือก
+  const selectedDayEvents = useMemo(() => {
+    const currentMonthEntry = monthsData[monthIndex];
+    if (!currentMonthEntry) return [];
+    const currentMonthTasks = currentMonthEntry.map[selectedDay] || [];
+    return currentMonthTasks.map((t) =>
+      buildEventPayload(currentMonthEntry.year, currentMonthEntry.month, selectedDay, t)
+    );
+  }, [monthsData, monthIndex, selectedDay, plan, plantType, stage, method, potSize]);
+
+  // จัดการซิงค์แบบกลุ่ม (เช่น ทั้งเดือน หรือทั้งวัน)
+  const handleSyncBatch = async (eventsToSync, label = 'ทั้งหมด') => {
+    if (!eventsToSync || eventsToSync.length === 0) {
+      setAlertData({
+        title: 'ไม่มีงานที่ต้องแจ้งเตือน',
+        desc: 'ไม่มีรายการดูแลพืชในวันที่หรือช่วงเวลาที่เลือก',
+        icon: '🌤️',
+      });
+      return;
+    }
+
+    setIsSyncing(true);
+    setSyncProgress({ current: 0, total: eventsToSync.length });
+    setSyncFeedback(null);
+
+    try {
+      const { createdEvents, errors } = await batchCreateCalendarEvents(
+        eventsToSync,
+        (current, total) => {
+          setSyncProgress({ current, total });
+        }
+      );
+
+      setSavedReminders(getSavedReminders());
+
+      if (createdEvents.length > 0) {
+        setSyncFeedback({
+          status: 'success',
+          title: `ตั้งเตือนลง Google Calendar สำเร็จ (${createdEvents.length} รายการ)`,
+          desc: `ระบบได้บันทึกแจ้งเตือนกิจกรรมดูแล${plantType} (${label}) พร้อมคำแนะนำจากกรมวิชาการเกษตรลงใน Google Calendar เรียบร้อยแล้ว!`,
+          link: 'https://calendar.google.com',
+          createdCount: createdEvents.length,
+          totalCount: eventsToSync.length,
+        });
+      } else if (errors.length > 0) {
+        setSyncFeedback({
+          status: 'error',
+          title: 'ไม่สามารถเชื่อมต่อ Google Calendar API ได้',
+          desc: errors[0]?.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อ หรือปิดหน้าต่างยืนยันสิทธิ์',
+          fallbackEvents: eventsToSync,
+        });
+      }
+    } catch (err) {
+      console.error('Batch sync error:', err);
+      setSyncFeedback({
+        status: 'error',
+        title: 'การเชื่อมต่อขัดข้อง',
+        desc: err.message || 'ไม่สามารถเปิดหน้าต่างยืนยันสิทธิ์ Google ได้ (กรุณาอนุญาตป๊อปอัป)',
+        fallbackEvents: eventsToSync,
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // จัดการตั้งเตือนงานเดี่ยว
+  const handleSyncSingleTask = async (d, t) => {
+    const currentMonthEntry = monthsData[monthIndex];
+    if (!currentMonthEntry) return;
+    const y = currentMonthEntry.year;
+    const m = currentMonthEntry.month;
+    const ev = buildEventPayload(y, m, d, t);
+    const uKey = taskKey(y, m, d, t);
+
+    // ถ้าตั้งเตือนไว้แล้ว กดเพื่อเปิดดูใน Google Calendar
+    if (savedReminders[uKey]) {
+      const item = savedReminders[uKey];
+      window.open(item.htmlLink || 'https://calendar.google.com', '_blank');
+      return;
+    }
+
+    setIsSyncing(true);
+    try {
+      const res = await createGoogleCalendarEvent(ev);
+      saveReminderStatus(uKey, {
+        eventId: res.id,
+        htmlLink: res.htmlLink,
+        title: ev.title,
+      });
+      setSavedReminders(getSavedReminders());
+      setAlertData({
+        title: 'ตั้งเตือนสำเร็จ!',
+        desc: `บันทึกงาน "${TASK_TYPES[t]?.label}" ลงใน Google Calendar เรียบร้อยแล้ว`,
+        icon: '🔔',
+      });
+    } catch (err) {
+      // Fallback เปิด Web Intent ทันที
+      const intentUrl = getGoogleCalendarWebIntentUrl(ev);
+      window.open(intentUrl, '_blank');
+      saveReminderStatus(uKey, { title: ev.title, fallback: true });
+      setSavedReminders(getSavedReminders());
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // ดาวน์โหลด .ics
+  const handleDownloadIcs = (events) => {
+    downloadIcsFile(events, `plookploen-${plantType}-schedule.ics`);
+  };
 
   // เช็กว่าเป็นอนาคตหรือไม่
   const isFutureDay = (y, m, d) => {
@@ -412,9 +595,179 @@ function PlantAdvice({ plant, weather, onBack }) {
               </motion.div>
             )}
           </AnimatePresence>
+
+          <AnimatePresence>
+            {showSyncModal && (
+              <motion.div
+                className="adv-confirm-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => !isSyncing && setShowSyncModal(false)}
+              >
+                <motion.div
+                  className="adv-confirm-modal adv-sync-modal"
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="adv-sync-modal-header">
+                    <div className="adv-sync-badge-icon">🔔</div>
+                    <div>
+                      <h3 className="adv-display adv-confirm-title" style={{ margin: 0 }}>
+                        ตั้งเตือนลง Google Calendar
+                      </h3>
+                      <p className="adv-sync-modal-sub">
+                        {emoji} {plantType} ({stage}) · {MONTH_LABELS[month]} {year + 543}
+                      </p>
+                    </div>
+                  </div>
+
+                  {isSyncing ? (
+                    <div className="adv-sync-loading-box">
+                      <div className="adv-sync-spinner" />
+                      <p className="adv-sync-loading-title">กำลังเชื่อมต่อและบันทึกลง Google Calendar...</p>
+                      <div className="adv-sync-progress-bar">
+                        <div
+                          className="adv-sync-progress-fill"
+                          style={{
+                            width: `${syncProgress.total ? (syncProgress.current / syncProgress.total) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <p className="adv-sync-loading-counter">
+                        {syncProgress.current} จาก {syncProgress.total} กิจกรรม
+                      </p>
+                    </div>
+                  ) : syncFeedback ? (
+                    <div className="adv-sync-feedback-box">
+                      <div className={`adv-sync-feedback-icon ${syncFeedback.status}`}>
+                        {syncFeedback.status === 'success' ? '✅' : '⚠️'}
+                      </div>
+                      <h4 className="adv-sync-feedback-title">{syncFeedback.title}</h4>
+                      <p className="adv-sync-feedback-desc">{syncFeedback.desc}</p>
+                      <div className="adv-confirm-actions" style={{ marginTop: '1.25rem' }}>
+                        {syncFeedback.link && (
+                          <a
+                            href={syncFeedback.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="adv-confirm-ok"
+                            style={{
+                              textAlign: 'center',
+                              textDecoration: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.4rem',
+                            }}
+                          >
+                            <span>เปิดดูใน Google Calendar ↗</span>
+                          </a>
+                        )}
+                        {syncFeedback.status === 'error' && (
+                          <button
+                            type="button"
+                            className="adv-confirm-ok"
+                            onClick={() => {
+                              const ev = syncFeedback.fallbackEvents?.[0] || allMonthEvents[0];
+                              if (ev) window.open(getGoogleCalendarWebIntentUrl(ev), '_blank');
+                            }}
+                          >
+                            เปิด Google Calendar สำเร็จรูป ↗
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="adv-confirm-cancel"
+                          onClick={() => {
+                            setSyncFeedback(null);
+                            setShowSyncModal(false);
+                          }}
+                        >
+                          ปิด
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="adv-sync-options">
+                      {/* บัตรตั้งเตือนทั้งเดือน (มาครบใน 1 คลิก) */}
+                      <div className="adv-sync-option-card adv-sync-primary-card">
+                        <div className="adv-sync-option-top">
+                          <span className="adv-sync-card-badge">คลิกเดียวมาครบ 🌟</span>
+                          <span className="adv-sync-count">{allMonthEvents.length} กิจกรรม</span>
+                        </div>
+                        <h4 className="adv-sync-option-title">
+                          📅 ตั้งเตือนทั้งเดือน {MONTH_LABELS[month]}
+                        </h4>
+                        <p className="adv-sync-option-desc">
+                          บันทึกรอบรดน้ำ, ใส่ปุ๋ย, ตรวจศัตรูพืชตลอดทั้งเดือน {allMonthEvents.length} ครั้ง พร้อมคำแนะนำกรมวิชาการเกษตร และแจ้งเตือนล่วงหน้า 30 นาที
+                        </p>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="adv-sync-action-btn primary"
+                          onClick={() => handleSyncBatch(allMonthEvents, `ทั้งเดือน ${MONTH_LABELS[month]}`)}
+                          disabled={allMonthEvents.length === 0}
+                        >
+                          🚀 ตั้งเตือนทั้งเดือนนี้ลง Google Calendar ({allMonthEvents.length} งาน)
+                        </motion.button>
+                      </div>
+
+                      {/* บัตรตั้งเตือนเฉพาะวันนี้ */}
+                      <div className="adv-sync-option-card">
+                        <div className="adv-sync-option-top">
+                          <span className="adv-sync-card-badge-neutral">งานเฉพาะวันนี้</span>
+                          <span className="adv-sync-count">{selectedDayEvents.length} กิจกรรม</span>
+                        </div>
+                        <h4 className="adv-sync-option-title">
+                          🗓️ วันที่ {selectedDay} {MONTH_LABELS[month]}
+                        </h4>
+                        <p className="adv-sync-option-desc">
+                          {selectedDayEvents.length > 0
+                            ? `มีงาน: ${selectedTasks.map((t) => TASK_TYPES[t]?.label).join(', ')}`
+                            : 'วันนี้ไม่มีงานที่ต้องดูแล'}
+                        </p>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="adv-sync-action-btn secondary"
+                          onClick={() => handleSyncBatch(selectedDayEvents, `วันที่ ${selectedDay}`)}
+                          disabled={selectedDayEvents.length === 0}
+                        >
+                          🔔 ตั้งเตือนเฉพาะงานวันนี้ ({selectedDayEvents.length})
+                        </motion.button>
+                      </div>
+
+                      {/* เมนูเสริม: ดาวน์โหลด ICS หรือปิด */}
+                      <div className="adv-sync-alt-row">
+                        <button
+                          type="button"
+                          className="adv-sync-text-btn"
+                          onClick={() => handleDownloadIcs(allMonthEvents)}
+                          title="ดาวน์โหลดไฟล์ .ics สำหรับเปิดในแอปปฏิทิน"
+                        >
+                          📥 ดาวน์โหลดไฟล์ปฏิทิน (.ics)
+                        </button>
+                        <button
+                          type="button"
+                          className="adv-sync-text-btn"
+                          onClick={() => setShowSyncModal(false)}
+                        >
+                          ยกเลิก
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>,
         document.body
       )}
+
 
       <div className="adv-wrap">
         <motion.button whileHover={{ x: -5 }} whileTap={{ scale: 0.95 }} className="adv-back-btn" onClick={onBack}>
@@ -484,25 +837,48 @@ function PlantAdvice({ plant, weather, onBack }) {
               <h2 className="adv-display adv-section-title adv-calendar-title">
                 📅 ปฏิทินดูแล — {MONTH_LABELS[month]} {year + 543}
               </h2>
-              <div className="adv-month-arrows">
+              <div className="adv-calendar-nav-actions">
                 <motion.button
-                  whileHover={{ scale: monthIndex === 0 ? 1 : 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="adv-arrow-btn"
-                  disabled={monthIndex === 0}
-                  onClick={() => goToMonth(monthIndex - 1)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`adv-google-sync-btn ${
+                    allMonthEvents.length > 0 && allMonthEvents.every((e) => savedReminders[e.uniqueKey])
+                      ? 'all-synced'
+                      : ''
+                  }`}
+                  onClick={() => {
+                    setSyncFeedback(null);
+                    setShowSyncModal(true);
+                  }}
+                  title="คลิกเพื่อตั้งเตือนการดูแลพืชลง Google Calendar ครบทั้งเดือน"
                 >
-                  ‹
+                  <span className="adv-sync-btn-icon">🔔</span>
+                  <span className="adv-sync-btn-text">
+                    {allMonthEvents.length > 0 && allMonthEvents.every((e) => savedReminders[e.uniqueKey])
+                      ? `ตั้งเตือนแล้ว ✓ (${allMonthEvents.length})`
+                      : `ตั้งเตือน Google Calendar (${allMonthEvents.length} งาน)`}
+                  </span>
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: monthIndex === MONTHS_TO_SHOW - 1 ? 1 : 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="adv-arrow-btn"
-                  disabled={monthIndex === MONTHS_TO_SHOW - 1}
-                  onClick={() => goToMonth(monthIndex + 1)}
-                >
-                  ›
-                </motion.button>
+                <div className="adv-month-arrows">
+                  <motion.button
+                    whileHover={{ scale: monthIndex === 0 ? 1 : 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="adv-arrow-btn"
+                    disabled={monthIndex === 0}
+                    onClick={() => goToMonth(monthIndex - 1)}
+                  >
+                    ‹
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: monthIndex === MONTHS_TO_SHOW - 1 ? 1 : 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="adv-arrow-btn"
+                    disabled={monthIndex === MONTHS_TO_SHOW - 1}
+                    onClick={() => goToMonth(monthIndex + 1)}
+                  >
+                    ›
+                  </motion.button>
+                </div>
               </div>
             </div>
 
@@ -584,9 +960,22 @@ function PlantAdvice({ plant, weather, onBack }) {
           {/* งานของวันที่เลือก + เคล็ดลับ */}
           <div className="adv-side">
             <section className="adv-card adv-day-card">
-              <h3 className="adv-display adv-section-title-sm">
-                🗓️ วันที่ {selectedDay} {MONTH_LABELS[month]}
-              </h3>
+              <div className="adv-day-card-header">
+                <h3 className="adv-display adv-section-title-sm" style={{ margin: 0 }}>
+                  🗓️ วันที่ {selectedDay} {MONTH_LABELS[month]}
+                </h3>
+                {selectedDayEvents.length > 0 && (
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="adv-day-quick-sync-btn"
+                    onClick={() => handleSyncBatch(selectedDayEvents, `วันที่ ${selectedDay}`)}
+                    title="ตั้งเตือนเฉพาะงานของวันนี้ลง Google Calendar"
+                  >
+                    🔔 ตั้งเตือนวันนี้ ({selectedDayEvents.length})
+                  </motion.button>
+                )}
+              </div>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedDay}
@@ -601,6 +990,7 @@ function PlantAdvice({ plant, weather, onBack }) {
                     <ul className="adv-task-list">
                       {selectedTasks.map((t) => {
                         const done = !!completedTasks[taskKey(year, month, selectedDay, t)];
+                        const isSynced = !!savedReminders[taskKey(year, month, selectedDay, t)];
                         return (
                           <li
                             key={t}
@@ -610,6 +1000,21 @@ function PlantAdvice({ plant, weather, onBack }) {
                             <span className={`adv-task-check ${done ? 'checked' : ''}`}>{done ? '✓' : ''}</span>
                             <span className="adv-task-icon">{TASK_TYPES[t].icon}</span>
                             <span className="adv-task-label">{TASK_TYPES[t].label}</span>
+                            <button
+                              type="button"
+                              className={`adv-task-bell-btn ${isSynced ? 'synced' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSyncSingleTask(selectedDay, t);
+                              }}
+                              title={
+                                isSynced
+                                  ? 'ตั้งเตือนใน Google Calendar แล้ว (คลิกเพื่อดู)'
+                                  : 'คลิกเพื่อตั้งเตือนงานนี้ลง Google Calendar'
+                              }
+                            >
+                              {isSynced ? '🔔✓' : '🔔'}
+                            </button>
                           </li>
                         );
                       })}
@@ -618,6 +1023,7 @@ function PlantAdvice({ plant, weather, onBack }) {
                 </motion.div>
               </AnimatePresence>
             </section>
+
 
             <section className="adv-card adv-tips-card">
               <h3 className="adv-display adv-section-title-sm">💡 เคล็ดลับการดูแล{plantType}</h3>

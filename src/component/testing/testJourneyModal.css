@@ -1,0 +1,425 @@
+/**
+ * testJourneyModal.css
+ * Dark Mode Vertical Timeline Modal for System Testing Journey
+ * Designed specifically after the provided reference image.
+ */
+
+.qa-timeline-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: qaFadeIn 0.2s ease-out;
+}
+
+@keyframes qaFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.qa-timeline-modal {
+  width: 640px;
+  max-width: 100%;
+  max-height: 85vh;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #f8fafc;
+  font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Header */
+.qa-timeline-header {
+  padding: 18px 24px;
+  background: #1e293b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.qa-timeline-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qa-timeline-badge-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #059669, #0d9488);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.qa-timeline-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.qa-timeline-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.qa-timeline-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qa-recording-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.qa-recording-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: qaDotPulse 1.2s infinite;
+}
+
+@keyframes qaDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.qa-mode-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.qa-timeline-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.qa-timeline-close-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+/* Stats Bar */
+.qa-timeline-stats-bar {
+  padding: 10px 24px;
+  background: #090e1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.qa-timeline-stat-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.qa-stat-num {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.qa-stat-desc {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.qa-timeline-stat-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.qa-timeline-live-tag {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ef4444;
+  letter-spacing: 0.02em;
+}
+
+/* Body / Timeline */
+.qa-timeline-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+.qa-timeline-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+}
+
+.qa-timeline-empty h4 {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  color: #f1f5f9;
+}
+
+.qa-timeline-empty p {
+  margin: 0 auto;
+  max-width: 400px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.qa-timeline-tree {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The vertical connecting line matching reference */
+.qa-timeline-line {
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 11px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Timeline Item Node */
+.qa-timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding-left: 36px;
+  margin-bottom: 22px;
+}
+
+.qa-timeline-item:last-child {
+  margin-bottom: 4px;
+}
+
+/* Node circle indicator on the line */
+.qa-timeline-node {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.2s;
+}
+
+.qa-timeline-node.success {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+}
+
+.qa-timeline-node.fail {
+  background: #dc2626;
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+}
+
+.qa-timeline-node.navigation {
+  background: #4f46e5;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+.qa-timeline-node.click {
+  background: #059669;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.qa-timeline-node.pulsing {
+  animation: qaNodePulse 1.6s infinite;
+}
+
+@keyframes qaNodePulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+.qa-node-icon-pulse {
+  animation: qaIconSpin 4s linear infinite;
+}
+
+@keyframes qaIconSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Content */
+.qa-timeline-content {
+  flex: 1;
+}
+
+.qa-timeline-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.qa-timeline-time {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.qa-timeline-route-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  font-family: monospace;
+}
+
+.qa-timeline-duration-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: auto;
+}
+
+.qa-timeline-item-title {
+  margin: 0 0 3px 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.4;
+}
+
+.qa-timeline-item-desc {
+  margin: 0;
+  font-size: 12.5px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* Footer */
+.qa-timeline-footer {
+  padding: 14px 24px;
+  background: #1e293b;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.qa-timeline-footer-left,
+.qa-timeline-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qa-timeline-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.qa-timeline-btn-primary {
+  background: linear-gradient(135deg, #059669, #0d9488);
+  border: 1px solid #10b981;
+  color: #ffffff;
+}
+
+.qa-timeline-btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.qa-timeline-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+}
+
+.qa-timeline-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.qa-timeline-btn-text {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.qa-timeline-btn-text:hover {
+  background: rgba(239, 68, 68, 0.12);
+}

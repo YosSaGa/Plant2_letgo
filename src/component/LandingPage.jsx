@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CloudSun, Droplets, Sparkles, Sun, UserRound } from 'lucide-react';
+import { ArrowRight, CloudSun, Droplets, LogOut, Sparkles, Sun, UserRound } from 'lucide-react';
 import './landing.css';
 import './landing-wow.css';
 import './landing-login-redirect.css';
@@ -9,16 +9,32 @@ import ActionLoader from './ActionLoader';
 import { showLoginRedirect } from './loginRedirectNotice';
 import { useAuth } from '../context/AuthContext';
 
-export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, isLoggedIn }) {
-  const { user, profile, updateProfile } = useAuth();
+export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, onLogout, isLoggedIn }) {
+  const { user, profile, updateProfile, logout, requestLogout } = useAuth();
   const [isStarting, setIsStarting] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({ display_name: '', email: '' });
-  const openProfile = () => { setProfileForm({ display_name: profile?.display_name || 'ผู้ใช้ทดสอบ', email: user?.email || 'guest@plookploen.demo' }); setIsProfileOpen(false); setIsProfileModalOpen(true); };
-  const saveProfile = (event) => { event.preventDefault(); updateProfile(profileForm); setIsProfileModalOpen(false); };
+  const openProfile = () => {
+    setProfileForm({
+      display_name: profile?.display_name || 'ผู้ใช้ทดสอบ',
+      email: user?.email || 'guest@plookploen.demo',
+    });
+    setIsProfileOpen(false);
+    setIsProfileModalOpen(true);
+  };
+  const saveProfile = (event) => {
+    event.preventDefault();
+    updateProfile(profileForm);
+    setIsProfileModalOpen(false);
+  };
   const [space, setSpace] = useState('ระเบียง');
-  const plantMatch = space === 'แดดจัด' ? { icon: '🌶️', name: 'พริก', note: 'ชอบแดดจัด และให้ผลต่อเนื่อง' } : space === 'มุมร่ม' ? { icon: '🥬', name: 'ผักกาดหอม', note: 'เหมาะกับแสงรำไร ดูแลง่าย' } : { icon: '🌿', name: 'โหระพา', note: 'เหมาะกับกระถางและเก็บใบได้ไว' };
+  const plantMatch = space === 'แดดจัด'
+    ? { icon: '🌶️', name: 'พริก', note: 'ชอบแดดจัด และให้ผลต่อเนื่อง' }
+    : space === 'มุมร่ม'
+    ? { icon: '🥬', name: 'ผักกาดหอม', note: 'เหมาะกับแสงรำไร ดูแลง่าย' }
+    : { icon: '🌿', name: 'โหระพา', note: 'เหมาะกับกระถางและเก็บใบได้ไว' };
+
   const start = () => {
     if (isStarting) return;
     setIsStarting(true);
@@ -32,19 +48,307 @@ export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, is
       onStart();
     }, 1100);
   };
+
   return (
-    <motion.main className="lp-root" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}><AnimatePresence>{isStarting && <ActionLoader title="กำลังเตรียมแปลงปลูก" detail="จัดเครื่องมือให้พร้อมสำหรับต้นแรกของคุณ" />}</AnimatePresence>
-      <motion.nav className="lp-nav" initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}><div className="lp-brand"><motion.span animate={{ rotate: [0, 10, -8, 0] }} transition={{ duration: 2.6, repeat: Infinity }}>🌿</motion.span> PlookPloen</div><div className="lp-nav-actions"><button onClick={onPlantInfo}>ข้อมูลพืช</button><button onClick={onAdmin}>ดูข้อมูลแอดมิน</button><motion.button className="lp-login" onClick={onLogin} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: .97 }} animate={{ boxShadow: ['0 5px 13px #1f8b4c33','0 8px 18px #1f8b4c55','0 5px 13px #1f8b4c33'] }} transition={{ boxShadow: { duration: 2.4, repeat: Infinity } }}>{isLoggedIn ? 'เข้าดูข้อมูล' : 'เข้าสู่ระบบ'}</motion.button></div></motion.nav>
+    <motion.main className="lp-root" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
+      <AnimatePresence>
+        {isStarting && <ActionLoader title="กำลังเตรียมแปลงปลูก" detail="จัดเครื่องมือให้พร้อมสำหรับต้นแรกของคุณ" />}
+      </AnimatePresence>
+
+      <motion.nav className="lp-nav" initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}>
+        <div className="lp-brand">
+          <motion.span animate={{ rotate: [0, 10, -8, 0] }} transition={{ duration: 2.6, repeat: Infinity }}>🌿</motion.span> PlookPloen
+        </div>
+        <div className="lp-nav-actions">
+          <button onClick={onAdmin}>ดูข้อมูลแอดมิน</button>
+          {isLoggedIn ? (
+            <div className="lp-nav-user-actions">
+              <motion.button className="lp-login" onClick={onStart} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.97 }}>
+                เข้าสู่แปลงปลูก
+              </motion.button>
+              <motion.button 
+                type="button"
+                className="lp-nav-logout-btn" 
+                onClick={() => {
+                  if (typeof requestLogout === 'function') {
+                    requestLogout(() => {
+                      if (typeof onLogout === 'function') onLogout();
+                    });
+                  } else {
+                    logout().then(() => {
+                      if (typeof onLogout === 'function') onLogout();
+                    });
+                  }
+                }} 
+                whileHover={{ scale: 1.05, y: -2 }} 
+                whileTap={{ scale: 0.97 }} 
+                title="ออกจากระบบ"
+              >
+                <LogOut size={16} /> <span>ออกจากระบบ</span>
+              </motion.button>
+            </div>
+          ) : (
+            <motion.button
+              className="lp-login"
+              onClick={onLogin}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              animate={{ boxShadow: ['0 5px 13px #1f8b4c33','0 8px 18px #1f8b4c55','0 5px 13px #1f8b4c33'] }}
+              transition={{ boxShadow: { duration: 2.4, repeat: Infinity } }}
+            >
+              เข้าสู่ระบบ
+            </motion.button>
+          )}
+        </div>
+      </motion.nav>
+
       <section className="lp-hero">
-        <motion.div className="lp-copy" initial={{ x: -28, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.13, duration: 0.55 }}><p className="lp-eyebrow">YOUR FRIENDLY GARDEN COMPANION</p><h1>ปลูกให้เพลิน<br /><em>ดูแลง่ายทุกวัน</em></h1><p className="lp-description">PlookPloen ช่วยบันทึกพืช วางแผนการดูแล ติดตามอากาศ และตรวจโรคพืชเบื้องต้นในที่เดียว</p><div className="lp-actions"><motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: .97 }} className="lp-primary" onClick={start}>เริ่มต้นใช้งาน <span>→</span></motion.button><motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: .97 }} className="lp-secondary" onClick={onPlantInfo}>ดูข้อมูลพืช</motion.button></div></motion.div>
-        <motion.div className="lp-art" initial={{ scale: .9, opacity: 0, rotate: 2 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} transition={{ delay: .18, type: 'spring', bounce: .35 }}><motion.div className="lp-sun" animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>☀️</motion.div><motion.div className="lp-cloud" animate={{ x: [0, 12, 0] }} transition={{ duration: 5, repeat: Infinity }}>☁️</motion.div><motion.div className="lp-pot" animate={{ y: [0, -8, 0], rotate: [-1, 1, -1] }} transition={{ duration: 3.5, repeat: Infinity }}>🌱</motion.div><motion.span className="lp-leaf one" animate={{ rotate: [0, 12, 0] }} transition={{ duration: 2.8, repeat: Infinity }}>🍃</motion.span><motion.span className="lp-leaf two" animate={{ y: [0, -10, 0] }} transition={{ duration: 3.4, repeat: Infinity }}>🌿</motion.span></motion.div>
+        <motion.div className="lp-copy" initial={{ x: -28, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.13, duration: 0.55 }}>
+          <p className="lp-eyebrow">YOUR FRIENDLY GARDEN COMPANION</p>
+          <h1>ปลูกให้เพลิน<br /><em>ดูแลง่ายทุกวัน</em></h1>
+          <p className="lp-description">PlookPloen ช่วยบันทึกพืช วางแผนการดูแล ติดตามอากาศ และตรวจโรคพืชเบื้องต้นในที่เดียว</p>
+          <div className="lp-actions">
+            <motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.97 }} className="lp-primary" onClick={start}>
+              เริ่มต้นใช้งาน <span>→</span>
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="lp-secondary" onClick={onPlantInfo}>
+              ดูข้อมูลพืช
+            </motion.button>
+          </div>
+        </motion.div>
+        <motion.div className="lp-art" initial={{ scale: 0.9, opacity: 0, rotate: 2 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} transition={{ delay: 0.18, type: 'spring', bounce: 0.35 }}>
+          <motion.div className="lp-sun" animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>☀️</motion.div>
+          <motion.div className="lp-cloud" animate={{ x: [0, 12, 0] }} transition={{ duration: 5, repeat: Infinity }}>☁️</motion.div>
+          <motion.div className="lp-pot" animate={{ y: [0, -8, 0], rotate: [-1, 1, -1] }} transition={{ duration: 3.5, repeat: Infinity }}>🌱</motion.div>
+          <motion.span className="lp-leaf one" animate={{ rotate: [0, 12, 0] }} transition={{ duration: 2.8, repeat: Infinity }}>🍃</motion.span>
+          <motion.span className="lp-leaf two" animate={{ y: [0, -10, 0] }} transition={{ duration: 3.4, repeat: Infinity }}>🌿</motion.span>
+        </motion.div>
       </section>
-      <motion.section className="lp-today" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .32 }}><div className="lp-today-title"><span><Sparkles size={18}/></span><div><p>GARDEN MOMENT</p><h2>วันนี้เริ่มต้นสวนของคุณได้เลย</h2></div></div><div className="lp-today-cards"><article><CloudSun size={23}/><div><small>สภาพอากาศ</small><b>29°C · แดดสบาย</b><p>เหมาะกับการเริ่มเพาะเมล็ดช่วงเช้า</p></div></article><article><Droplets size={23}/><div><small>เคล็ดลับวันนี้</small><b>เช็กดินก่อนรดน้ำ</b><p>ดินชื้นอยู่แล้ว รอรดรอบถัดไปได้</p></div></article><article><Sun size={23}/><div><small>สำหรับมือใหม่</small><b>เริ่มจากพืชเก็บเร็ว</b><p>กะเพราและผักกาดหอมเริ่มง่าย</p></div></article></div></motion.section>
-      <section className="lp-match"><div className="lp-match-copy"><p className="lp-eyebrow">PLANT MATCH</p><h2>พืชแบบไหน<br/><em>เหมาะกับมุมของคุณ?</em></h2><p>เลือกสภาพพื้นที่คร่าว ๆ แล้วเริ่มจากพืชที่ดูแลง่ายที่สุด</p><div className="lp-match-options">{['ระเบียง', 'แดดจัด', 'มุมร่ม'].map((item) => <button key={item} className={space === item ? 'active' : ''} onClick={() => setSpace(item)}>{item}</button>)}</div></div><motion.div className="lp-match-result" key={space} initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }}><span>{plantMatch.icon}</span><p>เราแนะนำ</p><h3>{plantMatch.name}</h3><small>{plantMatch.note}</small><button onClick={onPlantInfo}>ดูข้อมูลพืช <ArrowRight size={16}/></button></motion.div></section>
-      <section className="lp-features"><article><span>🪴</span><h2>บันทึกการปลูก</h2><p>เก็บข้อมูลชนิดพืช ระยะการเติบโต และจำนวนต้นไว้เป็นระเบียบ</p></article><article><span>💧</span><h2>ดูแลตามสภาพอากาศ</h2><p>รับคำแนะนำการรดน้ำที่เหมาะกับอุณหภูมิและความชื้น</p></article><article><span>🔎</span><h2>ตรวจโรคพืช</h2><p>อัปโหลดรูปพืชเพื่อดูผลวิเคราะห์โรคเบื้องต้น</p></article></section>
-      <section className="lp-dashboard"><div className="lp-dashboard-copy"><p className="lp-eyebrow">ALL YOUR GARDEN, IN ONE PLACE</p><h2>ผู้ช่วยคนเล็ก<br />สำหรับสวนของคุณ</h2><p>จัดการงานประจำวันได้ง่ายขึ้น รู้ว่าต้นไหนต้องรดน้ำ และวางแผนดูแลโดยไม่ต้องจดจำเอง</p><ul><li>บันทึกพืชได้หลายชนิด</li><li>ดูคำแนะนำเฉพาะต้นและสภาพอากาศ</li><li>เลือกดูคลังข้อมูลพืชก่อนเริ่มปลูก</li></ul></div><div className="lp-mini-app"><div className="lp-mini-head"><span>🌿 สวนของฉัน</span><i>วันนี้</i></div><div className="lp-mini-weather">☀️ <div><b>29°C</b><small>อากาศแจ่มใส</small></div><em>ความชื้น 68%</em></div><div className="lp-mini-task"><span>💧</span><div><b>รดน้ำต้นพริก</b><small>แนะนำ 300 มล. ในช่วงเช้า</small></div><strong>วันนี้</strong></div><div className="lp-mini-task"><span>🔎</span><div><b>ตรวจใบมะเขือเทศ</b><small>สังเกตรอยจุดและแมลงใต้ใบ</small></div><strong>พรุ่งนี้</strong></div></div></section>
-      <section className="lp-steps"><p className="lp-eyebrow">START IN THREE SIMPLE STEPS</p><h2>เริ่มดูแลสวนได้ในไม่กี่นาที</h2><div><article><b>01</b><span>เลือกพืช</span><p>เลือกชนิดพืช ระยะเติบโต และวิธีปลูก</p></article><article><b>02</b><span>รับแผนดูแล</span><p>ดูงานรดน้ำ ใส่ปุ๋ย และตรวจสุขภาพพืช</p></article><article><b>03</b><span>ปลูกอย่างมั่นใจ</span><p>ติดตามคำแนะนำและสนุกกับการเห็นพืชเติบโต</p></article></div></section>
-      <section className="lp-bottom-cta"><div><p>เริ่มต้นสวนของคุณวันนี้</p><h2>ทุกต้นที่ดี เริ่มจากการดูแลที่พอดี</h2></div><button className="lp-primary" onClick={start}>เริ่มเพิ่มพืช →</button></section>
-    {isLoggedIn && createPortal(<><div className="lp-profile-menu"><button className="lp-profile-icon" type="button" title="โปรไฟล์ผู้ใช้" aria-label="โปรไฟล์ผู้ใช้" aria-expanded={isProfileOpen} onClick={() => setIsProfileOpen((open) => !open)}><UserRound size={18}/></button>{isProfileOpen && <div className="lp-profile-popover"><strong>{profile?.display_name || 'ผู้ใช้ทดสอบ'}</strong><span>{user?.email || 'guest@plookploen.demo'}</span><button type="button" onClick={openProfile}>ดูโปรไฟล์</button></div>}</div>{isProfileModalOpen && <div className="lp-profile-modal-backdrop" onClick={() => setIsProfileModalOpen(false)}><form className="lp-profile-modal" onSubmit={saveProfile} onClick={(event) => event.stopPropagation()}><div><p>โปรไฟล์ผู้ใช้ · Mock</p><button type="button" aria-label="ปิด" onClick={() => setIsProfileModalOpen(false)}>×</button></div><h2>ข้อมูลของฉัน</h2><label>ชื่อผู้ใช้<input value={profileForm.display_name} onChange={(event) => setProfileForm({ ...profileForm, display_name: event.target.value })}/></label><label>อีเมล<input type="email" value={profileForm.email} onChange={(event) => setProfileForm({ ...profileForm, email: event.target.value })}/></label><section><span>จังหวัด<small>{profile?.province || 'กรุงเทพมหานคร'}</small></span><span>อำเภอ / เขต<small>{profile?.district || 'ปทุมวัน'}</small></span></section><button className="lp-profile-save" type="submit">บันทึกข้อมูล</button></form></div>}</>, document.body)}</motion.main>
+
+      <motion.section className="lp-today" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
+        <div className="lp-today-title">
+          <span><Sparkles size={18}/></span>
+          <div>
+            <p>GARDEN MOMENT</p>
+            <h2>วันนี้เริ่มต้นสวนของคุณได้เลย</h2>
+          </div>
+        </div>
+        <div className="lp-today-cards">
+          <article>
+            <CloudSun size={23}/>
+            <div>
+              <small>สภาพอากาศ</small>
+              <b>29°C · แดดสบาย</b>
+              <p>เหมาะกับการเริ่มเพาะเมล็ดช่วงเช้า</p>
+            </div>
+          </article>
+          <article>
+            <Droplets size={23}/>
+            <div>
+              <small>เคล็ดลับวันนี้</small>
+              <b>เช็กดินก่อนรดน้ำ</b>
+              <p>ดินชื้นอยู่แล้ว รอรดรอบถัดไปได้</p>
+            </div>
+          </article>
+          <article>
+            <Sun size={23}/>
+            <div>
+              <small>สำหรับมือใหม่</small>
+              <b>เริ่มจากพืชเก็บเร็ว</b>
+              <p>กะเพราและผักกาดหอมเริ่มง่าย</p>
+            </div>
+          </article>
+        </div>
+      </motion.section>
+
+      <section className="lp-match">
+        <div className="lp-match-copy">
+          <p className="lp-eyebrow">PLANT MATCH</p>
+          <h2>พืชแบบไหน<br/><em>เหมาะกับมุมของคุณ?</em></h2>
+          <p>เลือกสภาพพื้นที่คร่าว ๆ แล้วเริ่มจากพืชที่ดูแลง่ายที่สุด</p>
+          <div className="lp-match-options">
+            {['ระเบียง', 'แดดจัด', 'มุมร่ม'].map((item) => (
+              <button key={item} className={space === item ? 'active' : ''} onClick={() => setSpace(item)}>{item}</button>
+            ))}
+          </div>
+        </div>
+        <motion.div className="lp-match-result" key={space} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
+          <span>{plantMatch.icon}</span>
+          <p>เราแนะนำ</p>
+          <h3>{plantMatch.name}</h3>
+          <small>{plantMatch.note}</small>
+          <button onClick={onPlantInfo}>ดูข้อมูลพืช <ArrowRight size={16}/></button>
+        </motion.div>
+      </section>
+
+      <section className="lp-features">
+        <article>
+          <span>🪴</span>
+          <h2>บันทึกการปลูก</h2>
+          <p>เก็บข้อมูลชนิดพืช ระยะการเติบโต และจำนวนต้นไว้เป็นระเบียบ</p>
+        </article>
+        <article>
+          <span>💧</span>
+          <h2>ดูแลตามสภาพอากาศ</h2>
+          <p>รับคำแนะนำการรดน้ำที่เหมาะกับอุณหภูมิและความชื้น</p>
+        </article>
+        <article>
+          <span>🔎</span>
+          <h2>ตรวจโรคพืช</h2>
+          <p>อัปโหลดรูปพืชเพื่อดูผลวิเคราะห์โรคเบื้องต้น</p>
+        </article>
+      </section>
+
+      <section className="lp-dashboard">
+        <div className="lp-dashboard-copy">
+          <p className="lp-eyebrow">ALL YOUR GARDEN, IN ONE PLACE</p>
+          <h2>ผู้ช่วยคนเล็ก<br />สำหรับสวนของคุณ</h2>
+          <p>จัดการงานประจำวันได้ง่ายขึ้น รู้ว่าต้นไหนต้องรดน้ำ และวางแผนดูแลโดยไม่ต้องจดจำเอง</p>
+          <ul>
+            <li>บันทึกพืชได้หลายชนิด</li>
+            <li>ดูคำแนะนำเฉพาะต้นและสภาพอากาศ</li>
+            <li>เลือกดูคลังข้อมูลพืชก่อนเริ่มปลูก</li>
+          </ul>
+        </div>
+        <div className="lp-mini-app">
+          <div className="lp-mini-head">
+            <span>🌿 สวนของฉัน</span>
+            <i>วันนี้</i>
+          </div>
+          <div className="lp-mini-weather">
+            ☀️ <div><b>29°C</b><small>อากาศแจ่มใส</small></div><em>ความชื้น 68%</em>
+          </div>
+          <div className="lp-mini-task">
+            <span>💧</span>
+            <div><b>รดน้ำต้นพริก</b><small>แนะนำ 300 มล. ในช่วงเช้า</small></div>
+            <strong>วันนี้</strong>
+          </div>
+          <div className="lp-mini-task">
+            <span>🔎</span>
+            <div><b>ตรวจใบมะเขือเทศ</b><small>สังเกตรอยจุดและแมลงใต้ใบ</small></div>
+            <strong>พรุ่งนี้</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="lp-steps">
+        <p className="lp-eyebrow">START IN THREE SIMPLE STEPS</p>
+        <h2>เริ่มดูแลสวนได้ในไม่กี่นาที</h2>
+        <div>
+          <article><b>01</b><span>เลือกพืช</span><p>เลือกชนิดพืช ระยะเติบโต และวิธีปลูก</p></article>
+          <article><b>02</b><span>รับแผนดูแล</span><p>ดูงานรดน้ำ ใส่ปุ๋ย และตรวจสุขภาพพืช</p></article>
+          <article><b>03</b><span>ปลูกอย่างมั่นใจ</span><p>ติดตามคำแนะนำและสนุกกับการเห็นพืชเติบโต</p></article>
+        </div>
+      </section>
+
+      <section className="lp-bottom-cta">
+        <div>
+          <p>เริ่มต้นสวนของคุณวันนี้</p>
+          <h2>ทุกต้นที่ดี เริ่มจากการดูแลที่พอดี</h2>
+        </div>
+        <button className="lp-primary" onClick={start}>เริ่มเพิ่มพืช →</button>
+      </section>
+
+      {isLoggedIn && createPortal(
+        <>
+          <div className="lp-profile-menu">
+            <button
+              className="lp-profile-icon"
+              type="button"
+              title="โปรไฟล์ผู้ใช้"
+              aria-label="โปรไฟล์ผู้ใช้"
+              aria-expanded={isProfileOpen}
+              onClick={() => setIsProfileOpen((open) => !open)}
+            >
+              <UserRound size={18}/>
+            </button>
+            {isProfileOpen && (
+              <div className="lp-profile-popover">
+                <div className="lp-profile-popover-user">
+                  <strong>{profile?.display_name || user?.email?.split('@')[0] || 'ผู้ใช้งาน'}</strong>
+                  <span>{user?.email || 'guest@plookploen.demo'}</span>
+                  {profile?.province && <span className="lp-profile-badge">📍 {profile.province}</span>}
+                </div>
+                <div className="lp-profile-popover-divider" />
+                <button type="button" className="lp-popover-btn" onClick={openProfile}>
+                  <UserRound size={15}/> ดูโปรไฟล์
+                </button>
+                <button
+                  type="button"
+                  className="lp-profile-logout"
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    if (typeof requestLogout === 'function') {
+                      requestLogout(() => {
+                        if (typeof onLogout === 'function') onLogout();
+                      });
+                    } else {
+                      logout().then(() => {
+                        if (typeof onLogout === 'function') onLogout();
+                      });
+                    }
+                  }}
+                >
+                  <LogOut size={15}/> ออกจากระบบ
+                </button>
+              </div>
+            )}
+          </div>
+
+          {isProfileModalOpen && (
+            <div className="lp-profile-modal-backdrop" onClick={() => setIsProfileModalOpen(false)}>
+              <form className="lp-profile-modal" onSubmit={saveProfile} onClick={(event) => event.stopPropagation()}>
+                <div>
+                  <p>โปรไฟล์ผู้ใช้</p>
+                  <button type="button" aria-label="ปิด" onClick={() => setIsProfileModalOpen(false)}>×</button>
+                </div>
+                <h2>ข้อมูลของฉัน</h2>
+                <label>
+                  ชื่อผู้ใช้
+                  <input
+                    value={profileForm.display_name}
+                    onChange={(event) => setProfileForm({ ...profileForm, display_name: event.target.value })}
+                  />
+                </label>
+                <label>
+                  อีเมล
+                  <input
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(event) => setProfileForm({ ...profileForm, email: event.target.value })}
+                  />
+                </label>
+                <section>
+                  <span>จังหวัด<small>{profile?.province || 'สุราษฎร์ธานี'}</small></span>
+                  <span>อำเภอ / เขต<small>{profile?.district || 'เมือง'}</small></span>
+                </section>
+                <div className="lp-profile-modal-actions">
+                  <button className="lp-profile-save" type="submit">บันทึกข้อมูล</button>
+                  <button
+                    type="button"
+                    className="lp-profile-modal-logout"
+                    onClick={() => {
+                      setIsProfileModalOpen(false);
+                      if (typeof requestLogout === 'function') {
+                        requestLogout(() => {
+                          if (typeof onLogout === 'function') onLogout();
+                        });
+                      } else {
+                        logout().then(() => {
+                          if (typeof onLogout === 'function') onLogout();
+                        });
+                      }
+                    }}
+                  >
+                    <LogOut size={16}/> ออกจากระบบ
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </>,
+        document.body
+      )}
+    </motion.main>
   );
 }
