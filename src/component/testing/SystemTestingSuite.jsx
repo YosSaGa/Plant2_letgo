@@ -33,7 +33,8 @@ import {
   Send,
   Database,
   Server,
-  RefreshCw
+  RefreshCw,
+  GitMerge
 } from 'lucide-react';
 import { 
   MODULE_INFO, 
@@ -42,12 +43,13 @@ import {
 } from './testData';
 import { FUNCTIONAL_MODULES } from './LiveTestOverlay';
 import ShaderTestCard from './ShaderTestCard';
+import SystemFlowDiagram from './SystemFlowDiagram';
 import { checkSupabaseHealth } from '../../lib/supabaseHealth';
 import './systemTesting.css';
 
 export default function SystemTestingSuite({ onBack }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('hub'); // 'hub' | 'db' | 'ai'
+  const [activeTab, setActiveTab] = useState('hub'); // 'hub' | 'db' | 'ai' | 'flow'
   const [selectedHubModule, setSelectedHubModule] = useState('all');
   const [hubRepeatCount, setHubRepeatCount] = useState(1);
   const [shaderTheme, setShaderTheme] = useState('emerald'); // 'emerald' | 'cyber' | 'sunset' | 'midnight'
@@ -312,6 +314,54 @@ export default function SystemTestingSuite({ onBack }) {
 
   return (
     <div className="qa-root">
+      {/* Explicit User-Specified Font Stylesheet Injection */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chonburi&family=Fjalla+One&family=Lilita+One&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=ZCOOL+KuaiLe&display=swap');
+
+        .qa-root,
+        .qa-root *,
+        .qa-root button,
+        .qa-root input,
+        .qa-root select,
+        .qa-root textarea,
+        .qa-root table,
+        .qa-root th,
+        .qa-root td,
+        .qa-root h1,
+        .qa-root h2,
+        .qa-root h3,
+        .qa-root h4,
+        .qa-root h5,
+        .qa-root h6,
+        .qa-root p,
+        .qa-root span,
+        .qa-root div,
+        .qa-root label,
+        .qa-root strong,
+        .qa-root b,
+        .qa-root small {
+          font-family: 'Prompt', 'Chonburi', 'Lilita One', 'Bebas Neue', 'Fjalla One', 'ZCOOL KuaiLe', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        .qa-root code,
+        .qa-root pre,
+        .qa-root kbd,
+        .qa-root samp,
+        .qa-root .qa-webhook-input,
+        .qa-root .qa-terminal-card,
+        .qa-root .qa-terminal-card *,
+        .qa-root .qa-code-block,
+        .qa-root .qa-code-block *,
+        .qa-root .qa-sim-url-bar,
+        .qa-root .qa-sim-url-bar *,
+        .qa-root .qa-hub-route-tag,
+        .qa-root .qa-test-id,
+        .qa-root .qa-table-code,
+        .qa-root .qa-log-time {
+          font-family: 'Fira Code', 'Consolas', 'Courier New', monospace !important;
+        }
+      `}</style>
+
       {/* ---------- HEADER ---------- */}
       <header className="qa-header">
         <div className="qa-header-inner">
@@ -364,8 +414,8 @@ export default function SystemTestingSuite({ onBack }) {
             </div>
             <div className="qa-stat-info">
               <span className="qa-stat-label">ฟังก์ชันการทดสอบ</span>
-              <strong className="qa-stat-value">8 ฟังก์ชันหลัก</strong>
-              <span className="qa-stat-sub">ครอบคลุมระบบ PlookPloen</span>
+              <strong className="qa-stat-value">6 ฟังก์ชันหลัก</strong>
+              <span className="qa-stat-sub">ครอบคลุมระบบ PlookPloen (ฟังก์ชัน 1 - 6)</span>
             </div>
           </div>
 
@@ -448,7 +498,7 @@ export default function SystemTestingSuite({ onBack }) {
           >
             <Sparkles size={18} />
             <span>🚀 ศูนย์รันการทดสอบ (Live Test Hub)</span>
-            <span className="qa-tab-count" style={{ background: '#10b981', color: '#ffffff' }}>8 ฟังก์ชัน</span>
+            <span className="qa-tab-count" style={{ background: '#10b981', color: '#ffffff' }}>6 ฟังก์ชัน</span>
           </button>
 
           <button 
@@ -472,6 +522,19 @@ export default function SystemTestingSuite({ onBack }) {
             <Cpu size={18} />
             <span>AI Model Performance (`server.py`)</span>
             <span className="qa-tab-count">94.6% Acc</span>
+          </button>
+
+          <button 
+            type="button" 
+            className={`qa-tab-btn ${activeTab === 'flow' ? 'active' : ''}`}
+            onClick={() => setActiveTab('flow')}
+            style={activeTab === 'flow' ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#ffffff', borderColor: '#a78bfa' } : {}}
+          >
+            <GitMerge size={18} />
+            <span>🗺️ แผนผัง Flow ระบบ (User & Admin Flow)</span>
+            <span className="qa-tab-count" style={{ background: activeTab === 'flow' ? '#8b5cf6' : '#ede9fe', color: activeTab === 'flow' ? '#ffffff' : '#6d28d9' }}>
+              ผังระบบ
+            </span>
           </button>
         </div>
 
@@ -552,7 +615,7 @@ export default function SystemTestingSuite({ onBack }) {
               </div>
             </div>
 
-            {/* 8 FUNCTIONAL MODULE SHADER CARDS & THEME PICKER */}
+            {/* 6 FUNCTIONAL MODULE SHADER CARDS & THEME PICKER */}
             <div style={{ marginTop: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
                 <div>
@@ -560,7 +623,7 @@ export default function SystemTestingSuite({ onBack }) {
                     <span>✨ เลือกระบบทดสอบแบบ</span>
                   </h3>
                   <span style={{ fontSize: 13, color: '#64748b' }}>
-                    คลิกเลือกการ์ดระบบที่ต้องการ เพื่อเปิดทดสอบบนหน้าเว็บจริงแบบเรียลไทม์
+                    คลิกเลือกการ์ดระบบที่ต้องการ เพื่อเปิดทดสอบบนหน้าเว็บจริงแบบเรียลไทม์ (ฟังก์ชัน 1 - 6)
                   </span>
                 </div>
 
@@ -584,6 +647,7 @@ export default function SystemTestingSuite({ onBack }) {
                           border: 'none',
                           fontSize: '12px',
                           fontWeight: 700,
+                          fontFamily: "'Prompt', sans-serif",
                           cursor: 'pointer',
                           background: shaderTheme === t.id ? '#ffffff' : 'transparent',
                           color: shaderTheme === t.id ? t.color : '#64748b',
@@ -607,6 +671,7 @@ export default function SystemTestingSuite({ onBack }) {
                       color: enableShader ? '#047857' : '#64748b',
                       fontSize: '12px',
                       fontWeight: 700,
+                      fontFamily: "'Prompt', sans-serif",
                       cursor: 'pointer',
                       transition: 'all 0.15s',
                     }}
@@ -943,6 +1008,13 @@ export default function SystemTestingSuite({ onBack }) {
               </div>
             </div>
           </motion.div>
+        )}
+
+        {/* ===================================================================
+            TAB 3: SYSTEM ARCHITECTURE & WORKFLOW (แผนผัง Flow การทำงานของระบบ)
+            =================================================================== */}
+        {activeTab === 'flow' && (
+          <SystemFlowDiagram onShowToast={showToast} />
         )}
       </main>
 

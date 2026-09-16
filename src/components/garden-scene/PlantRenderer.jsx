@@ -13,9 +13,13 @@ import { normalizePlantType, normalizeStage } from './gardenSceneUtils';
  * a placeholder gradient box with emoji.
  */
 
-// Map of which plant images are available (will grow as more are generated)
+// Map of which plant images are available (all 5 plants 100% complete)
 const AVAILABLE_PLANTS = {
   chili: ['seed', 'seedling', 'mature'],
+  tomato: ['seed', 'seedling', 'mature'],
+  basil: ['seed', 'seedling', 'mature'],
+  holyBasil: ['seed', 'seedling', 'mature'],
+  lettuce: ['seed', 'seedling', 'mature'],
 };
 
 const PLANT_EMOJI = {
@@ -43,7 +47,7 @@ function getPlantImagePath(plantType, stage, method) {
   const imgStage = stage === 'fruiting' ? 'mature' : stage;
   
   if (available && available.includes(imgStage)) {
-    return `/assets/garden/plants/${plantType}/${method}/${imgStage}.jpg`;
+    return `/assets/garden/plants/${plantType}/${method}/${imgStage}.png`;
   }
   return null;
 }
@@ -108,26 +112,31 @@ export default function PlantRenderer({ plantType, stage, potSize, method = 'pot
 
   return (
     <motion.div
-      className={`gs-plant-wrapper ${className}`}
+      className={`gs-plant-wrapper ${plantMethod} ${className}`}
       key={`${normType}-${normStage}-${plantMethod}`}
-      initial={{ scale: 0.92, opacity: 0, y: 8 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0.92, opacity: 0, y: -8 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.95, opacity: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
     >
-      {/* Living Sway Animation on Plant */}
+      {/* Ground Contact Shadow - locks base firmly to terrain */}
+      <div className={`gs-ground-shadow-wrap ${plantMethod}`} aria-hidden="true">
+        <div className="gs-ground-shadow-ambient" />
+        <div className="gs-ground-shadow-core" />
+      </div>
+
+      {/* Living Sway Animation on Plant - Pivots at base without lifting off ground */}
       <motion.div
         className="gs-plant-sway"
         animate={{
-          rotate: [-1.4, 1.4, -1.4],
-          y: [0, -4, 0],
+          rotate: [-0.9, 0.9, -0.9],
         }}
         transition={{
-          duration: 4.5,
+          duration: 5,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        style={{ transformOrigin: 'bottom center' }}
+        style={{ transformOrigin: '50% 92%' }}
       >
         {imgPath ? (
           <img

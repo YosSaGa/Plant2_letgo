@@ -1,0 +1,619 @@
+/**
+ * systemFlow.css
+ * Visual System Flowchart & Architecture Diagram Styles
+ * Modern Blueprint Canvas with Decision Diamonds, Process Cards, and Dynamic Connectors
+ */
+
+/* Main Flowchart Canvas Wrapper */
+.qa-flow-canvas-wrapper {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Blueprint Dot-Grid Background Canvas */
+.qa-flow-board {
+  background-color: #f8fafc;
+  background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  padding: 40px 24px;
+  overflow-x: auto;
+  position: relative;
+  min-height: 600px;
+}
+
+/* Flowchart Control Bar */
+.qa-flow-toolbar {
+  padding: 18px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.qa-flow-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qa-flow-toolbar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qa-flow-mode-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.qa-flow-mode-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.qa-flow-mode-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.qa-flow-mode-btn.active-user {
+  background: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.qa-flow-mode-btn.active-admin {
+  background: #7c3aed;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.qa-flow-mode-btn.active-all {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
+}
+
+/* Legend Strip */
+.qa-flowchart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 24px;
+  background: #ffffff;
+  border-bottom: 1px dashed #e2e8f0;
+  font-size: 12px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.qa-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-legend-shape-pill {
+  width: 24px;
+  height: 12px;
+  border-radius: 999px;
+  background: #10b981;
+}
+
+.qa-legend-shape-diamond {
+  width: 14px;
+  height: 14px;
+  transform: rotate(45deg);
+  background: #f59e0b;
+  border-radius: 2px;
+}
+
+.qa-legend-shape-process {
+  width: 18px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 3px;
+}
+
+.qa-legend-shape-db {
+  width: 16px;
+  height: 14px;
+  background: #0284c7;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   FLOWCHART NODES & SHAPES
+   ========================================================================== */
+
+.qa-fc-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Terminal / Start / End Nodes (Stadium Shape) */
+.qa-fc-terminal-node {
+  background: #ffffff;
+  border: 2px solid #059669;
+  border-radius: 999px;
+  padding: 10px 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #065f46;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.15);
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s;
+}
+
+.qa-fc-terminal-node:hover {
+  transform: scale(1.03);
+}
+
+.qa-fc-terminal-node.admin {
+  border-color: #7c3aed;
+  color: #5b21b6;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.15);
+}
+
+.qa-fc-terminal-node.end {
+  border-color: #0f172a;
+  color: #0f172a;
+}
+
+.qa-fc-terminal-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  animation: fc-pulse 2s infinite;
+}
+
+.qa-fc-terminal-node.admin .qa-fc-terminal-pulse {
+  background: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+}
+
+@keyframes fc-pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Vertical Arrow Connectors */
+.qa-fc-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 4px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.qa-fc-arrow-line {
+  width: 2px;
+  height: 32px;
+  background: #94a3b8;
+}
+
+.qa-fc-arrow-line.dashed {
+  background: transparent;
+  border-left: 2px dashed #94a3b8;
+}
+
+.qa-fc-arrow-head {
+  color: #64748b;
+  margin-top: -6px;
+  font-size: 14px;
+}
+
+.qa-fc-arrow-label {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  margin: 4px 0;
+}
+
+.qa-fc-arrow-label.yes {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.qa-fc-arrow-label.no {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Decision Node (Flowchart Diamond) */
+.qa-fc-decision-card {
+  background: #ffffff;
+  border: 2px solid #f59e0b;
+  border-radius: 16px;
+  padding: 16px 22px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qa-fc-decision-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.2);
+  border-color: #d97706;
+}
+
+.qa-fc-decision-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fffbeb;
+  color: #b45309;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.qa-fc-decision-title {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #78350f;
+}
+
+.qa-fc-decision-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #92400e;
+}
+
+/* Branching Container (2 columns for Yes / No) */
+.qa-fc-branch-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  width: 100%;
+  margin: 12px 0;
+  position: relative;
+}
+
+.qa-fc-branch-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 420px;
+}
+
+/* Process / Action Node (Main Flowchart Rectangle) */
+.qa-fc-process-node {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  width: 100%;
+  max-width: 580px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.qa-fc-process-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.1);
+  border-color: #cbd5e1;
+}
+
+.qa-fc-process-node.user-border {
+  border-top: 4px solid #059669;
+}
+
+.qa-fc-process-node.admin-border {
+  border-top: 4px solid #7c3aed;
+}
+
+.qa-fc-process-node.selected {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25), 0 10px 24px rgba(15, 23, 42, 0.1);
+}
+
+.qa-fc-node-body {
+  padding: 16px 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.qa-fc-node-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+}
+
+.qa-fc-node-icon-box.user {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  color: #059669;
+}
+
+.qa-fc-node-icon-box.admin {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  color: #7c3aed;
+}
+
+.qa-fc-node-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.qa-fc-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.qa-fc-node-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.qa-fc-route-tag {
+  font-family: 'Fira Code', monospace !important;
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qa-fc-node-summary {
+  margin: 0 0 10px 0;
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.qa-fc-node-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f8fafc;
+  padding-top: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qa-fc-db-pill {
+  font-size: 11px;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qa-fc-db-pill code {
+  font-family: 'Fira Code', monospace !important;
+  font-size: 11px;
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #0f172a;
+}
+
+.qa-fc-quick-launch-btn {
+  border: none;
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.qa-fc-quick-launch-btn:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+.qa-fc-quick-launch-btn.admin:hover {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+/* Parallel Grid for Admin Branches */
+.qa-fc-parallel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin: 12px 0;
+}
+
+.qa-fc-parallel-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: 3px solid #7c3aed;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qa-fc-parallel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.12);
+  border-color: #a78bfa;
+}
+
+.qa-fc-parallel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.qa-fc-parallel-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.qa-fc-parallel-desc {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   NODE INSPECTOR SIDEBAR / DRAWER
+   ========================================================================== */
+
+.qa-fc-inspector-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.qa-fc-inspector-drawer {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  height: 100%;
+  box-shadow: -6px 0 28px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.qa-fc-inspector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.qa-fc-inspector-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qa-fc-inspector-section {
+  margin-bottom: 18px;
+}
+
+.qa-fc-inspector-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-fc-inspector-content {
+  font-size: 13.5px;
+  color: #1e293b;
+  line-height: 1.6;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.qa-fc-inspector-content code {
+  font-family: 'Fira Code', monospace !important;
+  font-size: 12px;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #0f172a;
+}

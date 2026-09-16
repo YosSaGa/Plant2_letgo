@@ -30,7 +30,7 @@ export default function GardenScene({
   potSize,
   method = 'pot',
   showControls = false,
-  showPlant = false, // ซ่อนรูปพืชไว้ก่อน แสดงเฉพาะฉากสภาพแวดล้อม (จนกว่าจะเจนรูปพืชเสร็จ)
+  showPlant = true, // เปิดแสดงรูปภาพพืชในสวน
   className = '',
   style = {},
 }) {

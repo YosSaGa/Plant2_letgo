@@ -248,6 +248,7 @@ export default function ShaderTestCard({
           color: '#ffffff',
           borderRadius: '24px',
           transition: 'all 0.25s ease',
+          fontFamily: "'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
       >
         {/* Header: Icon & Route Tag */}
@@ -394,6 +395,7 @@ export default function ShaderTestCard({
               color: '#ffffff',
               fontSize: '12.5px',
               fontWeight: 700,
+              fontFamily: "'Prompt', sans-serif",
               cursor: 'pointer',
               boxShadow: isSelected ? '0 4px 14px rgba(16, 185, 129, 0.45)' : 'none',
               transition: 'all 0.2s ease',

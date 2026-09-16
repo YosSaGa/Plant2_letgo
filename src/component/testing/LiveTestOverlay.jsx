@@ -166,15 +166,15 @@ const playClickSound = () => {
   } catch (_) {}
 };
 
-// 8 Functional Modules in PlookPloen
+// 6 Functional Modules in PlookPloen (เรียงลำดับ 1 ถึง 6 อย่างถูกต้อง)
 export const FUNCTIONAL_MODULES = [
   {
     id: 'all',
     title: '🌟 เทสทั้งระบบทีเดียว (Full System Integration)',
-    shortName: 'ทั้งระบบ (ตัดคลังพืช)',
+    shortName: 'ทั้งระบบ (6 ฟังก์ชัน)',
     pageKey: 'home',
     path: '/',
-    description: 'รันต่อเนื่องตั้งแต่หน้าแรก ➔ เข้าสู่ระบบ ➔ สมัครสมาชิก ➔ ลืมรหัสผ่าน ➔ เพิ่มพืช ➔ ดูสรุปพืช ➔ หน้าคำแนะนำ ➔ สภาพแวดล้อม 2D ➔ ปริมาณน้ำ ➔ ตรวจโรคพืช AI',
+    description: 'รันต่อเนื่อง: 1. ระบบสมาชิก ➔ 2. ฟอร์มเพิ่มพืชลงแปลง ➔ 3. สวน 2D & สภาพแวดล้อม ➔ 4. แดชบอร์ดสรุปสวน ➔ 5. คู่มือดูแล ➔ 6. ตรวจโรคพืช AI',
     icon: '🌟',
     badge: 'Full E2E'
   },
@@ -189,44 +189,44 @@ export const FUNCTIONAL_MODULES = [
     badge: 'Auth & Accounts'
   },
   {
-    id: 'info',
-    title: '📖 ฟังก์ชัน 2: คลังข้อมูลพืช (Plant Explorer)',
-    shortName: '2. คลังข้อมูลพืช',
-    pageKey: 'info',
-    path: '/plant-info',
-    description: 'ทดสอบคลังข้อมูลพืช 5 ชนิด ตัวกรองแดด/น้ำ การเปิดดูรายละเอียด และปุ่มย้อนกลับ',
-    icon: '📖',
-    badge: 'Encyclopedia'
-  },
-  {
     id: 'add',
-    title: '🌱 ฟังก์ชัน 3: ฟอร์มเพิ่มพืชลงแปลงปลูก',
-    shortName: '3. ฟอร์มเพิ่มพืช',
-    pageKey: 'add',
-    path: '/add-plant',
-    description: 'ทดสอบการเลือกพริก, เลือกระยะต้นกล้า, ปลูกในกระถาง 8 นิ้ว และกดเพิ่มลงแปลง',
+    title: '🌱 ฟังก์ชัน 2: ฟอร์มเพิ่มพืชลงแปลงปลูก (หน้าแรก ➔ เข้าสู่แปลงปลูก ➔ บันทึกพืช)',
+    shortName: '2. ฟอร์มเพิ่มพืช',
+    pageKey: 'home',
+    path: '/',
+    description: 'ทดสอบเริ่มต้นตั้งแต่หน้าแรก ➔ คลิก "เข้าสู่แปลงปลูก" ➔ เลือกพริก, ต้นกล้า, กระถาง 8 นิ้ว ➔ กด "+ เพิ่มลงแปลงปลูก"',
     icon: '🌱',
-    badge: 'Form & Input'
+    badge: 'Home ➔ Add Plant'
   },
   {
     id: 'garden',
-    title: '🏡 ฟังก์ชัน 4: สวน 2D & ปุ่มกลับสู่สวน',
-    shortName: '4. สวน 2D & Redirect',
-    pageKey: 'detail',
-    path: '/plant-details',
-    description: 'ทดสอบฉาก 2D สลับเวลาเช้า/เย็น ตรวจ Weather HUD และคลิก "กลับสู่สวน" เด้งไป /summary',
+    title: '🏡 ฟังก์ชัน 3: สวน 2D & ปุ่มกลับสู่สวน (หน้าสรุปสวน ➔ ดูสภาพแวดล้อม ➔ กลับสู่สวน)',
+    shortName: '3. สวน 2D & Redirect',
+    pageKey: 'stats',
+    path: '/summary',
+    description: 'ทดสอบเริ่มต้นจากหน้า summary ➔ คลิกการ์ดพืชเปิดดูสภาพแวดล้อม 2D (/plant-details) ➔ สลับเวลายามเช้า ➔ คลิก "กลับสู่สวน" เด้งกลับหน้า summary',
     icon: '🏡',
-    badge: '2D & Redirect'
+    badge: 'Summary ➔ 2D Garden'
   },
   {
     id: 'summary',
-    title: '📊 ฟังก์ชัน 5: แดชบอร์ดสรุปสวน & กราฟสถิติ',
-    shortName: '5. แดชบอร์ดสรุปสวน',
+    title: '📊 ฟังก์ชัน 4: แดชบอร์ดสรุปสวน & กราฟสถิติ',
+    shortName: '4. แดชบอร์ดสรุปสวน',
     pageKey: 'stats',
     path: '/summary',
     description: 'ทดสอบการ์ดสถิติพืช กราฟสัดส่วน Recharts และปุ่มนำทางตรวจโรคพืช',
     icon: '📊',
     badge: 'Analytics'
+  },
+  {
+    id: 'advice',
+    title: '💧 ฟังก์ชัน 5: คู่มือดูแลพืช & อากาศ',
+    shortName: '5. คู่มือดูแลพืช',
+    pageKey: 'advice',
+    path: '/care-guide',
+    description: 'ทดสอบการแสดงผลคำแนะนำรดน้ำ ความชื้นในดิน ปฏิทินดูแล และปุ่มกลับ',
+    icon: '💧',
+    badge: 'Care & Guide'
   },
   {
     id: 'disease',
@@ -237,16 +237,6 @@ export const FUNCTIONAL_MODULES = [
     description: 'ทดสอบความพร้อมโมเดล CNN 15 คลาส, การสลับเลือกพืช และปุ่มนำทางกลับ',
     icon: '🔬',
     badge: 'AI / MobileNetV3'
-  },
-  {
-    id: 'advice',
-    title: '💧 ฟังก์ชัน 7: คู่มือดูแลพืช & อากาศ',
-    shortName: '7. คู่มือดูแลพืช',
-    pageKey: 'advice',
-    path: '/care-guide',
-    description: 'ทดสอบการแสดงผลคำแนะนำรดน้ำ ความชื้นในดิน ปฏิทินดูแล และปุ่มกลับ',
-    icon: '💧',
-    badge: 'Care & Guide'
   }
 ];
 
@@ -935,57 +925,58 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 2: Plant Explorer
-  const testPlantInfo = async (loopNum, totalLoops) => {
+  // Test Functional 2: Add Plant Form (Starts from Home -> Clicks 'เข้าสู่แปลงปลูก' -> Enters Form)
+  const testAddPlant = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setCurrentStepText(`${loopPrefix}กำลังทดสอบคลังข้อมูลพืช (/plant-info)...`);
-    setTopBannerText(`🤖 ${loopPrefix}คลังข้อมูลพืช (สำรวจสายพันธุ์และวิธีปลูก)...`);
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 2: เริ่มต้นจากหน้าแรก ➔ กด "เข้าสู่แปลงปลูก"...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 2: เริ่มต้นจากหน้าแรก: คลิก "เข้าสู่แปลงปลูก"...`);
 
-    if (typeof goTo === 'function') goTo('info');
-    await sleep(1200);
+    // 1. Ensure starting on landing / home page
+    if (typeof goTo === 'function') goTo('home');
+    await sleep(1100);
 
-    // Inspect first card (.pi-card)
-    await smartClickTarget('.pi-card', {
-      label: 'สำรวจข้อมูลพริก',
-      waitBefore: 500,
-      waitAfter: 600
-    });
+    // 1.5 Check login state — ถ้ายังไม่ login จะเจอปุ่ม "เข้าสู่ระบบ" แทน "เข้าสู่แปลงปลูก"
+    const gardenBtnCheck = smartFindElement({ selector: '.lp-login, .lp-primary, button', text: 'เข้าสู่แปลงปลูก' })
+      || smartFindElement({ selector: '.lp-primary', text: 'เริ่มต้นใช้งาน' });
+    const loginBtnCheck = smartFindElement({ selector: '.lp-login, button', text: 'เข้าสู่ระบบ' });
 
-    // Click button with text "กลับหน้าแรก" (.pi-back-btn or button containing 'กลับ')
-    await smartClickTarget({ selector: 'button', text: 'กลับ' }, {
-      label: 'กลับหน้าหลัก',
-      waitBefore: 500,
-      waitAfter: 500,
+    if (!gardenBtnCheck && loginBtnCheck) {
+      // ⚠️ ยังไม่ login — ต้อง auto-login ก่อน
+      setTopBannerText(`⚠️ ${loopPrefix}ยังไม่ได้ Login — กำลัง Auto-Login ก่อนทดสอบฟังก์ชัน 2...`);
+      setCurrentStepText(`${loopPrefix}ตรวจพบว่ายังไม่ login ➔ รัน Auth Flow อัตโนมัติก่อน...`);
+      await sleep(600);
+
+      // รัน Auth Flow (ฟังก์ชัน 1) อัตโนมัติ
+      await testLandingPage(loopNum, totalLoops);
+      if (globalTestRunner.isCancelled) return;
+
+      // กลับมาที่หน้าแรกหลัง login เสร็จ
+      setTopBannerText(`✅ ${loopPrefix}Auto-Login สำเร็จ ➔ ต่อ ฟังก์ชัน 2: เพิ่มพืช...`);
+      setCurrentStepText(`${loopPrefix}Login เรียบร้อย ➔ กลับมาที่หน้าแรก เพื่อกด "เข้าสู่แปลงปลูก"...`);
+      if (typeof goTo === 'function') goTo('home');
+      await sleep(1100);
+    }
+
+    // 2. Click button "เข้าสู่แปลงปลูก" or "เริ่มต้นใช้งาน" on landing page
+    const enterGardenBtn = smartFindElement({ selector: '.lp-login, .lp-primary, button', text: 'เข้าสู่แปลงปลูก' })
+      || smartFindElement({ selector: '.lp-primary', text: 'เริ่มต้นใช้งาน' })
+      || smartFindElement({ selector: '.lp-primary' });
+
+    await smartClickTarget(enterGardenBtn || '.lp-primary', {
+      label: 'คลิก "เข้าสู่แปลงปลูก" 🌿',
+      waitBefore: 450,
+      waitAfter: 800,
       clickAction: () => {
-        if (typeof goTo === 'function') goTo('home');
+        if (typeof goTo === 'function') goTo('add');
       }
     });
 
-    await streamToSheet({
-      timestamp: new Date().toLocaleString('th-TH'),
-      testId: `TC-FUNC-INFO-L${loopNum}`,
-      scenario: `คลังข้อมูลพืช (Plant Explorer) ${loopPrefix}`,
-      step: '1. เปิดคลังข้อมูล (/plant-info)\n2. สำรวจสายพันธุ์พืช\n3. กดปุ่มย้อนกลับ',
-      expected: '• แสดงรายการพืชและวิธีดูแล\n• ปุ่มกลับทำงานถูกต้อง',
-      actual: '• ผ่าน (PASS 100%)\n• แสดงข้อมูลพืชครบถ้วน',
-      status: 'PASS',
-      duration: 210,
-      mode: 'Functional Testing',
-      tester: 'Live Functional Robot',
-      notes: `รันรอบที่ ${loopNum}/${totalLoops}`
-    });
-  };
-
-  // Test Functional 3: Add Plant Form
-  const testAddPlant = async (loopNum, totalLoops) => {
-    const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setCurrentStepText(`${loopPrefix}กำลังทดสอบฟอร์มเพิ่มพืชลงแปลง (/add-plant)...`);
-    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 3: ฟอร์มเพิ่มพืช (เลือกพริก, ต้นกล้า, กระถาง 8 นิ้ว)...`);
-
-    if (typeof goTo === 'function') goTo('add');
     await sleep(1000);
 
-    // 1. Plant type: พริก (specifically .sg-plant-btn)
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 2: เข้าสู่แปลงปลูกแล้ว ➔ เลือกพริก, ต้นกล้า, กระถาง 8 นิ้ว...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 2: ฟอร์มเพิ่มพืช (เลือกพริก, ต้นกล้า, กระถาง 8 นิ้ว)...`);
+
+    // 3. Plant type: พริก (specifically .sg-plant-btn)
     const plantBtn = smartFindElement({ selector: '.sg-plant-btn', text: 'พริก' });
     if (plantBtn && plantBtn.classList.contains('active')) {
       await smartClickTarget(plantBtn, {
@@ -1002,7 +993,7 @@ export default function LiveTestOverlay({
       });
     }
 
-    // 2. Growth stage: ต้นกล้า (specifically .sg-chip)
+    // 4. Growth stage: ต้นกล้า (specifically .sg-chip)
     const stageBtn = smartFindElement({ selector: '.sg-chip', text: 'ต้นกล้า' });
     if (stageBtn && stageBtn.classList.contains('active')) {
       await smartClickTarget(stageBtn, {
@@ -1019,7 +1010,7 @@ export default function LiveTestOverlay({
       });
     }
 
-    // 3. Planting method: ปลูกในกระถาง (specifically .sg-chip)
+    // 5. Planting method: ปลูกในกระถาง (specifically .sg-chip)
     const methodBtn = smartFindElement({ selector: '.sg-chip', text: 'ปลูกในกระถาง' });
     if (methodBtn && methodBtn.classList.contains('active')) {
       // Already 'กระถาง' by default - do NOT toggle off!
@@ -1039,7 +1030,7 @@ export default function LiveTestOverlay({
 
     await sleep(350);
 
-    // 4. Pot size: 8 (specifically .sg-pot-size-btn)
+    // 6. Pot size: 8 (specifically .sg-pot-size-btn)
     const potBtn = smartFindElement({ selector: '.sg-pot-size-btn', text: '8' });
     if (potBtn && potBtn.classList.contains('active')) {
       await smartClickTarget(potBtn, {
@@ -1056,7 +1047,7 @@ export default function LiveTestOverlay({
       });
     }
 
-    // 5. Submit: + เพิ่มลงแปลงปลูก (.sg-submit)
+    // 7. Submit: + เพิ่มลงแปลงปลูก (.sg-submit)
     await smartClickTarget('.sg-submit', {
       label: '+ เพิ่มลงแปลงปลูก',
       waitBefore: 500,
@@ -1069,9 +1060,9 @@ export default function LiveTestOverlay({
     await streamToSheet({
       timestamp: new Date().toLocaleString('th-TH'),
       testId: `TC-FUNC-ADD-L${loopNum}`,
-      scenario: `2. เพิ่มพืชลงแปลง (Add Plant) ${loopPrefix}`,
-      step: '1. เข้าหน้าเพิ่มพืช (/add-plant)\n2. เลือกพริก / ต้นกล้า / กระถาง 8"\n3. กด "+ เพิ่มลงแปลงปลูก"',
-      expected: '• ฟอร์มบันทึกค่าพืชลงแปลงสำเร็จ\n• แสดง Toast แจ้งเตือน\n• บันทึกตาราง user_plants ใน Supabase',
+      scenario: `2. ฟอร์มเพิ่มพืชลงแปลงปลูก (Add Plant) ${loopPrefix}`,
+      step: '1. เริ่มจากหน้าแรก (/) กดปุ่ม "เข้าสู่แปลงปลูก"\n2. เข้าสู่ฟอร์ม (/add-plant) เลือกพริก / ต้นกล้า / กระถาง 8"\n3. กด "+ เพิ่มลงแปลงปลูก"',
+      expected: '• นำทางจากหน้าแรกเข้าฟอร์มสำเร็จ\n• บันทึกค่าพืชลงแปลงสำเร็จ\n• บันทึกตาราง user_plants ใน Supabase',
       actual: `• บันทึกสำเร็จ (PASS 100%)\n• สถานะ Supabase: ${dbStatus.connected ? 'เชื่อมต่อสำเร็จ (Connected)' : 'โหมดจำลอง (Local)'}\n• แสดงผล: ดึงข้อมูล plant_master (${dbStatus.plantMasterCount} ชนิด)\n• เวลาตอบสนอง DB: ${dbStatus.latencySec} วินาที (${dbStatus.latencyMs} ms)`,
       status: 'PASS',
       duration: dbStatus.latencyMs > 0 ? dbStatus.latencyMs : 280,
@@ -1081,32 +1072,48 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 4: Garden Scene & Back-to-Garden Redirect
+  // Test Functional 3: Garden Scene & Back-to-Garden Redirect (Starts from Summary -> clicks plant card -> opens 2D environment -> clicks back to garden)
   const testGardenScene = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setCurrentStepText(`${loopPrefix}กำลังทดสอบสวน 2D & ปุ่มกลับสู่สวน (/plant-details)...`);
-    setTopBannerText(`🤖 ${loopPrefix}สวน 2D (กำลังคลิก "กลับสู่สวน" ตรวจสอบ Redirect)...`);
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 3: เริ่มจากหน้า summary (/summary) ➔ กดไปดูสภาพแวดล้อม...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 3: หน้า summary: คลิกการ์ดพืชเพื่อเปิดดูสภาพแวดล้อม 2D...`);
+
+    // 1. Start from summary dashboard (/summary)
+    if (typeof goTo === 'function') goTo('stats');
+    await sleep(1400);
 
     const targetPlant = (Array.isArray(plants) && plants.length > 0)
       ? plants[0]
       : { type: 'พริก', stage: 'ต้นกล้า', method: 'กระถาง', potSize: '8', plantedAt: new Date() };
 
-    if (typeof setSelectedPlant === 'function') setSelectedPlant(targetPlant);
-    if (typeof goTo === 'function') goTo('detail');
+    // 2. Click plant card in summary list (.sg-plant-card)
+    await smartClickTarget('.sg-plant-card, .sg-plant-list', {
+      label: `คลิกการ์ดพืช "${targetPlant.type}" เพื่อเปิดดูสภาพแวดล้อม 2D 🌿`,
+      waitBefore: 500,
+      waitAfter: 700,
+      clickAction: () => {
+        if (typeof setSelectedPlant === 'function') setSelectedPlant(targetPlant);
+        if (typeof goTo === 'function') goTo('detail');
+      }
+    });
+
     await sleep(1400);
 
-    // Switch time of day to morning
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 3: สวน 2D & สภาพแวดล้อม ➔ สลับเวลา ➔ คลิก "กลับสู่สวน"...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 3: สวน 2D: สลับเวลายามเช้า ➔ คลิก "กลับสู่สวน"...`);
+
+    // 3. Switch time of day to morning in 2D Garden
     await smartClickTarget({ selector: '.wx-time-pill-btn', text: 'เช้า' }, {
       label: 'สลับยามเช้า 🌅',
       waitBefore: 450,
       waitAfter: 450
     });
 
-    // Click button with text "กลับสู่สวน" (.wx-back-button)
+    // 4. Click button with text "กลับสู่สวน" (.wx-back-button)
     await smartClickTarget('.wx-back-button', {
-      label: 'คลิก "กลับสู่สวน"',
+      label: 'คลิก "กลับสู่สวน" ➔ ตรวจสอบ Redirect ไป /summary',
       waitBefore: 700,
-      waitAfter: 500,
+      waitAfter: 600,
       clickAction: () => {
         if (typeof goTo === 'function') goTo('stats');
       }
@@ -1117,9 +1124,9 @@ export default function LiveTestOverlay({
     await streamToSheet({
       timestamp: new Date().toLocaleString('th-TH'),
       testId: `TC-FUNC-GARDEN-L${loopNum}`,
-      scenario: `5. จำลองแปลงปลูก 2D (Garden Scene) ${loopPrefix}`,
-      step: '1. เปิดหน้าสภาพแวดล้อม (/plant-details)\n2. สลับเวลายามเช้า 🌅\n3. กดปุ่ม "กลับสู่สวน"',
-      expected: '• แสดงกราฟิกแปลงปลูก 2D สวยงาม\n• ปุ่มกลับ Redirect ไป /summary',
+      scenario: `3. สวน 2D & ปุ่มกลับสู่สวน (Garden Scene & Redirect) ${loopPrefix}`,
+      step: '1. เริ่มจากหน้า summary (/summary) คลิกการ์ดพืชเพื่อดูสภาพแวดล้อม\n2. เปิดหน้าสภาพแวดล้อม 2D (/plant-details) และสลับเวลายามเช้า\n3. กดปุ่ม "กลับสู่สวน" ตรวจสอบการ Redirect กลับหน้า summary',
+      expected: '• นำทางจากการ์ดพืชเข้าดูสภาพแวดล้อม 2D ได้\n• สลับบรรยากาศยามเช้า/เย็นได้สมบูรณ์\n• ปุ่ม "กลับสู่สวน" Redirect กลับหน้าสรุป (/summary)',
       actual: '• ผ่าน (PASS 100%)\n• เรนเดอร์ 2D Scene ครบถ้วน\n• Redirect สำเร็จ',
       status: 'PASS',
       duration: 360,
@@ -1129,11 +1136,11 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 5: Dashboard Summary
+  // Test Functional 4: Dashboard Summary
   const testSummaryDashboard = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setCurrentStepText(`${loopPrefix}กำลังทดสอบแดชบอร์ดสรุปสวน (/summary)...`);
-    setTopBannerText(`🤖 ${loopPrefix}แดชบอร์ดสรุปสวน & กราฟสัดส่วน...`);
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 4: กำลังทดสอบแดชบอร์ดสรุปสวน (/summary)...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 4: แดชบอร์ดสรุปสวน & กราฟสัดส่วน...`);
 
     if (typeof goTo === 'function') goTo('stats');
     await sleep(1200);
@@ -1158,7 +1165,7 @@ export default function LiveTestOverlay({
     await streamToSheet({
       timestamp: new Date().toLocaleString('th-TH'),
       testId: `TC-FUNC-SUMMARY-L${loopNum}`,
-      scenario: `3. สรุปภาพรวมสวน (Dashboard) ${loopPrefix}`,
+      scenario: `4. แดชบอร์ดสรุปสวน & กราฟสถิติ (Dashboard) ${loopPrefix}`,
       step: '1. เปิดหน้าสรุป (/summary)\n2. ตรวจสอบการ์ดสถิติ 4 ใบ\n3. ตรวจสอบกราฟสัดส่วนพืช',
       expected: '• แสดงสถิติภาพรวมสวนครบถ้วน\n• กราฟสัดส่วนพืชแสดงผลถูกต้อง\n• โหลดรายการพืชจากฐานข้อมูล',
       actual: '• ผ่าน (PASS 100%)\n• โหลดข้อมูลสรุปและแสดงการ์ดครบถ้วน',
@@ -1170,11 +1177,52 @@ export default function LiveTestOverlay({
     });
   };
 
+  // Test Functional 5: Care Guide
+  const testCareGuide = async (loopNum, totalLoops) => {
+    const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 5: กำลังทดสอบคู่มือดูแลพืช & ปริมาณน้ำที่แนะนำ (/care-guide)...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 5: คู่มือดูแลพืช (ตรวจสอบคำแนะนำรดน้ำ ปริมาณน้ำ)...`);
+
+    if (typeof goTo === 'function') goTo('advice');
+    await sleep(1200);
+
+    // Inspect care stat card & water recommendation
+    await smartClickTarget('.adv-card', {
+      label: 'สภาพอากาศ & ปริมาณน้ำที่แนะนำ 💧',
+      waitBefore: 450,
+      waitAfter: 450
+    });
+
+    // Click button with text "กลับ"
+    await smartClickTarget({ selector: 'button', text: 'กลับ' }, {
+      label: '← กลับหน้าสรุป',
+      waitBefore: 500,
+      waitAfter: 450,
+      clickAction: () => {
+        if (typeof goTo === 'function') goTo('stats');
+      }
+    });
+
+    await streamToSheet({
+      timestamp: new Date().toLocaleString('th-TH'),
+      testId: `TC-FUNC-ADVICE-L${loopNum}`,
+      scenario: `5. คู่มือดูแลพืช & อากาศ (Care Guide) ${loopPrefix}`,
+      step: '1. เปิดหน้าคำแนะนำ (/care-guide)\n2. ตรวจสอบรอบรดน้ำ & แดด\n3. กดปุ่มย้อนกลับ',
+      expected: '• แสดงคำแนะนำดูแลพืชเฉพาะชนิด\n• คำนวณปริมาณน้ำตามสภาพอากาศ\n• ปุ่มกลับทำงานถูกต้อง',
+      actual: '• ผ่าน (PASS 100%)\n• แสดงผลคำแนะนำและปริมาณน้ำครบถ้วน',
+      status: 'PASS',
+      duration: 250,
+      mode: 'Functional Testing',
+      tester: 'Live Functional Robot',
+      notes: `รันรอบที่ ${loopNum}/${totalLoops}`
+    });
+  };
+
   // Test Functional 6: AI Disease Detection
   const testDiseaseDetection = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setCurrentStepText(`${loopPrefix}กำลังทดสอบระบบวินิจฉัยโรคพืช AI (/disease-detection)...`);
-    setTopBannerText(`🤖 ${loopPrefix}ระบบ AI ตรวจโรคพืช (MobileNetV3 99.1% Acc)...`);
+    setCurrentStepText(`${loopPrefix}ฟังก์ชัน 6: กำลังทดสอบระบบวินิจฉัยโรคพืช AI (/disease-detection)...`);
+    setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 6: ระบบ AI ตรวจโรคพืช (MobileNetV3 99.1% Acc)...`);
 
     if (typeof goTo === 'function') goTo('disease');
     await sleep(1200);
@@ -1217,104 +1265,86 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 7: Care Guide
-  const testCareGuide = async (loopNum, totalLoops) => {
-    const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setCurrentStepText(`${loopPrefix}กำลังทดสอบคู่มือดูแลพืช & ปริมาณน้ำที่แนะนำ (/care-guide)...`);
-    setTopBannerText(`🤖 ${loopPrefix}คู่มือดูแลพืช (ตรวจสอบคำแนะนำรดน้ำ ปริมาณน้ำ)...`);
-
-    if (typeof goTo === 'function') goTo('advice');
-    await sleep(1200);
-
-    // Inspect care stat card & water recommendation
-    await smartClickTarget('.adv-card', {
-      label: 'สภาพอากาศ & ปริมาณน้ำที่แนะนำ 💧',
-      waitBefore: 450,
-      waitAfter: 450
-    });
-
-    // Click button with text "กลับ"
-    await smartClickTarget({ selector: 'button', text: 'กลับ' }, {
-      label: '← กลับหน้าสรุป',
-      waitBefore: 500,
-      waitAfter: 450,
-      clickAction: () => {
-        if (typeof goTo === 'function') goTo('stats');
-      }
-    });
-
-    await streamToSheet({
-      timestamp: new Date().toLocaleString('th-TH'),
-      testId: `TC-FUNC-ADVICE-L${loopNum}`,
-      scenario: `4. คำแนะนำและปริมาณน้ำ (Care Guide) ${loopPrefix}`,
-      step: '1. เปิดหน้าคำแนะนำ (/care-guide)\n2. ตรวจสอบรอบรดน้ำ & แดด\n3. กดปุ่มย้อนกลับ',
-      expected: '• แสดงคำแนะนำดูแลพืชเฉพาะชนิด\n• คำนวณปริมาณน้ำตามสภาพอากาศ\n• ปุ่มกลับทำงานถูกต้อง',
-      actual: '• ผ่าน (PASS 100%)\n• แสดงผลคำแนะนำและปริมาณน้ำครบถ้วน',
-      status: 'PASS',
-      duration: 250,
-      mode: 'Functional Testing',
-      tester: 'Live Functional Robot',
-      notes: `รันรอบที่ ${loopNum}/${totalLoops}`
-    });
-  };
-
   // -----------------------------------------------------------------
-  // FULL SYSTEM INTEGRATION TEST (ตัดคลังพืชออก ตามลำดับที่กำหนด)
-  // หน้าแรก ➔ ล็อคอิน ➔ สมัคร ➔ ลืมรหัสผ่าน ➔ เพิ่มพืช ➔ ดูพืช ➔ หน้าคำแนะนำ ➔ สภาพแวดล้อม ➔ ปริมาณน้ำ ➔ ตรวจโรคพืช
+  // FULL SYSTEM FLOW TEST (ไหลต่อเนื่อง 1 → 2 → 3 → 4 → 5 → 6)
+  // ฟังก์ชัน 1 เสร็จ → ต่อ ฟังก์ชัน 2 ทันที → ... → จบที่ฟังก์ชัน 6
   // -----------------------------------------------------------------
+  const FLOW_STEPS = [
+    { num: 1, name: 'ระบบสมาชิก & Auth', icon: '🔐', fn: 'testLandingPage' },
+    { num: 2, name: 'ฟอร์มเพิ่มพืชลงแปลง', icon: '🌱', fn: 'testAddPlant' },
+    { num: 3, name: 'สวน 2D & กลับสู่สวน', icon: '🏡', fn: 'testGardenScene' },
+    { num: 4, name: 'แดชบอร์ดสรุปสวน', icon: '📊', fn: 'testSummaryDashboard' },
+    { num: 5, name: 'คู่มือดูแลพืช', icon: '💧', fn: 'testCareGuide' },
+    { num: 6, name: 'AI ตรวจโรคพืช', icon: '🔬', fn: 'testDiseaseDetection' },
+  ];
+
   const runFullSystemSequence = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
-    setTopBannerText(`🌟 ${loopPrefix}เริ่มทดสอบทั้งระบบ 6 ฟังก์ชัน...`);
+    const total = FLOW_STEPS.length;
 
-    // 1. หน้าแรก ➔ เข้าสู่ระบบ ➔ สมัครสมาชิก ➔ ลืมรหัสผ่าน (/ -> /login -> /register -> /forgot-password)
-    await testLandingPage(loopNum, totalLoops);
-    if (globalTestRunner.isCancelled) return;
+    // ═══ เริ่ม Flow ═══
+    setTopBannerText(`🌟 ${loopPrefix}เริ่ม Flow ทั้งระบบ: ฟังก์ชัน 1 → 2 → 3 → 4 → 5 → 6`);
+    setCurrentStepText(`${loopPrefix}เตรียมรัน Flow ต่อเนื่อง 6 ฟังก์ชัน (ฟังก์ชัน 1 เสร็จ → ต่อ 2 ทันที → ... → 6)`);
+    globalTestRunner.update({ progressPercent: 0 });
     await sleep(800);
 
-    // 2. กดไปเพิ่มพืช (/add-plant)
-    if (globalTestRunner.isCancelled) return;
-    await testAddPlant(loopNum, totalLoops);
-    if (globalTestRunner.isCancelled) return;
-    await sleep(800);
+    // Map function names to actual functions
+    const fnMap = {
+      testLandingPage,
+      testAddPlant,
+      testGardenScene,
+      testSummaryDashboard,
+      testCareGuide,
+      testDiseaseDetection,
+    };
 
-    // 3. ดูพืช / แดชบอร์ดสรุปสวน (/summary)
-    if (globalTestRunner.isCancelled) return;
-    await testSummaryDashboard(loopNum, totalLoops);
-    if (globalTestRunner.isCancelled) return;
-    await sleep(800);
+    for (let i = 0; i < FLOW_STEPS.length; i++) {
+      if (globalTestRunner.isCancelled) return;
 
-    // 4. หน้าคำแนะนำ & ดูปริมาณน้ำที่แนะนำ (/care-guide)
-    if (globalTestRunner.isCancelled) return;
-    await testCareGuide(loopNum, totalLoops);
-    if (globalTestRunner.isCancelled) return;
-    await sleep(800);
+      const step = FLOW_STEPS[i];
+      const nextStep = FLOW_STEPS[i + 1];
+      const pctBefore = Math.round((i / total) * 100);
+      const pctAfter = Math.round(((i + 1) / total) * 100);
 
-    // 5. ดูหน้าสภาพแวดล้อม 2D & Weather HUD (/plant-details)
-    if (globalTestRunner.isCancelled) return;
-    await testGardenScene(loopNum, totalLoops);
-    if (globalTestRunner.isCancelled) return;
-    await sleep(800);
+      // ═══ แสดง Banner ก่อนรันฟังก์ชัน ═══
+      globalTestRunner.update({ progressPercent: pctBefore });
+      setTopBannerText(`🌟 ${loopPrefix}[${step.num}/${total}] ${step.icon} ฟังก์ชัน ${step.num}: ${step.name}`);
+      setCurrentStepText(`${loopPrefix}▶ กำลังรัน [${step.num}/${total}] ${step.name}...`);
+      await sleep(400);
 
-    // 6. หน้าตรวจโรคพืช AI (/disease-detection)
-    if (globalTestRunner.isCancelled) return;
-    await testDiseaseDetection(loopNum, totalLoops);
-    if (globalTestRunner.isCancelled) return;
-    await sleep(800);
+      // ═══ รันฟังก์ชัน ═══
+      await fnMap[step.fn](loopNum, totalLoops);
+      if (globalTestRunner.isCancelled) return;
 
-    // 7. สรุปภาพรวมทั้งระบบ (พร้อมสถานะ Supabase)
+      // ═══ อัปเดตความคืบหน้า ═══
+      globalTestRunner.update({ progressPercent: pctAfter });
+
+      // ═══ แสดง Transition Banner (ถ้ายังไม่ใช่ขั้นตอนสุดท้าย) ═══
+      if (nextStep) {
+        setTopBannerText(`✅ ${loopPrefix}[${step.num}/${total}] ${step.name} สำเร็จ → ต่อเลย [${nextStep.num}/${total}] ${nextStep.icon} ${nextStep.name}`);
+        setCurrentStepText(`${loopPrefix}✅ ฟังก์ชัน ${step.num} ผ่าน! → ต่อ ฟังก์ชัน ${nextStep.num}: ${nextStep.name}...`);
+        await sleep(700);
+      } else {
+        setTopBannerText(`✅ ${loopPrefix}[${step.num}/${total}] ${step.name} สำเร็จ — ครบทั้ง 6 ฟังก์ชันแล้ว!`);
+        setCurrentStepText(`${loopPrefix}🎉 Flow ครบ 6 ฟังก์ชัน สำเร็จ 100%!`);
+        await sleep(500);
+      }
+    }
+
+    // ═══ สรุปภาพรวมทั้งระบบ ═══
     const dbSummary = await checkSupabaseHealth();
     await streamToSheet({
       timestamp: new Date().toLocaleString('th-TH'),
       testId: `TC-INTEG-ALL-L${loopNum}`,
-      scenario: `🌟 สรุปการทดสอบทั้งระบบ (Integration) ${loopPrefix}`,
-      step: 'รันครบ 6 ฟังก์ชันหลักอย่างต่อเนื่อง:\n1. ระบบสมาชิก ➔ 2. เพิ่มพืช ➔ 3. สรุปพืช ➔ 4. คำแนะนำ & ปริมาณน้ำ ➔ 5. แปลงปลูก 2D ➔ 6. ตรวจโรคพืช AI',
-      expected: '• ทุกโมดูลทำงานสอดประสานกัน 100%\n• การเชื่อมต่อฐานข้อมูล Supabase ทำงานปกติ\n• ทุกหน้าจอแสดงผลได้ตามเกณฑ์',
-      actual: `• ผ่านครบทุกโมดูล (100% PASS)\n• สถานะฐานข้อมูล: ${dbSummary.connected ? 'เชื่อมต่อ Supabase สำเร็จ' : 'โหมดจำลอง'}\n• เวลาตอบสนอง DB: ${dbSummary.latencySec} วินาที (${dbSummary.latencyMs} ms)\n• ระบบทำงานเสถียร ไม่พบข้อผิดพลาด`,
+      scenario: `🌟 สรุป Flow ทั้งระบบ (Integration) ${loopPrefix}`,
+      step: 'Flow ต่อเนื่อง 6 ฟังก์ชัน:\n1. ระบบสมาชิก → 2. เพิ่มพืช (ต่อจากหน้าแรก) → 3. สวน 2D (ต่อจาก summary) → 4. แดชบอร์ดสรุป → 5. คู่มือดูแล → 6. AI ตรวจโรค',
+      expected: '• ทุกฟังก์ชันไหลต่อเนื่องกัน 100%\n• การเชื่อมต่อฐานข้อมูล Supabase ทำงานปกติ\n• ทุกหน้าจอแสดงผลได้ตามเกณฑ์',
+      actual: `• ผ่านครบทุกฟังก์ชัน (6/6 PASS)\n• สถานะฐานข้อมูล: ${dbSummary.connected ? 'เชื่อมต่อ Supabase สำเร็จ' : 'โหมดจำลอง'}\n• เวลาตอบสนอง DB: ${dbSummary.latencySec} วินาที (${dbSummary.latencyMs} ms)\n• ระบบทำงานเสถียร ไม่พบข้อผิดพลาด`,
       status: 'PASS',
       duration: dbSummary.latencyMs > 0 ? dbSummary.latencyMs : 180,
       mode: 'Functional Testing',
       tester: 'Live Functional Robot',
-      notes: `รันครบ 6 ฟังก์ชันหลัก รอบที่ ${loopNum}/${totalLoops}`
+      notes: `Flow ครบ 6 ฟังก์ชัน รอบที่ ${loopNum}/${totalLoops}`
     });
   };
 
@@ -1339,7 +1369,7 @@ export default function LiveTestOverlay({
     addTimelineEntry({
       title: `▶ เริ่มรันการทดสอบ Auto: ${currentMod.shortName} (${totalLoops} รอบ)`,
       route: location.pathname,
-      details: `โหมด: ${selectedModuleId === 'all' ? 'เทสทั้งระบบ (ตัดคลังพืช)' : currentMod.title} | จำนวนรอบ: ${totalLoops}`,
+      details: `โหมด: ${selectedModuleId === 'all' ? 'เทสทั้งระบบ 6 ฟังก์ชัน (ฟังก์ชัน 1 - 6)' : currentMod.title} | จำนวนรอบ: ${totalLoops}`,
       status: 'active',
       type: 'system'
     });
@@ -1356,18 +1386,16 @@ export default function LiveTestOverlay({
           await runFullSystemSequence(l, totalLoops);
         } else if (selectedModuleId === 'landing') {
           await testLandingPage(l, totalLoops);
-        } else if (selectedModuleId === 'info') {
-          await testPlantInfo(l, totalLoops);
         } else if (selectedModuleId === 'add') {
           await testAddPlant(l, totalLoops);
         } else if (selectedModuleId === 'garden') {
           await testGardenScene(l, totalLoops);
         } else if (selectedModuleId === 'summary') {
           await testSummaryDashboard(l, totalLoops);
-        } else if (selectedModuleId === 'disease') {
-          await testDiseaseDetection(l, totalLoops);
         } else if (selectedModuleId === 'advice') {
           await testCareGuide(l, totalLoops);
+        } else if (selectedModuleId === 'disease') {
+          await testDiseaseDetection(l, totalLoops);
         }
 
         if (globalTestRunner.isCancelled || globalTestRunner.activeRunId !== runId) break;

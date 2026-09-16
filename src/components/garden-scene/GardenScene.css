@@ -109,12 +109,12 @@
 }
 
 /* ==========================================================================
-   4. Center Plant Stage (Fixed Position & Balanced Scale)
+   4. Center Plant Stage (Grounded Hero Presentation)
    ========================================================================== */
 .gs-stage-hero {
   position: absolute;
   left: 50%;
-  bottom: 8%;
+  bottom: 3.5%;
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
@@ -124,6 +124,14 @@
   width: 320px;
   height: 320px;
   pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .gs-stage-hero {
+    width: 250px;
+    height: 250px;
+    bottom: 3%;
+  }
 }
 
 .gs-plant-wrapper {
@@ -136,7 +144,78 @@
   height: 100%;
 }
 
+/* Ground Contact Shadows - Physically grounds the pot or soil mound to the terrain */
+.gs-ground-shadow-wrap {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.gs-ground-shadow-core {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.65) 0%, rgba(15, 23, 42, 0.25) 55%, transparent 75%);
+  filter: blur(2px);
+}
+
+.gs-ground-shadow-ambient {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(30, 41, 59, 0.35) 0%, rgba(6, 78, 59, 0.15) 50%, transparent 75%);
+  filter: blur(7px);
+}
+
+/* Pot Ground Shadows */
+.gs-ground-shadow-wrap.pot .gs-ground-shadow-core {
+  width: 145px;
+  height: 18px;
+  bottom: 0px;
+}
+.gs-ground-shadow-wrap.pot .gs-ground-shadow-ambient {
+  width: 220px;
+  height: 32px;
+  bottom: -6px;
+}
+
+/* In-Ground Dirt Bed Ground Shadows */
+.gs-ground-shadow-wrap.ground .gs-ground-shadow-core {
+  width: 210px;
+  height: 20px;
+  bottom: 0px;
+}
+.gs-ground-shadow-wrap.ground .gs-ground-shadow-ambient {
+  width: 280px;
+  height: 36px;
+  bottom: -6px;
+}
+
+@media (max-width: 768px) {
+  .gs-ground-shadow-wrap.pot .gs-ground-shadow-core {
+    width: 115px;
+    height: 14px;
+  }
+  .gs-ground-shadow-wrap.pot .gs-ground-shadow-ambient {
+    width: 175px;
+    height: 24px;
+  }
+  .gs-ground-shadow-wrap.ground .gs-ground-shadow-core {
+    width: 165px;
+    height: 16px;
+  }
+  .gs-ground-shadow-wrap.ground .gs-ground-shadow-ambient {
+    width: 220px;
+    height: 28px;
+  }
+}
+
 .gs-plant-sway {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -145,17 +224,21 @@
   z-index: 6;
 }
 
-/* Plant Image (JPG asset) */
+/* Plant Image (Transparent PNG asset) */
 .gs-plant-image {
-  max-width: 280px;
-  max-height: 280px;
+  max-width: 290px;
+  max-height: 290px;
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.18));
-  /* White background blending - makes white edges blend with scene */
-  mix-blend-mode: multiply;
-  border-radius: 12px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.12));
+}
+
+@media (max-width: 768px) {
+  .gs-plant-image {
+    max-width: 230px;
+    max-height: 230px;
+  }
 }
 
 /* Placeholder for ungenerated plants */
@@ -170,10 +253,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   width: 100%;
   height: 100%;
   position: relative;
+  padding-bottom: 6px;
 }
 
 .gs-soil-bed-wrapper {

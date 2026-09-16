@@ -318,6 +318,7 @@ function Weather({
             onSeedPlanted={handleSeedPlanted}
             potSize={propPotSize || plant?.potSize}
             method={plant?.method || 'pot'}
+            showPlant={true}
           />
         </div>
 
