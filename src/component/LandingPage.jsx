@@ -8,8 +8,9 @@ import './landing-login-redirect.css';
 import ActionLoader from './ActionLoader';
 import { showLoginRedirect } from './loginRedirectNotice';
 import { useAuth } from '../context/AuthContext';
+import LandingFooter from '../components/LandingFooter';
 
-export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, onLogout, isLoggedIn }) {
+export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, onLogout, isLoggedIn, onOpenTeam }) {
   const { user, profile, updateProfile, logout, requestLogout } = useAuth();
   const [isStarting, setIsStarting] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -248,6 +249,22 @@ export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, on
         </div>
         <button className="lp-primary" onClick={start}>เริ่มเพิ่มพืช →</button>
       </section>
+
+      {/* Footer ONLY on front page with Our Creative Team */}
+      <div 
+        className="lp-footer-container" 
+        style={{ 
+          margin: '70px calc(-1 * max(5vw, 24px)) -55px', 
+          width: 'calc(100% + 2 * max(5vw, 24px))' 
+        }}
+      >
+        <LandingFooter 
+          onOpenTeam={onOpenTeam}
+          onStart={start} 
+          onPlantInfo={onPlantInfo} 
+          onAdmin={onAdmin} 
+        />
+      </div>
 
       {isLoggedIn && createPortal(
         <>

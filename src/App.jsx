@@ -27,6 +27,7 @@ const ForgotPassword = lazy(() => import('./component/auth/ForgotPassword'));
 const ResetPassword = lazy(() => import('./component/auth/ResetPassword'));
 const AdminLogin = lazy(() => import('./component/admin/AdminLogin'));
 const SystemTestingSuite = lazy(() => import('./component/testing/SystemTestingSuite'));
+const OurCreativeTeamPage = lazy(() => import('./components/OurCreativeTeamPage'));
 import LiveTestOverlay, { globalTestRunner } from './component/testing/LiveTestOverlay';
 
 const thaiDateFormatter = new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
@@ -82,6 +83,8 @@ function App() {
     '/system-test': 'systemTest',
     '/qa': 'systemTest',
     '/live-test': 'landing',
+    '/team': 'team',
+    '/our-team': 'team',
   };
   const [liveTestActive, setLiveTestActive] = useState(() => {
     try {
@@ -111,7 +114,9 @@ function App() {
     } catch (_) {}
   }, [location.pathname]);
 
-  const cleanPath = location.pathname.replace(/\/+$/, '') || '/';
+  const cleanPath = location.pathname.endsWith('/') && location.pathname !== '/'
+    ? location.pathname.slice(0, -1)
+    : location.pathname;
   const page = pageByPath[cleanPath] || pageByPath[location.pathname] || 'landing';
   const goTo = (nextPage) => navigate({
     home: '/',
@@ -125,6 +130,7 @@ function App() {
     register: '/register',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
+    team: '/team',
   }[nextPage]);
 
   const plantOptions = [
@@ -348,6 +354,15 @@ function App() {
   if (page === 'adminPlants') return <Suspense fallback={<ActionLoader title="กำลังโหลดข้อมูลพืช..." />}><AdminPlantMaster />{renderLiveOverlay()}</Suspense>;
   if (page === 'adminReports') return <Suspense fallback={<ActionLoader title="กำลังโหลดรายงานโรคพืช..." />}><AdminDetails type="reports" />{renderLiveOverlay()}</Suspense>;
   if (page === 'systemTest') return <Suspense fallback={<ActionLoader title="กำลังเปิดศูนย์ทดสอบระบบ..." />}><SystemTestingSuite onBack={() => goTo('home')} />{renderLiveOverlay()}</Suspense>;
+  if (page === 'team') return (
+    <Suspense fallback={<ActionLoader title="กำลังเปิดข้อมูลทีมผู้พัฒนา..." />}>
+      <OurCreativeTeamPage 
+        onBack={() => goTo('home')} 
+        onStart={() => user ? goTo('add') : goTo('login')} 
+      />
+      {renderLiveOverlay()}
+    </Suspense>
+  );
   // หน้าแรกเริ่มด้วยการเข้าสู่ระบบตาม flow หลักของแอป
   if (page === 'landing') return (
     <>
@@ -357,6 +372,7 @@ function App() {
         onPlantInfo={() => goTo('info')} 
         onLogin={() => user ? goTo('add') : goTo('login')} 
         onAdmin={() => navigate('/admin/login')} 
+        onOpenTeam={() => goTo('team')}
         onLogout={async () => {
           await logout();
           goTo('home');
