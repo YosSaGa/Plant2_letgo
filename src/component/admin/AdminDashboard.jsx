@@ -162,15 +162,13 @@ export default function AdminDashboard() {
             <i><Sprout size={27} /></i>
           </button>
         </Card>
-        <Card delay={0.15} className="admin-stat admin-clickable">
-          <button onClick={() => navigate('/admin/disease-reports')}>
-            <div>
-              <span>ผลตรวจโรคพืช</span>
-              <strong><CountUp value={summary.totalDetections} /></strong>
-              <small>ประวัติการตรวจโรค AI ทั้งหมด</small>
-            </div>
-            <i><ScanSearch size={27} /></i>
-          </button>
+        <Card delay={0.15} className="admin-stat">
+          <div>
+            <span>ผลตรวจโรคพืช</span>
+            <strong><CountUp value={summary.totalDetections} /></strong>
+            <small>ประวัติการตรวจโรค AI ทั้งหมด</small>
+          </div>
+          <i><ScanSearch size={27} /></i>
         </Card>
       </section>
 
@@ -238,7 +236,7 @@ export default function AdminDashboard() {
           </div>
           {diseaseList.length > 0 ? (
             <div className="disease-list">
-              {diseaseList.map((item, index) => (
+              {diseaseList.slice(0, 6).map((item, index) => (
                 <div key={item.name}>
                   <span>{index + 1}</span>
                   <p>

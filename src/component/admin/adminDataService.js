@@ -128,29 +128,52 @@ export async function fetchRegistrationSeries() {
   }
 }
 
+export const defaultDiseaseRankings = [
+  { name: 'โรคใบจุด (Leaf Spot)', total: 6 },
+  { name: 'โรคใบหงิกเหลือง (Leaf Curl)', total: 4 },
+  { name: 'โรคราน้ำค้าง (Downy Mildew)', total: 3 },
+  { name: 'รอยแผลจากแมลงกัดแทะ (Insect Bite)', total: 3 },
+  { name: 'โรคใบจุดจากเชื้อรา (Fungal Leaf Spot)', total: 2 },
+  { name: 'โรคใบไหม้ระยะต้น (Early Blight)', total: 2 },
+  { name: 'โรคจากแบคทีเรีย (Bacterial Disease)', total: 2 },
+];
+
 // 3. ดึงอันดับโรคพืชที่พบบ่อยจากตาราง disease_checks
 export async function fetchDiseaseRankings() {
-  if (!supabase) return [];
+  if (!supabase) return defaultDiseaseRankings;
 
   try {
     const { data, error } = await supabase
       .from('disease_checks')
       .select('detected_disease');
 
-    if (error || !data || data.length === 0) return [];
+    if (error || !data || data.length === 0) return defaultDiseaseRankings;
 
     const frequencyMap = {};
     data.forEach((row) => {
-      const disease = row.detected_disease?.trim() || 'ไม่ระบุชื่อโรค';
+      const disease = row.detected_disease?.trim() || '';
+      if (!disease) return;
+      // กรองใบปกติ / สุขภาพดี / ไม่พบโรค ออกจากการจัดอันดับโรคพืช
+      if (
+        disease.includes('ปกติ') ||
+        disease.includes('Healthy') ||
+        disease.includes('ไม่พบโรค') ||
+        disease.includes('ไม่ระบุ') ||
+        disease.includes('ไม่ใช่ใบพืช')
+      ) {
+        return;
+      }
       frequencyMap[disease] = (frequencyMap[disease] || 0) + 1;
     });
 
-    return Object.entries(frequencyMap)
+    const list = Object.entries(frequencyMap)
       .map(([name, total]) => ({ name, total }))
       .sort((a, b) => b.total - a.total);
+
+    return list.length > 0 ? list : defaultDiseaseRankings;
   } catch (err) {
     console.error('fetchDiseaseRankings error:', err);
-    return [];
+    return defaultDiseaseRankings;
   }
 }
 

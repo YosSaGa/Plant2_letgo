@@ -262,7 +262,7 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
           style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}
         >
           <p className="text-sm text-muted-foreground">
-            © 2026 PlookPloen (ปลูกเพลิน). All rights reserved. Created by YOSS & JAME.
+            © 2026 PlookPloen (ปลูกเพลิน). All rights reserved. Created by Yoss Yossakron & Jame Kasided.
           </p>
           <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
             <button 

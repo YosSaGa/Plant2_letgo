@@ -38,7 +38,7 @@ const InstagramIcon = (props) => (
 export default function OurCreativeTeamPage({ onBack, onStart }) {
   const teamMembers = [
     {
-      name: "YOSS",
+      name: "Yoss Yossakron",
       designation: "Fullstack Developer & System Architect",
       imageSrc: yossImg,
       socialLinks: [
@@ -48,7 +48,7 @@ export default function OurCreativeTeamPage({ onBack, onStart }) {
       ],
     },
     {
-      name: "JAME",
+      name: "Jame Kasided",
       designation: "Frontend Developer & UI/UX Designer",
       imageSrc: jameImg,
       socialLinks: [
@@ -120,7 +120,7 @@ export default function OurCreativeTeamPage({ onBack, onStart }) {
         <div className="flex items-center justify-center gap-1">
           <span>Made with</span>
           <Heart size={14} className="text-rose-500 fill-rose-500 inline" />
-          <span>by YOSS & JAME © 2026 PlookPloen</span>
+          <span>by Yoss Yossakron & Jame Kasided © 2026 PlookPloen</span>
         </div>
       </footer>
     </motion.div>

@@ -79,7 +79,7 @@ function App() {
     '/admin/dashboard/user-map': 'adminUserMap',
     '/admin/users': 'adminUsers',
     '/admin/plants': 'adminPlants',
-    '/admin/disease-reports': 'adminReports',
+    '/admin/disease-reports': 'adminDashboard',
     '/system-test': 'systemTest',
     '/qa': 'systemTest',
     '/live-test': 'landing',

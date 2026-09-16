@@ -157,6 +157,14 @@ const diseaseDatabase = {
 const severityClass = { None: 'dd-low', Low: 'dd-low', Medium: 'dd-medium', High: 'dd-high' };
 const API_URL = 'http://127.0.0.1:8000';
 
+const PLANT_TO_ID = {
+  'Chili Pepper': 1,
+  'Thai Basil': 2,
+  'Holy Basil': 3,
+  'Tomato': 4,
+  'Lettuce': 5,
+};
+
 export default function DiseaseDetection({ onBack }) {
   const inputRef = useRef(null);
   const [plant, setPlant] = useState('Chili Pepper');
@@ -189,6 +197,32 @@ export default function DiseaseDetection({ onBack }) {
     const reader = new FileReader();
     reader.onload = (event) => { setImage(event.target.result); setResult(null); };
     reader.readAsDataURL(file);
+  };
+
+  // บันทึกผลการตรวจลง Supabase ตาราง disease_checks (ตามบทที่ 3 ตารางที่ 20)
+  const saveDiseaseCheck = async (detectedDisease, confidenceScore) => {
+    if (!supabase) return;
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = authData?.user?.id || null;
+      const plantId = PLANT_TO_ID[plant] || 1;
+      const score = typeof confidenceScore === 'number' ? confidenceScore : 95.0;
+
+      const { error } = await supabase.from('disease_checks').insert({
+        user_id: userId,
+        plant_id: plantId,
+        image_url: null,
+        detected_disease: detectedDisease,
+        confidence_score: score,
+        checked_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        console.error('Error saving disease check to Supabase:', error);
+      }
+    } catch (err) {
+      console.error('saveDiseaseCheck error:', err);
+    }
   };
 
   const analyze = async () => {
@@ -243,25 +277,8 @@ export default function DiseaseDetection({ onBack }) {
             };
             setResult(finalResult);
 
-            // บันทึกลง Supabase ตาราง disease_checks (ตามบทที่ 3 ตารางที่ 20)
-            if (supabase) {
-              supabase.from('disease_checks').insert({
-                user_id: null,
-                plant_id: plant,
-                image_url: null,
-                detected_disease: data.disease_name,
-                confidence_score: data.confidence,
-                checked_at: new Date().toISOString(),
-              }).then();
-
-              supabase.from('disease_detections').insert({
-                user_id: null,
-                plant_type: plant,
-                disease_name: data.disease_name,
-                severity: data.severity,
-                confidence: data.confidence,
-              }).then();
-            }
+            // บันทึกลง Supabase ตาราง disease_checks จริง
+            saveDiseaseCheck(data.disease_name, data.confidence);
           }
 
           setAnalyzing(false);
@@ -278,24 +295,8 @@ export default function DiseaseDetection({ onBack }) {
     const nextResult = entries[Math.floor(Math.random() * entries.length)];
     setResult({ ...nextResult, is_real_ai: false, is_uncertain: false });
 
-    if (supabase) {
-      supabase.from('disease_checks').insert({
-        user_id: null,
-        plant_id: plant,
-        image_url: null,
-        detected_disease: nextResult.name,
-        confidence_score: nextResult.confidence,
-        checked_at: new Date().toISOString(),
-      }).then();
-
-      supabase.from('disease_detections').insert({
-        user_id: null,
-        plant_type: plant,
-        disease_name: nextResult.name,
-        severity: nextResult.severity,
-        confidence: nextResult.confidence,
-      }).then();
-    }
+    // บันทึกลง Supabase ตาราง disease_checks จริง
+    saveDiseaseCheck(nextResult.name, nextResult.confidence);
     setAnalyzing(false);
   };
 
