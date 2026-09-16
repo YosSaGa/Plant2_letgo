@@ -9,6 +9,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
+from torchvision.models.detection import ssdlite320_mobilenet_v3_large, SSDLite320_MobileNet_V3_Large_Weights
 
 def verify_plant_leaf(image: Image.Image):
     """
@@ -298,6 +299,101 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = None
 classes = []
 
+# -------------------------------------------------------------
+# TWO-STAGE VALIDATION PIPELINE (STAGE 1: OBJECT & PERSON DETECTOR)
+# -------------------------------------------------------------
+object_detector = None
+object_preprocess = None
+object_categories = []
+
+FOREIGN_OBJECT_THAI = {
+    "person": "บุคคล/ร่างกายมนุษย์",
+    "tie": "เนคไท/เครื่องแต่งกาย",
+    "cat": "สัตว์เลี้ยง (แมว)",
+    "dog": "สัตว์เลี้ยง (สุนัข)",
+    "bird": "สัตว์ปีก (นก)",
+    "car": "ยานพาหนะ (รถยนต์)",
+    "motorcycle": "ยานพาหนะ (รถจักรยานยนต์)",
+    "bicycle": "ยานพาหนะ (จักรยาน)",
+    "bottle": "ขวดน้ำ/บรรจุภัณฑ์",
+    "cup": "แก้วน้ำ",
+    "chair": "เก้าอี้",
+    "couch": "โซฟา",
+    "bed": "เตียงนอน",
+    "dining table": "โต๊ะ",
+    "laptop": "คอมพิวเตอร์พกพา",
+    "cell phone": "โทรศัพท์มือถือ",
+    "tv": "จอภาพ/โทรทัศน์",
+    "keyboard": "คีย์บอร์ด",
+    "book": "หนังสือ/เอกสาร",
+    "clock": "นาฬิกา",
+    "backpack": "กระเป๋าเป้",
+    "handbag": "กระเป๋าถือ",
+    "suitcase": "กระเป๋าเดินทาง",
+}
+
+def load_object_detector():
+    global object_detector, object_preprocess, object_categories
+    try:
+        weights = SSDLite320_MobileNet_V3_Large_Weights.DEFAULT
+        detector = ssdlite320_mobilenet_v3_large(weights=weights)
+        detector.to(device)
+        detector.eval()
+        object_detector = detector
+        object_preprocess = weights.transforms()
+        object_categories = weights.meta["categories"]
+        print(f"[OK] Loaded SSDLite MobileNetV3 (COCO Object/Person Detector) successfully on {device}!")
+        return True
+    except Exception as e:
+        print(f"⚠️ Warning: Could not load SSDLite detector: {e}")
+        return False
+
+def check_foreign_objects(image: Image.Image):
+    """
+    Stage 1: ตรวจสอบว่าภาพมี 'คน' หรือ 'วัตถุแปลกปลอม' หรือไม่
+    ใช้ SSDLite MobileNetV3 ที่ผ่านการฝึกฝนบน COCO Dataset (80 classes)
+    """
+    if object_detector is None or object_preprocess is None:
+        return None
+        
+    try:
+        tensor = object_preprocess(image).to(device)
+        with torch.no_grad():
+            preds = object_detector([tensor])[0]
+            
+        labels = [object_categories[i] for i in preds["labels"]]
+        scores = preds["scores"].tolist()
+        
+        # ค้นหาว่าพบคน หรือสิ่งของแปลกปลอมเด่นชัดหรือไม่
+        for label, score in zip(labels, scores):
+            if label == "person" and score >= 0.40:
+                return {
+                    "is_foreign": True,
+                    "type": "person",
+                    "label_thai": "บุคคล/ร่างกายมนุษย์",
+                    "confidence": round(score * 100, 1),
+                    "reason": (
+                        f"ตรวจพบภาพบุคคลหรือร่างกายมนุษย์ (ความมั่นใจ {score*100:.1f}%) "
+                        "ระบบถูกออกแบบมาเพื่อตรวจวินิจฉัยโรคพืชเท่านั้น กรุณาถ่ายภาพเฉพาะใบพืชที่ต้องการตรวจสอบ"
+                    )
+                }
+            elif label in FOREIGN_OBJECT_THAI and score >= 0.50:
+                thai_name = FOREIGN_OBJECT_THAI[label]
+                return {
+                    "is_foreign": True,
+                    "type": label,
+                    "label_thai": thai_name,
+                    "confidence": round(score * 100, 1),
+                    "reason": (
+                        f"ตรวจพบวัตถุแปลกปลอม '{thai_name}' (ความมั่นใจ {score*100:.1f}%) "
+                        "ซึ่งไม่ใช่วัตถุทางการเกษตร กรุณาถ่ายภาพเฉพาะใบพืชเพื่อตรวจโรค"
+                    )
+                }
+        return None
+    except Exception as e:
+        print(f"⚠️ Object detection check error: {e}")
+        return None
+
 def load_ml_model():
     global model, classes
     if not os.path.exists(CLASSES_PATH) or not os.path.exists(MODEL_PATH):
@@ -318,14 +414,16 @@ def load_ml_model():
     print(f"[OK] Loaded MobileNetV3 ({len(classes)} classes) successfully on {device}!")
     return True
 
-# Load on startup
+# Load models on startup
 load_ml_model()
+load_object_detector()
 
 @app.get("/health")
 def health_check():
     return {
         "status": "online",
         "model_loaded": model is not None,
+        "object_detector_loaded": object_detector is not None,
         "classes_count": len(classes),
         "device": str(device)
     }
@@ -346,7 +444,30 @@ async def predict_disease(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid image file: {e}")
 
-    # 1. BOTANICAL VERIFICATION (ตรวจจับภาพบุคคล/สิ่งของด้วย Excess Green Index)
+    # -------------------------------------------------------------
+    # STAGE 1: AI OBJECT & PERSON VALIDATION (SSDLite MobileNetV3)
+    # -------------------------------------------------------------
+    foreign_check = check_foreign_objects(image)
+    if foreign_check and foreign_check["is_foreign"]:
+        return {
+            "success": True,
+            "is_uncertain": True,
+            "uncertainty_reason": foreign_check["reason"],
+            "confidence": foreign_check["confidence"],
+            "predicted_class": foreign_check["type"],
+            "disease_name": f"ตรวจพบ{foreign_check['label_thai']} (ไม่ใช่พืช)",
+            "severity": "Low",
+            "plant_key": selected_plant or "Unknown",
+            "plant_thai": "พืช",
+            "emoji": "👤" if foreign_check["type"] == "person" else "📦",
+            "symptoms": [f"ระบบ AI ด่านหน้าตรวจพบ{foreign_check['label_thai']}ในภาพ"],
+            "treatment": ["กรุณาถ่ายภาพเฉพาะส่วนใบพืชในระยะใกล้ และหลีกเลี่ยงการถ่ายติดบุคคลหรือสิ่งของ"],
+            "is_healthy": False
+        }
+
+    # -------------------------------------------------------------
+    # STAGE 2: BOTANICAL VERIFICATION (Excess Green Index - ExG)
+    # -------------------------------------------------------------
     is_leaf, veg_ratio = verify_plant_leaf(image)
     if not is_leaf:
         return {

@@ -222,9 +222,11 @@ export default function DiseaseDetection({ onBack }) {
               uncertainty_reason: data.uncertainty_reason,
               confidence: data.confidence,
               plant_thai: data.plant_thai,
-              name: 'ไม่สามารถระบุได้อย่างชัดเจน (ภาพอาจไม่ใช่ใบพืช)',
+              name: data.disease_name || 'ไม่สามารถระบุได้อย่างชัดเจน (ภาพอาจไม่ใช่ใบพืช)',
               severity: 'Low',
               is_real_ai: true,
+              predicted_class: data.predicted_class,
+              emoji: data.emoji || '⚠️',
             });
           } else {
             const finalResult = {
@@ -425,14 +427,18 @@ export default function DiseaseDetection({ onBack }) {
               ) : result ? (
                 result.is_uncertain ? (
                   <motion.div key="uncertain" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '10px 4px' }}>
-                    <div style={{ width: '64px', height: '64px', margin: '0 auto 12px', borderRadius: '20px', background: '#fff7ed', display: 'grid', placeItems: 'center', color: '#ea580c', border: '1.5px solid #fed7aa', boxShadow: '0 8px 20px -8px #ea580c33' }}>
-                      <AlertTriangle size={34} />
+                    <div style={{ width: '64px', height: '64px', margin: '0 auto 12px', borderRadius: '20px', background: result.predicted_class === 'person' ? '#eff6ff' : '#fff7ed', display: 'grid', placeItems: 'center', color: result.predicted_class === 'person' ? '#2563eb' : '#ea580c', border: result.predicted_class === 'person' ? '1.5px solid #bfdbfe' : '1.5px solid #fed7aa', boxShadow: '0 8px 20px -8px rgba(0,0,0,0.1)', fontSize: '30px' }}>
+                      {result.emoji ? result.emoji : <AlertTriangle size={34} />}
                     </div>
-                    <span style={{ display: 'inline-block', background: '#ffedd5', color: '#c2410c', padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>
-                      Confidence: {result.confidence}% (ต่ำกว่าเกณฑ์ 60%)
+                    <span style={{ display: 'inline-block', background: result.predicted_class === 'person' ? '#dbeafe' : '#ffedd5', color: result.predicted_class === 'person' ? '#1d4ed8' : '#c2410c', padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>
+                      {result.predicted_class === 'person'
+                        ? `🎯 ตรวจพบบุคคลด้วย AI (ความมั่นใจ ${result.confidence}%)`
+                        : result.confidence < 60
+                          ? `Confidence: ${result.confidence}% (ต่ำกว่าเกณฑ์ 60%)`
+                          : `AI Pre-filter: ${result.confidence}%`}
                     </span>
-                    <h4 style={{ color: '#9a3412', fontFamily: 'Prompt, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
-                      ไม่สามารถวินิจฉัยได้อย่างมั่นใจ
+                    <h4 style={{ color: result.predicted_class === 'person' ? '#1e3a8a' : '#9a3412', fontFamily: 'Prompt, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
+                      {result.name || 'ไม่สามารถวินิจฉัยได้อย่างมั่นใจ'}
                     </h4>
                     <p style={{ fontSize: '13px', color: '#7c2d12', background: '#fffbeb', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fef3c7', lineHeight: '1.55', margin: '0 0 16px', textAlign: 'left' }}>
                       {result.uncertainty_reason}
