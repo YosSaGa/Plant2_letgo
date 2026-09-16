@@ -3,16 +3,13 @@
 import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Moon, Send, Sun, Sparkles, Users, ArrowRight } from "lucide-react"
+import { Send, Users, ArrowRight } from "lucide-react"
 
 // Clean Brand SVG Icons
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
@@ -52,17 +49,12 @@ export interface FooterdemoProps {
 }
 
 function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoProps) {
-  const [isDarkMode, setIsDarkMode] = React.useState(false)
   const [subscribed, setSubscribed] = React.useState(false)
   const [email, setEmail] = React.useState("")
 
   React.useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [isDarkMode])
+    document.documentElement.classList.remove("dark")
+  }, [])
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,7 +65,10 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
   }
 
   return (
-    <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
+    <footer 
+      className="footer-scoped relative bg-background text-foreground transition-colors duration-300"
+      style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}
+    >
       <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           
@@ -89,17 +84,18 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
                 placeholder="กรอกอีเมลของคุณ..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pr-12 backdrop-blur-sm border-border bg-background"
+                className="pr-12 backdrop-blur-sm bg-background text-foreground"
+                style={{ border: '1px solid rgba(0, 0, 0, 0.15)', borderRadius: '999px' }}
                 required
               />
-              <Button
+              <button
                 type="submit"
-                size="icon"
-                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105"
+                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center transition-transform hover:scale-105"
+                style={{ border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Subscribe</span>
-              </Button>
+              </button>
             </form>
             {subscribed && (
               <p className="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
@@ -121,7 +117,7 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
               <button
                 type="button"
                 onClick={onOpenTeam ? onOpenTeam : () => { window.location.href = '/team'; }}
-                className="group flex items-center gap-2 text-left font-semibold text-primary transition-all hover:translate-x-1"
+                className="group flex items-center gap-2 text-left font-semibold text-primary transition-all hover:translate-x-1 bg-transparent border-0 cursor-pointer p-0"
               >
                 <Users className="h-4 w-4 text-primary" />
                 <span>O U R CREATIVE TEAM</span>
@@ -132,7 +128,7 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
                 <button
                   type="button"
                   onClick={onStart}
-                  className="block text-left transition-colors hover:text-primary"
+                  className="block text-left transition-colors hover:text-primary bg-transparent border-0 cursor-pointer p-0 text-foreground"
                 >
                   แปลงปลูกของฉัน
                 </button>
@@ -141,7 +137,7 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
                 <button
                   type="button"
                   onClick={onPlantInfo}
-                  className="block text-left transition-colors hover:text-primary"
+                  className="block text-left transition-colors hover:text-primary bg-transparent border-0 cursor-pointer p-0 text-foreground"
                 >
                   คู่มือและคำแนะนำพืช
                 </button>
@@ -150,7 +146,7 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
                 <button
                   type="button"
                   onClick={onAdmin}
-                  className="block text-left transition-colors hover:text-primary"
+                  className="block text-left transition-colors hover:text-primary bg-transparent border-0 cursor-pointer p-0 text-foreground"
                 >
                   ระบบจัดการแอดมิน
                 </button>
@@ -179,10 +175,16 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-9 w-9 rounded-full flex items-center justify-center transition-all hover:scale-110 text-muted-foreground hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                      style={{ border: '1px solid rgba(0, 0, 0, 0.15)', background: 'transparent' }}
+                    >
                       <Facebook className="h-4 w-4" />
                       <span className="sr-only">Facebook</span>
-                    </Button>
+                    </a>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Follow us on Facebook</p>
@@ -193,10 +195,16 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
+                    <a
+                      href="https://twitter.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-9 w-9 rounded-full flex items-center justify-center transition-all hover:scale-110 text-muted-foreground hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                      style={{ border: '1px solid rgba(0, 0, 0, 0.15)', background: 'transparent' }}
+                    >
                       <Twitter className="h-4 w-4" />
                       <span className="sr-only">Twitter</span>
-                    </Button>
+                    </a>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Follow us on X (Twitter)</p>
@@ -207,10 +215,16 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
+                    <a
+                      href="https://instagram.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-9 w-9 rounded-full flex items-center justify-center transition-all hover:scale-110 text-muted-foreground hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                      style={{ border: '1px solid rgba(0, 0, 0, 0.15)', background: 'transparent' }}
+                    >
                       <Instagram className="h-4 w-4" />
                       <span className="sr-only">Instagram</span>
-                    </Button>
+                    </a>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Follow us on Instagram</p>
@@ -221,10 +235,16 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
+                    <a
+                      href="https://linkedin.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-9 w-9 rounded-full flex items-center justify-center transition-all hover:scale-110 text-muted-foreground hover:text-primary hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                      style={{ border: '1px solid rgba(0, 0, 0, 0.15)', background: 'transparent' }}
+                    >
                       <Linkedin className="h-4 w-4" />
                       <span className="sr-only">LinkedIn</span>
-                    </Button>
+                    </a>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Connect with us on LinkedIn</p>
@@ -232,26 +252,15 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
                 </Tooltip>
               </TooltipProvider>
             </div>
-
-            {/* Dark Mode Switch */}
-            <div className="flex items-center space-x-2 pt-2">
-              <Sun className="h-4 w-4 text-amber-500" />
-              <Switch
-                id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-              />
-              <Moon className="h-4 w-4 text-indigo-400" />
-              <Label htmlFor="dark-mode" className="text-xs text-muted-foreground cursor-pointer">
-                {isDarkMode ? "โหมดกลางคืน" : "โหมดสว่าง"}
-              </Label>
-            </div>
           </div>
 
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/80 pt-8 text-center md:flex-row">
+        <div 
+          className="mt-12 flex flex-col items-center justify-between gap-4 pt-8 text-center md:flex-row"
+          style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}
+        >
           <p className="text-sm text-muted-foreground">
             © 2026 PlookPloen (ปลูกเพลิน). All rights reserved. Created by YOSS & JAME.
           </p>
@@ -259,7 +268,7 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
             <button 
               type="button" 
               onClick={onOpenTeam ? onOpenTeam : () => { window.location.href = '/team'; }}
-              className="transition-colors hover:text-primary font-medium"
+              className="transition-colors hover:text-primary font-medium bg-transparent border-0 cursor-pointer p-0 text-muted-foreground"
             >
               Our Team
             </button>
