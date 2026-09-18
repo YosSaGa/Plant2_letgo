@@ -44,9 +44,8 @@ export default function AdminUserMap() {
   const [selected, setSelected] = useState(null);
   const mapRef = useRef(null);
 
-  // ข้อมูลจังหวัดและรูปแบบแผนที่
   const [locations, setLocations] = useState(() => [...fallbackUserLocations].sort((a, b) => b.users - a.users));
-  const [mapLayer, setMapLayer] = useState('google'); // 'google' | 'satellite' | 'osm'
+  const [mapLayer, setMapLayer] = useState('google');
 
   useEffect(() => {
     let isMounted = true;
@@ -61,13 +60,11 @@ export default function AdminUserMap() {
     return () => { isMounted = false; };
   }, [reduceMotion]);
 
-  // จังหวัดที่มีผู้ใช้งานมากที่สุด (อันดับ 1)
   const topProvince = locations[0];
   const chartData = selected?.trend?.map((total, index) => ({ day: days[index] || `วันที่ ${index + 1}`, total })) || [];
 
   return (
     <main className="aum-root">
-      {/* ส่วนหัวหน้าเว็บ */}
       <header className="aum-header">
         <button onClick={() => navigate('/admin/dashboard')}>
           <ArrowLeft size={19} /> กลับแดชบอร์ด
@@ -78,9 +75,7 @@ export default function AdminUserMap() {
         </div>
       </header>
 
-      {/* กล่องเนื้อหาหลัก */}
       <div className="aum-layout">
-        {/* แผนที่ประเทศไทย */}
         <section className="aum-map-wrap">
           <MapContainer center={defaultCenter} zoom={5.4} scrollWheelZoom className="aum-map">
             {mapLayer === 'google' && (
@@ -130,7 +125,6 @@ export default function AdminUserMap() {
             })}
           </MapContainer>
 
-          {/* สลับมุมมองแผนที่ (Google Maps / ดาวเทียม / OSM) */}
           <div className="aum-map-switcher">
             <button
               type="button"
@@ -167,7 +161,6 @@ export default function AdminUserMap() {
           </span>
         </section>
 
-        {/* แผงข้อมูลด้านขวา */}
         <aside className="aum-panel">
           <AnimatePresence mode="wait">
             {selected ? (
@@ -245,7 +238,6 @@ export default function AdminUserMap() {
                 <p className="aum-kicker">ผู้ใช้งานตามพื้นที่</p>
                 <h2>เลือกจังหวัดเพื่อดูรายละเอียด</h2>
 
-                {/* แถบไฮไลต์จังหวัดอันดับ 1 ที่มีผู้ใช้งานมากที่สุด */}
                 {topProvince && (
                   <div
                     className="aum-top-banner"

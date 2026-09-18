@@ -1,8 +1,3 @@
-/* ==========================================================================
-   LogoutConfirmModal.css
-   PlookPloen Green Theme Dark Mode Logout Confirmation Modal
-   ========================================================================== */
-
 .logout-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -39,7 +34,6 @@
   align-items: center;
 }
 
-/* Glowing Emerald Icon Badge */
 .logout-modal-icon-badge {
   width: 56px;
   height: 56px;
@@ -72,7 +66,6 @@
   max-width: 270px;
 }
 
-/* Split Button Footer (50% / 50% with clean divider) */
 .logout-modal-footer {
   display: flex;
   width: 100%;

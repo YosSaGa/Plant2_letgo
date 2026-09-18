@@ -3,7 +3,6 @@ import { Warp } from '@paper-design/shaders-react';
 import { motion } from 'framer-motion';
 import { Play, Check, ExternalLink } from 'lucide-react';
 
-// Preset shader configurations for 4 color themes
 const THEME_SHADERS = {
   emerald: [
     {
@@ -187,7 +186,6 @@ export default function ShaderTestCard({
           : '0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08)',
       }}
     >
-      {/* Background WebGL Shader Canvas */}
       {enableShader ? (
         <div
           style={{
@@ -227,7 +225,6 @@ export default function ShaderTestCard({
         />
       )}
 
-      {/* Glassmorphism Overlay Content */}
       <div
         style={{
           position: 'relative',
@@ -251,7 +248,6 @@ export default function ShaderTestCard({
           fontFamily: "'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
       >
-        {/* Header: Icon & Route Tag */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -323,7 +319,6 @@ export default function ShaderTestCard({
             )}
           </div>
 
-          {/* Title & Description */}
           <h4
             style={{
               margin: '0 0 8px 0',
@@ -351,7 +346,6 @@ export default function ShaderTestCard({
           </p>
         </div>
 
-        {/* Footer: Selection Status & Quick Launch */}
         <div
           style={{
             marginTop: 18,

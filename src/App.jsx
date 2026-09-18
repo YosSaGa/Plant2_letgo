@@ -13,11 +13,9 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { LogOut } from 'lucide-react';
 import './component/dashboard.css';
 
-// Code Splitting (Lazy Loading) for ultra-fast initial bundle
 const Weather = lazy(() => import("./component/Weather"));
 const PlantAdvice = lazy(() => import("./component/PlantAdvice"));
 const DiseaseDetection = lazy(() => import("./component/DiseaseDetection"));
-const FigmaExport = lazy(() => import('./FigmaExport'));
 const PlantInfoPage = lazy(() => import('./component/PlantInfoPage'));
 const AdminDashboard = lazy(() => import('./component/admin/AdminDashboard'));
 const AdminUserMap = lazy(() => import('./component/admin/AdminUserMap'));
@@ -251,7 +249,6 @@ function App() {
     return [];
   }, [plants, liveTestActive, location.pathname, sampleChili]);
 
-  // React Hook Rules: All useMemo hooks must execute unconditionally before any early return!
   const totalPlantAmount = useMemo(
     () => (Array.isArray(activePlants) ? activePlants.reduce((sum, p) => sum + Number(p.amount || 0), 0) : 0),
     [activePlants]
@@ -332,7 +329,6 @@ function App() {
     );
   };
 
-  // รอเช็กสถานะการล็อกอินก่อนเรนเดอร์ เพื่อป้องกันหน้ากะพริบหรือจอดำ
   if (loading) {
     return (
       <div className="sg-root" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
@@ -341,7 +337,6 @@ function App() {
     );
   }
 
-  if (location.pathname === '/figma-export') return <Suspense fallback={<ActionLoader title="กำลังเปิด..." />}><FigmaExport />{renderLiveOverlay()}</Suspense>;
   if (page === 'login') return (user && !globalTestRunner.isRunning) ? <Navigate to="/" replace /> : <><Login onNavigate={navigate} />{renderLiveOverlay()}</>;
   if (page === 'register') return (user && !globalTestRunner.isRunning) ? <Navigate to="/" replace /> : <><Register onNavigate={navigate} />{renderLiveOverlay()}</>;
   if (page === 'forgotPassword') return <Suspense fallback={<ActionLoader title="กำลังเตรียมหน้ากู้รหัสผ่าน..." />}><ForgotPassword onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
@@ -363,7 +358,6 @@ function App() {
       {renderLiveOverlay()}
     </Suspense>
   );
-  // หน้าแรกเริ่มด้วยการเข้าสู่ระบบตาม flow หลักของแอป
   if (page === 'landing') return (
     <>
       <LandingPage 
@@ -490,8 +484,6 @@ function App() {
     }
   };
 
-  // (useMemo hooks moved above early returns to strictly adhere to React Rules of Hooks)
-
   const renderPlantCard = (plant) => {
     const plantInfo = plantOptions.find((p) => p.name === plant.type);
     return (
@@ -503,7 +495,7 @@ function App() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
         transition={{ duration: 0.3, type: 'spring', bounce: 0.4 }}
-        onClick={() => handleViewPlant(plant)} /* 🟢 กดที่กล่องการ์ด ไปหน้า Weather (detail) */
+        onClick={() => handleViewPlant(plant)} 
         style={{ cursor: 'pointer' }}
       >
         <div className="sg-plant-icon">{plantInfo ? plantInfo.emoji : '🌱'}</div>
@@ -516,9 +508,9 @@ function App() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={(e) => {
-              e.preventDefault();   /* 🟢 เบรก Event ไม่ให้ไปทริกเกอร์แท็ก Form/Link (ถ้ามี) */
-              e.stopPropagation();  /* 🟢 เบรก Event Bubbling ไม่ให้มันทะลุไปโดน onClick ของการ์ดด้านบน */
-              handleViewAdvice(plant); /* 🟢 ไปหน้า Advice */
+              e.preventDefault();   
+              e.stopPropagation();  
+              handleViewAdvice(plant); 
             }}
           >
             👁️ ดูคำแนะนำการดูแล
@@ -709,8 +701,6 @@ function App() {
                             type="button"
                             key={plant.name}
                             onClick={(event) => {
-                              // This selector lives inside the add-plant form. Keep its click
-                              // local so it never acts like a form submit or parent navigation.
                               event.preventDefault();
                               event.stopPropagation();
                               toggleChoice('type', plant.name);

@@ -1,9 +1,3 @@
-/**
- * testData.js
- * Comprehensive Test Matrix & Scenarios for PlookPloen System Testing & QA Portal
- * Corresponds to Thesis chapters 4 & 5 (Software Engineering System Testing)
- */
-
 export const MODULE_INFO = {
   all: { id: 'all', label: 'ทั้งหมด (All Modules)', icon: '📋', color: '#059669' },
   auth: { id: 'auth', label: 'ระบบจัดการสิทธิ์และผู้ใช้ (Auth & Guard)', icon: '🔐', color: '#0284c7' },
@@ -15,7 +9,6 @@ export const MODULE_INFO = {
 };
 
 export const BLACK_BOX_TEST_CASES = [
-  // ===================== MODULE 1: AUTHENTICATION =====================
   {
     id: 'TC-AUTH-01',
     module: 'auth',
@@ -101,7 +94,6 @@ export const BLACK_BOX_TEST_CASES = [
     type: 'Validation'
   },
 
-  // ===================== MODULE 2: PLANT MANAGEMENT =====================
   {
     id: 'TC-PLANT-01',
     module: 'plant',
@@ -199,7 +191,6 @@ export const BLACK_BOX_TEST_CASES = [
     type: 'UI/Chart'
   },
 
-  // ===================== MODULE 3: 2D GARDEN SCENE =====================
   {
     id: 'TC-GARDEN-01',
     module: 'garden',
@@ -297,7 +288,6 @@ export const BLACK_BOX_TEST_CASES = [
     type: 'Simulation'
   },
 
-  // ===================== MODULE 4: WEATHER & WATER FORMULA =====================
   {
     id: 'TC-WX-01',
     module: 'weather',
@@ -371,7 +361,6 @@ export const BLACK_BOX_TEST_CASES = [
     type: 'UI/UX'
   },
 
-  // ===================== MODULE 5: ADMIN & TELEMETRY =====================
   {
     id: 'TC-ADMIN-01',
     module: 'admin',

@@ -1,10 +1,3 @@
-/**
- * TestJourneyModal.jsx
- * Modern Dark-Mode Vertical Timeline Modal for System Testing Journey
- * Displays every user and automated action, page navigation, and timestamp
- * inspired by developer activity timelines.
- */
-
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -76,7 +69,6 @@ export default function TestJourneyModal({
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* HEADER */}
           <div className="qa-timeline-header">
             <div className="qa-timeline-header-left">
               <div className="qa-timeline-badge-icon">
@@ -116,7 +108,6 @@ export default function TestJourneyModal({
             </div>
           </div>
 
-          {/* STATS BAR */}
           <div className="qa-timeline-stats-bar">
             <div className="qa-timeline-stat-item">
               <span className="qa-stat-num">{timelineLogs.length}</span>
@@ -143,7 +134,6 @@ export default function TestJourneyModal({
             )}
           </div>
 
-          {/* BODY: VERTICAL TIMELINE */}
           <div className="qa-timeline-body">
             {timelineLogs.length === 0 ? (
               <div className="qa-timeline-empty">
@@ -155,7 +145,6 @@ export default function TestJourneyModal({
               </div>
             ) : (
               <div className="qa-timeline-tree">
-                {/* Continuous Vertical Guide Line */}
                 <div className="qa-timeline-line" />
 
                 {timelineLogs.map((log, index) => {
@@ -170,12 +159,10 @@ export default function TestJourneyModal({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.03, duration: 0.2 }}
                     >
-                      {/* Node Indicator on the Line */}
                       <div className={`qa-timeline-node ${log.type} ${isSuccess ? 'success' : 'fail'} ${isLatest && isManualRecording ? 'pulsing' : ''}`}>
                         {getNodeIcon(log)}
                       </div>
 
-                      {/* Content Card */}
                       <div className="qa-timeline-content">
                         <div className="qa-timeline-meta-row">
                           <span className="qa-timeline-time">
@@ -210,7 +197,6 @@ export default function TestJourneyModal({
             )}
           </div>
 
-          {/* FOOTER */}
           <div className="qa-timeline-footer">
             <div className="qa-timeline-footer-left">
               {onClearLogs && timelineLogs.length > 0 && (

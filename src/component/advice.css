@@ -14,7 +14,6 @@
 @media (min-width: 1024px) { .adv-wrap { padding: 2.5rem 2.5rem; } }
 @media (min-width: 1440px) { .adv-wrap { max-width: 92rem; padding: 2.75rem 3rem; } }
 
-
 .adv-back-btn {
   background: rgba(255,255,255,0.9);
   border: 1px solid #d1fae5;
@@ -59,7 +58,6 @@
 .adv-sub { margin: 0.3rem 0 0; font-size: 0.85rem; color: #047857; }
 @media (min-width: 768px) { .adv-title { font-size: 1.6rem; } }
 
-/* ---------- Dashboard cards ---------- */
 .adv-dashboard {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -95,7 +93,6 @@
 }
 .adv-weather-mini-row .adv-stat-value { font-size: 1.05rem; }
 
-/* ---------- Content layout ---------- */
 .adv-content { display: block; }
 @media (min-width: 1150px) {
   .adv-content { display: grid; grid-template-columns: 1.75fr 1fr; gap: 1.75rem; align-items: start; }
@@ -109,7 +106,6 @@
 .adv-section-title { font-size: 1.15rem; font-weight: 700; color: #022c22; margin: 0 0 1rem; }
 .adv-section-title-sm { font-size: 1rem; font-weight: 600; color: #022c22; margin: 0 0 0.9rem; }
 
-/* ---------- Calendar month navigation ---------- */
 .adv-calendar-nav {
   display: flex;
   align-items: center;
@@ -168,7 +164,6 @@
 .adv-month-pill.active { background: #059669; border-color: #059669; color: white; font-weight: 600; }
 .adv-month-pill:not(.active):hover { border-color: #6ee7b7; color: #047857; }
 
-/* ---------- Legend ---------- */
 .adv-legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1.1rem; margin-bottom: 0.65rem; }
 .adv-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: #57534e; font-weight: 500; }
 .adv-legend-dot { width: 0.55rem; height: 0.55rem; border-radius: 999px; background: var(--tc); }
@@ -179,7 +174,6 @@
   color: #94a3b8;
 }
 
-/* ---------- Calendar grid ---------- */
 .adv-weekday-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -223,8 +217,6 @@
 .adv-cell-dots { display: flex; gap: 0.2rem; }
 .adv-dot { width: 0.42rem; height: 0.42rem; border-radius: 999px; }
 
-
-/* วันที่ทำเครื่องหมายว่าทำแล้ว -> เขียวชัดเจน */
 .adv-cell-done {
   background: #bbf7d0;
   border-color: #22c55e;
@@ -240,7 +232,6 @@
   color: #15803d;
 }
 
-/* ---------- Popup กลางจอ (ใช้ร่วมกันทั้งแบบแจ้งเตือนปุ่มเดียว และยืนยันสองปุ่ม) ---------- */
 .adv-confirm-overlay {
   position: fixed;
   inset: 0;
@@ -275,7 +266,6 @@
   gap: 0.15rem;
 }
 
-/* ไอคอนของ popup แจ้งเตือนทั่วไป (ไม่มีงาน / ยังไม่ถึงกำหนด) ใช้โทนกลางๆ ไม่ผูกกับสีงาน */
 .adv-confirm-icon-neutral {
   background: #f5f5f4;
   font-size: 1.7rem;
@@ -322,10 +312,8 @@
 }
 .adv-confirm-ok:hover { background: #047857; }
 
-/* popup แจ้งเตือนปุ่มเดียว: ให้ปุ่ม "ตกลง" กว้างเต็มแทนที่จะแบ่งครึ่งกับปุ่มยกเลิก */
 .adv-confirm-ok-full { flex: 1 1 100%; }
 
-/* ---------- Day detail (แสดงผลอย่างเดียว การติ๊กทำที่ปฏิทิน) ---------- */
 .adv-empty-day { color: #78716c; font-size: 0.88rem; margin: 0; }
 .adv-task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
 .adv-task-item {
@@ -363,7 +351,6 @@
 .adv-task-done { opacity: 0.55; }
 .adv-task-done .adv-task-label { text-decoration: line-through; }
 
-/* ---------- Tips (แบ่งกลุ่มตามระยะ / วิธีปลูก / คำแนะนำทั่วไปของพืชแต่ละชนิด) ---------- */
 .adv-tips-group { margin-bottom: 1.1rem; }
 .adv-tips-group:last-child { margin-bottom: 0; }
 .adv-tips-group-title {
@@ -377,9 +364,6 @@
 .adv-tips-list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
 .adv-tips-list li { font-size: 0.88rem; color: #57534e; line-height: 1.5; }
 
-/* ==============================================================================
-   🔔 Google Calendar Synchronization & Reminders
-   ============================================================================== */
 .adv-calendar-nav-actions {
   display: flex;
   align-items: center;
@@ -419,7 +403,6 @@
   font-size: 0.95rem;
 }
 
-/* Day card header & quick sync button */
 .adv-day-card-header {
   display: flex;
   align-items: center;
@@ -449,7 +432,6 @@
   border-color: #6ee7b7;
 }
 
-/* Bell reminder button inside each task item */
 .adv-task-bell-btn {
   flex-shrink: 0;
   width: 1.95rem;
@@ -479,7 +461,6 @@
   font-weight: 700;
 }
 
-/* Sync Modal */
 .adv-sync-modal {
   max-width: 490px;
   width: 92%;
@@ -633,7 +614,6 @@
   color: #059669;
 }
 
-/* Loading Box */
 .adv-sync-loading-box {
   padding: 2.2rem 1rem;
   text-align: center;
@@ -684,7 +664,6 @@
   margin: 0;
 }
 
-/* Feedback Box */
 .adv-sync-feedback-box {
   padding: 1rem 0;
   text-align: center;

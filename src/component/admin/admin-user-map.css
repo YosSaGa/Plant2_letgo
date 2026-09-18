@@ -16,5 +16,3 @@
 .aum-map-switcher button{border:0;background:transparent;padding:6px 10px;border-radius:7px;font-size:12px;font-family:'Prompt',sans-serif;font-weight:600;color:#475569;cursor:pointer;transition:.2s}
 .aum-map-switcher button.active{background:#047857;color:#fff}
 .aum-map-switcher button:hover:not(.active){background:#f1f5f9}
-
-

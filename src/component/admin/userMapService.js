@@ -1,34 +1,7 @@
-/**
- * ==============================================================================
- * 📍 บริการดึงข้อมูลแผนที่ผู้ใช้งานตามจังหวัด (User Province Map Service)
- * ==============================================================================
- * 
- * 📌 วิธีใส่ URL ของ API ของคุณ (เลือก 1 ใน 3 วิธีตามสะดวก):
- * 
- * 👉 [วิธีที่ 1 - ง่ายและเร็วที่สุด]:
- *     แก้ไขตัวแปร DEFAULT_API_URL ในบรรทัดที่ 18 ด้านล่างนี้ โดยเปลี่ยนเป็น URL API ของคุณ
- *     ตัวอย่าง:
- *     export const DEFAULT_API_URL = 'https://api.yourdomain.com/user-provinces';
- * 
- * 👉 [วิธีที่ 2 - ผ่านไฟล์ .env]:
- *     สร้างหรือเปิดไฟล์ `.env` ที่โฟลเดอร์นอกสุดของโปรเจกต์ แล้วเพิ่มบรรทัดนี้:
- *     VITE_USER_MAP_API_URL=https://api.yourdomain.com/user-provinces
- * 
- * 👉 [วิธีที่ 3 - ตั้งค่าผ่านหน้าเว็บ Admin โดยตรง]:
- *     ในหน้าแผนที่ (/admin/dashboard/user-map) จะมีปุ่ม "⚙️ ตั้งค่า API"
- *     สามารถกดแล้วกรอก URL API ทดสอบดูผลลัพธ์สดๆ ได้ทันทีโดยไม่ต้องรันโปรเจกต์ใหม่!
- * ==============================================================================
- */
-
-// ⬇️⬇️⬇️ ใส่ URL ของ API จริงของคุณตรงนี้ ⬇️⬇️⬇️
 export const DEFAULT_API_URL = 'https://YOUR_API_ENDPOINT_HERE';
-// ⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️
 
-// 🗺️ Google API Key สำหรับแผนที่ (Google Maps / Cloud API)
 export const GOOGLE_MAPS_API_KEY = 'AIzaSyC562-uWSQw71Js6GQ0bDaVWL6ao6KVuJw';
 
-
-// ฐานข้อมูลพิกัดละติจูด-ลองจิจูด 77 จังหวัดทั่วประเทศไทยสำหรับปักหมุด Leaflet Map
 export const PROVINCE_COORDINATES = {
   'กรุงเทพมหานคร': [13.7563, 100.5018],
   'กรุงเทพ': [13.7563, 100.5018],
@@ -123,31 +96,22 @@ export const PROVINCE_COORDINATES = {
   'นราธิวาส': [6.4255, 101.8253],
 };
 
-/**
- * ฟังก์ชันค้นหาพิกัด [lat, lng] จากชื่อจังหวัด
- */
 export function getProvinceCoordinates(name) {
   if (!name) return [13.7367, 100.5231];
   const cleaned = name.toString().trim().replace(/^(จังหวัด|จ\.\s*)/, '').trim();
 
-  // ตรงตัวแบบคลีนแล้ว
   if (PROVINCE_COORDINATES[cleaned]) return PROVINCE_COORDINATES[cleaned];
-  // ตรงตัวตามชื่อเดิม
   if (PROVINCE_COORDINATES[name]) return PROVINCE_COORDINATES[name];
 
-  // ค้นหาแบบบางส่วน (Fuzzy match)
   for (const [key, coords] of Object.entries(PROVINCE_COORDINATES)) {
     if (cleaned.includes(key) || key.includes(cleaned)) {
       return coords;
     }
   }
 
-  return [13.7367, 100.5231]; // ค่ามาตรฐานใจกลางประเทศไทย
+  return [13.7367, 100.5231];
 }
 
-/**
- * ดึง URL ของ API ที่กำลังใช้งานอยู่
- */
 export function getActiveApiUrl() {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem('CUSTOM_USER_MAP_API_URL');
@@ -156,9 +120,6 @@ export function getActiveApiUrl() {
   return import.meta.env.VITE_USER_MAP_API_URL || DEFAULT_API_URL;
 }
 
-/**
- * บันทึก URL API ใหม่ลงใน localStorage (สำหรับตั้งค่าผ่าน UI)
- */
 export function setActiveApiUrl(url) {
   if (typeof window !== 'undefined') {
     if (url && url.trim()) {
@@ -171,12 +132,7 @@ export function setActiveApiUrl(url) {
 
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
 
-/**
- * ดึงข้อมูลผู้ใช้งานตามจังหวัดจาก API จริง หรือ Supabase
- * @returns {Promise<Array|null>} รายชื่อจังหวัดเรียงลำดับจากผู้ใช้ "มากที่สุด" ไปหาน้อยที่สุด
- */
 export async function fetchUserProvinceStats() {
-  // 1. ลองดึงจากฐานข้อมูล Supabase ก่อน (View: user_province_stats)
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
@@ -210,7 +166,6 @@ export async function fetchUserProvinceStats() {
     }
   }
 
-  // 2. ลองดึงจาก API URL ภายนอก (ถ้ามีการตั้งค่าไว้)
   const apiUrl = getActiveApiUrl();
   if (!apiUrl || apiUrl.includes('YOUR_API_ENDPOINT_HERE')) {
     return null;
@@ -229,7 +184,6 @@ export async function fetchUserProvinceStats() {
 
     const data = await res.json();
 
-    // จัดการโครงสร้างข้อมูลแบบต่างๆ ที่ API อาจส่งมา
     let rawList = [];
 
     if (Array.isArray(data)) {
@@ -244,7 +198,6 @@ export async function fetchUserProvinceStats() {
       } else if (Array.isArray(data.items)) {
         rawList = data.items;
       } else {
-        // กรณี API ส่งมาเป็น Key-Value เช่น { "กรุงเทพมหานคร": 120, "เชียงใหม่": 95 }
         rawList = Object.entries(data).map(([province, count]) => ({
           province,
           users: typeof count === 'object' ? (count?.users || count?.count || count?.total || 0) : count
@@ -256,7 +209,6 @@ export async function fetchUserProvinceStats() {
       return null;
     }
 
-    // แปลงข้อมูลให้อยู่ในฟอร์แมตมาตรฐานสำหรับ Leaflet Map
     const mapped = rawList.map((item) => {
       const provinceName = (item.province || item.name || item.province_name || item.province_th || 'ไม่ระบุ')
         .toString()
@@ -290,7 +242,6 @@ export async function fetchUserProvinceStats() {
       };
     });
 
-    // 🏆 เรียงลำดับจากจังหวัดที่มีผู้ใช้ "มากที่สุด" ไปหาน้อยที่สุด (index 0 คืออันดับ 1)
     mapped.sort((a, b) => b.users - a.users);
     return mapped;
   } catch (error) {

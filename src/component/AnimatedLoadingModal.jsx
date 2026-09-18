@@ -139,7 +139,6 @@ export function AnimatedLoadingModal({ isOpen, plantName }) {
             className="w-full max-w-md overflow-hidden bg-white/95 rounded-3xl shadow-2xl border border-emerald-100 p-7 text-center relative"
             style={{ width: 'min(440px, 92vw)', background: 'rgba(255, 255, 255, 0.96)', borderRadius: '28px', border: '1px solid #d1fae5', padding: '34px 28px', textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(6, 78, 59, 0.28)' }}
           >
-            {/* Glow orb */}
             <div
               style={{
                 position: 'absolute',
@@ -153,13 +152,11 @@ export function AnimatedLoadingModal({ isOpen, plantName }) {
               }}
             />
 
-            {/* Header Badge */}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '5px 14px', borderRadius: '999px', fontSize: '12px', fontWeight: '700', marginBottom: '18px' }}>
               <Cpu size={14} className="text-emerald-600 animate-pulse" />
               <span>MobileNetV3 Deep Learning</span>
             </div>
 
-            {/* Animated SVG Path Loader with organic pulse */}
             <div style={{ position: 'relative', width: '74px', height: '74px', margin: '0 auto 16px', display: 'grid', placeItems: 'center' }}>
               <div
                 style={{
@@ -181,7 +178,6 @@ export function AnimatedLoadingModal({ isOpen, plantName }) {
               />
             </div>
 
-            {/* Shimmer Text */}
             <div style={{ minHeight: '52px', margin: '8px 0 16px' }}>
               <h4
                 className="modal-shimmer-text"
@@ -199,7 +195,6 @@ export function AnimatedLoadingModal({ isOpen, plantName }) {
               </p>
             </div>
 
-            {/* Animated Step Breadcrumb */}
             <div
               style={{
                 display: 'flex',
@@ -221,7 +216,6 @@ export function AnimatedLoadingModal({ isOpen, plantName }) {
               <span style={{ fontWeight: 600, color: '#0f766e' }}>ความแม่นยำ 99.12%</span>
             </div>
 
-            {/* Progress Bar */}
             <div
               style={{
                 width: '100%',

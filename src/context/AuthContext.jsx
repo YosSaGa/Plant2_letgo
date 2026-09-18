@@ -32,7 +32,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ดึง session เมื่อเปิดแอป
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
@@ -60,8 +59,6 @@ export function AuthProvider({ children }) {
     return () => subscription?.unsubscribe?.();
   }, []);
 
-  // ฟังก์ชันเข้าสู่ระบบ
-  // ฟังก์ชันเข้าสู่ระบบผู้ใช้งานทั่วไป (Real Supabase Auth)
   const login = async (data = {}) => {
     const email = data.email?.trim();
     const password = data.password;
@@ -95,7 +92,6 @@ export function AuthProvider({ children }) {
     throw new Error('ไม่พบข้อมูลผู้ใช้งาน');
   };
 
-  // ฟังก์ชันสมัครสมาชิก (บันทึกข้อมูลเข้า Supabase Auth & profiles จริง)
   const register = async (data = {}) => {
     const email = data.email?.trim();
     const password = data.password;
@@ -140,7 +136,6 @@ export function AuthProvider({ children }) {
     return { success: true };
   };
 
-  // ฟังก์ชันเข้าสู่ระบบผู้ดูแล (Real Supabase Auth + ตรวจสอบสิทธิ์ Admin)
   const loginAsAdmin = async (data = {}) => {
     const email = data.email?.trim();
     const password = data.password;
@@ -153,7 +148,6 @@ export function AuthProvider({ children }) {
       throw new Error('ไม่สามารถเชื่อมต่อฐานข้อมูล Supabase ได้');
     }
 
-    // 1. ตรวจสอบรหัสผ่านกับ Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -170,7 +164,6 @@ export function AuthProvider({ children }) {
       throw new Error('ไม่สามารถยืนยันตัวตนผู้ดูแลระบบได้');
     }
 
-    // 2. ดึงโปรไฟล์และตรวจสอบบทบาท role === 'admin'
     const { data: prof, error: profError } = await supabase
       .from('profiles')
       .select('*')
@@ -178,14 +171,12 @@ export function AuthProvider({ children }) {
       .single();
 
     if (profError || !prof || prof.role !== 'admin') {
-      // หากไม่ใช่แอดมิน ให้ sign out ทันทีเพื่อความปลอดภัย
       await supabase.auth.signOut();
       setUser(null);
       setProfile(null);
       throw new Error('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ (สำหรับผู้ดูแลระบบที่มีสิทธิ์เท่านั้น)');
     }
 
-    // 3. กำหนด Session และ Profile แอดมินจริง
     setUser(authData.user);
     setProfile(prof);
     return { success: true, user: authData.user, profile: prof };

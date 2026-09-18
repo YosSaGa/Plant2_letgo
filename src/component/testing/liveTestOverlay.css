@@ -1,8 +1,3 @@
-/**
- * liveTestOverlay.css
- * Floating Live Test Controller for running automated tests directly on the real web app.
- */
-
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chonburi&family=Fjalla+One&family=Lilita+One&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=ZCOOL+KuaiLe&display=swap');
 
 .live-qa-controller,
@@ -57,7 +52,6 @@
   color: #34d399;
 }
 
-/* Header */
 .live-qa-header {
   padding: 14px 18px;
   background: linear-gradient(135deg, #064e3b, #0f766e);
@@ -119,7 +113,6 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Body */
 .live-qa-body {
   padding: 16px 18px;
   display: flex;
@@ -144,7 +137,6 @@
   line-height: 1.4;
 }
 
-/* Big Run Button */
 .live-qa-run-btn {
   width: 100%;
   padding: 12px 18px;
@@ -172,7 +164,6 @@
   transform: none;
 }
 
-/* Progress & Status */
 .live-qa-progress-wrap {
   height: 6px;
   background: rgba(255, 255, 255, 0.15);
@@ -211,7 +202,6 @@
   100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
 }
 
-/* Footer info */
 .live-qa-footer {
   padding: 10px 18px;
   background: rgba(0, 0, 0, 0.3);
@@ -235,7 +225,6 @@
   text-decoration: underline;
 }
 
-/* Floating Test Runner / Recording HUD Banner */
 .live-qa-top-banner {
   position: fixed;
   z-index: 999999;
@@ -257,7 +246,6 @@
   user-select: none;
 }
 
-/* Position options: Default is bottom-left to NEVER block the top navbar! */
 .live-qa-top-banner.pos-bottom {
   bottom: 24px;
   left: 24px;
@@ -404,7 +392,6 @@
   to { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), 0 0 28px rgba(52, 211, 153, 0.5); }
 }
 
-/* Virtual Animated Cursor */
 .live-qa-virtual-cursor {
   position: fixed;
   z-index: 9999999;
@@ -439,7 +426,6 @@
   backdrop-filter: blur(8px);
 }
 
-/* Click Ripple Ring */
 .live-qa-click-ripple {
   position: fixed;
   z-index: 9999998;
@@ -458,7 +444,6 @@
   100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; border-width: 1px; }
 }
 
-/* Spotlight pulse on the real button when simulated */
 .live-qa-spotlight {
   position: relative !important;
   z-index: 9999 !important;
@@ -473,7 +458,6 @@
   to { transform: scale(1.05); filter: brightness(1.15); }
 }
 
-/* Mode Switcher Pill Group inside Controller */
 .live-qa-mode-group {
   display: flex;
   background: rgba(255, 255, 255, 0.06);
@@ -503,7 +487,6 @@
   box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
 }
 
-/* Functional Testing Dropdown & Controls */
 .live-qa-select-wrap {
   position: relative;
   width: 100%;
@@ -541,7 +524,6 @@
   padding: 8px;
 }
 
-/* Functional Preview Card */
 .live-qa-func-preview {
   padding: 10px 12px;
   background: rgba(255, 255, 255, 0.04);
@@ -571,7 +553,6 @@
   font-weight: 700;
 }
 
-/* Repeat Count Controls */
 .live-qa-repeat-row {
   display: flex;
   align-items: center;
@@ -622,7 +603,6 @@
   border-color: #34d399;
 }
 
-/* Loop Badge */
 .live-qa-loop-tag {
   background: #f59e0b;
   color: #000000;
@@ -633,7 +613,6 @@
   letter-spacing: 0.2px;
 }
 
-/* Mode Switcher Bar */
 .live-qa-mode-switch-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -672,7 +651,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Manual Mode Container */
 .live-qa-manual-container {
   display: flex;
   flex-direction: column;
@@ -706,7 +684,6 @@
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
-/* Timeline Trigger Button */
 .live-qa-timeline-trigger-btn {
   width: 100%;
   padding: 10px 14px;
@@ -732,6 +709,3 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
 }
-
-
-

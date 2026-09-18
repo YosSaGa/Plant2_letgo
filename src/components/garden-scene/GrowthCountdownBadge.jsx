@@ -3,23 +3,13 @@ import { motion } from 'framer-motion';
 import { Sparkles, Sprout, Trophy } from 'lucide-react';
 import { normalizeStage, STAGE_CONFIG } from './gardenSceneUtils';
 
-/**
- * GrowthCountdownBadge.jsx
- * Displays countdown badge to the next growth stage:
- * - daysUntilNextStage > 0 => "อีก {N} วันจะโต"
- * - daysUntilNextStage === 0 => "พร้อมโตวันนี้! ✨" (prominent gold glow)
- * - stage === "seed" & null => hidden
- * - stage === "fruiting" => "พร้อมเก็บเกี่ยว 🧺"
- */
 export default function GrowthCountdownBadge({ daysUntilNextStage, stage, readyToHarvest = false }) {
   const normStage = normalizeStage(stage);
 
-  // 1. ถ้าเป็นระยะ seed และไม่มีตัวนับวัน หรือยังไม่ได้เริ่มนับ -> ไม่ต้องแสดง
   if (normStage === 'seed' && (daysUntilNextStage === null || daysUntilNextStage === undefined)) {
     return null;
   }
 
-  // 2. ถ้าเป็นระยะ fruiting (ออกผล/เก็บเกี่ยว)
   if (normStage === 'fruiting') {
     return (
       <motion.div
@@ -37,7 +27,6 @@ export default function GrowthCountdownBadge({ daysUntilNextStage, stage, readyT
     );
   }
 
-  // 3. ถ้าพร้อมโตวันนี้ (days === 0)
   if (daysUntilNextStage === 0) {
     return (
       <motion.div
@@ -63,7 +52,6 @@ export default function GrowthCountdownBadge({ daysUntilNextStage, stage, readyT
     );
   }
 
-  // 4. แสดงจำนวนวันที่เหลือ (days > 0)
   if (typeof daysUntilNextStage === 'number' && daysUntilNextStage > 0) {
     return (
       <motion.div

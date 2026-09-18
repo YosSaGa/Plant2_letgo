@@ -1,9 +1,3 @@
-/* Fonts loaded via index.html preconnect */
-
-/* ==========================================================================
-   WEATHER & ENVIRONMENT SCENE (Clean Botanical & Cozy Natural Garden)
-   ========================================================================== */
-
 .wx-root {
   position: fixed;
   inset: 0;
@@ -22,7 +16,6 @@
   font-family: 'Prompt', sans-serif;
 }
 
-/* ---------- TOP NAVIGATION & HUD ---------- */
 .wx-top-nav {
   position: absolute;
   top: 1.25rem;
@@ -112,10 +105,6 @@
   font-weight: 500;
 }
 
-/* ==========================================================================
-   ATMOSPHERIC SKY (Cinematic, Soft, Harmonious)
-   ========================================================================== */
-
 .wx-sky {
   position: absolute;
   inset: 0;
@@ -123,41 +112,31 @@
   transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- DAY --- */
 .wx-scene-day .wx-sky {
   background: radial-gradient(circle at 75% 20%, rgba(254, 240, 138, 0.35) 0%, transparent 45%),
               linear-gradient(180deg, #60a5fa 0%, #93c5fd 32%, #dbeafe 70%, #fef3c7 100%);
 }
 
-/* --- HOT --- */
 .wx-scene-hot .wx-sky {
   background: radial-gradient(circle at 75% 20%, rgba(254, 215, 170, 0.5) 0%, transparent 50%),
               linear-gradient(180deg, #f97316 0%, #fb923c 30%, #fed7aa 70%, #fef3c7 100%);
 }
 
-/* --- CLOUDY --- */
 .wx-scene-cloudy .wx-sky {
   background: radial-gradient(circle at 50% 25%, rgba(241, 245, 249, 0.4) 0%, transparent 55%),
               linear-gradient(180deg, #64748b 0%, #94a3b8 35%, #cbd5e1 70%, #f1f5f9 100%);
 }
 
-/* --- RAIN --- */
 .wx-scene-rain .wx-sky {
   background: radial-gradient(circle at 45% 20%, rgba(100, 116, 139, 0.3) 0%, transparent 55%),
               linear-gradient(180deg, #1e293b 0%, #334155 35%, #475569 70%, #64748b 100%);
 }
 
-/* --- EVENING / NIGHT --- */
 .wx-scene-evening .wx-sky {
   background: radial-gradient(circle at 75% 20%, rgba(199, 210, 254, 0.25) 0%, transparent 50%),
               linear-gradient(180deg, #090d16 0%, #111827 30%, #1e1b4b 65%, #312e81 90%, #3730a3 100%);
 }
 
-/* ==========================================================================
-   CELESTIAL LIGHTING (Soft Sun & Glowing Moon)
-   ========================================================================== */
-
-/* --- Gentle Sun --- */
 .wx-sun-container {
   position: absolute;
   top: 9%;
@@ -199,7 +178,6 @@
   100% { transform: scale(1.08); opacity: 1; }
 }
 
-/* --- Moon --- */
 .wx-moon-container {
   position: absolute;
   top: 9%;
@@ -228,7 +206,6 @@
   box-shadow: 0 0 40px 10px rgba(226, 232, 240, 0.45);
 }
 
-/* --- Stars --- */
 .wx-star {
   position: absolute;
   border-radius: 50%;
@@ -237,7 +214,6 @@
   box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.8);
 }
 
-/* --- Fireflies (หิ่งห้อยค่ำคืน) --- */
 .wx-firefly {
   position: absolute;
   width: 5px;
@@ -257,7 +233,6 @@
   100% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
 }
 
-/* --- Sun Dust --- */
 .wx-sun-dust {
   position: absolute;
   width: 4px;
@@ -276,11 +251,6 @@
   100% { transform: translateY(-100px) translateX(30px) scale(1); opacity: 0; }
 }
 
-/* ==========================================================================
-   PARTICLES (Clouds, Rain, Heat Haze)
-   ========================================================================== */
-
-/* --- Clouds --- */
 .wx-cloud-wrapper {
   position: absolute;
   pointer-events: none;
@@ -327,7 +297,6 @@
   box-shadow: 0 14px 30px -8px rgba(15, 23, 42, 0.4);
 }
 
-/* --- Raindrops --- */
 .wx-raindrop {
   position: absolute;
   top: -20px;
@@ -339,7 +308,6 @@
   pointer-events: none;
 }
 
-/* --- Heat Shimmer --- */
 .wx-heat-shimmer {
   position: absolute;
   inset: 0;
@@ -358,10 +326,6 @@
   50% { opacity: 0.85; }
 }
 
-/* ==========================================================================
-   GENTLE MEADOW LANDSCAPE (Natural, Relaxing, Rolling Hills)
-   ========================================================================== */
-
 .wx-landscape-container {
   position: absolute;
   inset: 0;
@@ -369,7 +333,6 @@
   overflow: hidden;
 }
 
-/* --- Distant Mountain Ridges --- */
 .wx-layer-distant-mountains {
   position: absolute;
   bottom: 22%;
@@ -379,7 +342,6 @@
   opacity: 0.55;
 }
 
-/* --- Midground Gentle Hill --- */
 .wx-midground-hill {
   position: absolute;
   bottom: 14%;
@@ -395,7 +357,6 @@
   background: linear-gradient(180deg, rgba(30, 58, 138, 0.35) 0%, rgba(15, 23, 42, 0.6) 100%);
 }
 
-/* --- Butterfly --- */
 .wx-butterfly-actor {
   position: absolute;
   pointer-events: none;
@@ -412,10 +373,6 @@
   100% { transform: translate(45px, -30px) rotate(12deg); }
 }
 
-/* ==========================================================================
-   FOREGROUND GROUND STAGE & PLANT
-   ========================================================================== */
-
 .wx-ground-stage {
   position: absolute;
   bottom: 0;
@@ -428,7 +385,6 @@
   pointer-events: auto;
 }
 
-/* Natural Rolling Meadow (Smooth, Clean, Organic) */
 .wx-main-mound {
   position: absolute;
   bottom: -4rem;
@@ -458,7 +414,6 @@
   background: linear-gradient(180deg, #1e3a08 0%, #142805 35%, #0d1c03 75%, #050b01 100%);
 }
 
-/* --- Plant Pedestal & Cartoon Plant --- */
 .wx-plant-pedestal {
   position: relative;
   z-index: 25;
@@ -469,7 +424,6 @@
   pointer-events: auto;
 }
 
-/* Soft ground shadow under plant */
 .wx-pot-ground-shadow {
   width: 9rem;
   height: 1.8rem;
@@ -478,7 +432,6 @@
   margin-top: -1rem;
 }
 
-/* Plant Breathing Aura */
 .wx-plant-aura {
   position: absolute;
   bottom: 3.5rem;
@@ -496,7 +449,6 @@
   100% { transform: scale(1.15); opacity: 0.75; }
 }
 
-/* Cartoon Potted Plant Image */
 .wx-plant-sprite-wrapper {
   position: relative;
   display: flex;
@@ -529,10 +481,6 @@
     height: 2.2rem;
   }
 }
-
-/* ==========================================================================
-   SEED GAME (Artisan Wooden Planter Tray)
-   ========================================================================== */
 
 .wx-seed-game {
   position: relative;
@@ -618,10 +566,6 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* ==========================================================================
-   FLOATING BOTTOM BAR & INFO MODAL
-   ========================================================================== */
-
 .wx-bottom-bar {
   position: absolute;
   bottom: 1.5rem;
@@ -675,10 +619,6 @@
   70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
-
-/* ==========================================================================
-   GLASSMORPHISM INFO CARD & BOTTOM SHEET
-   ========================================================================== */
 
 .wx-info-overlay {
   position: fixed;
@@ -789,7 +729,6 @@
   color: #475569;
 }
 
-/* --- STATS GRID --- */
 .wx-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -870,7 +809,6 @@
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
 }
 
-/* --- WATER CARD --- */
 .wx-water-card {
   border-radius: 1.25rem;
   padding: 1rem 1.2rem;
@@ -969,7 +907,6 @@
 .wx-advice-increase { color: #c2410c; }
 .wx-advice-decrease { color: #0369a1; }
 
-/* --- Plant Meta Tags --- */
 .wx-meta-tags-row {
   display: flex;
   flex-wrap: wrap;
@@ -984,10 +921,6 @@
   font-size: 0.8rem;
   font-weight: 500;
 }
-
-/* ==========================================================================
-   FORMULA MODAL
-   ========================================================================== */
 
 .wx-formula-overlay {
   position: fixed;
@@ -1098,10 +1031,6 @@
   background: #047857;
   transform: translateY(-2px);
 }
-
-/* ==========================================================================
-   GARDEN SCENE FULL INTEGRATION STYLES
-   ========================================================================== */
 
 .wx-garden-page {
   position: fixed;
@@ -1386,4 +1315,3 @@
     justify-content: center;
   }
 }
-

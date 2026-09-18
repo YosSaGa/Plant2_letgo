@@ -19,7 +19,6 @@ const plantEmoji = {
   'ผักกาดหอม': '🥬',
 };
 
-// ประเภทงานดูแล
 const TASK_TYPES = {
   water: { label: 'รดน้ำ', icon: '💧', color: '#0ea5e9', defaultHour: 7, defaultMinute: 30 },
   fertilize: { label: 'ใส่ปุ๋ย', icon: '🌾', color: '#ca8a04', defaultHour: 9, defaultMinute: 0 },
@@ -28,7 +27,6 @@ const TASK_TYPES = {
   inspect: { label: 'ตรวจใบ/ศัตรูพืช', icon: '🔍', color: '#65a30d', defaultHour: 16, defaultMinute: 30 },
 };
 
-// mock: รอบการดูแลพื้นฐาน (ทุกกี่วัน) ของพืชแต่ละชนิด ตอนโตเต็มวัยปกติ
 const CARE_PLAN = {
   'กะเพรา': {
     water: 2, fertilize: 14, inspect: 5,
@@ -57,12 +55,11 @@ const CARE_PLAN = {
   },
 };
 
-// ตัวปรับตาม "ระยะการเจริญเติบโต" — เมล็ดต้องดูแลถี่/ใกล้ชิดกว่าต้นโต และยังไม่ต้องทำบางงาน
 const STAGE_MODIFIERS = {
   'เมล็ด': {
     health: 'เพิ่งเพาะเมล็ด ต้องดูแลใกล้ชิดเป็นพิเศษ',
-    waterFactor: 0.5, // รดน้ำถี่ขึ้น (จำนวนวันต่อรอบน้อยลง)
-    disableTasks: ['prune', 'fertilize'], // เมล็ดยังไม่ต้องตัดแต่งหรือใส่ปุ๋ย
+    waterFactor: 0.5,
+    disableTasks: ['prune', 'fertilize'],
     tips: [
       'รดน้ำเป็นละอองฝอยเบาๆ อย่าให้ดินแฉะจนเมล็ดลอย',
       'คลุมด้วยพลาสติกใสหรือกระดาษชื้นช่วยรักษาความชื้นจนกว่าจะงอก',
@@ -72,7 +69,7 @@ const STAGE_MODIFIERS = {
   'ต้นกล้า': {
     health: 'ต้นกล้ากำลังเติบโต ต้องระวังเรื่องแสงและความชื้น',
     waterFactor: 0.75,
-    disableTasks: ['prune'], // ต้นกล้ายังเล็กเกินไปที่จะตัดแต่งกิ่ง
+    disableTasks: ['prune'],
     tips: [
       'ค่อยๆ ให้ต้นกล้ารับแดดเพิ่มขึ้นทีละน้อย (Hardening off)',
       'ระวังโรคเน่าคอดินจากความชื้นสะสมมากเกินไป',
@@ -80,14 +77,13 @@ const STAGE_MODIFIERS = {
     ],
   },
   'โตเต็มวัย': {
-    health: null, // ใช้ค่า health เดิมของพืชแต่ละชนิดจาก CARE_PLAN
+    health: null,
     waterFactor: 1,
     disableTasks: [],
     tips: [],
   },
 };
 
-// ตัวปรับตาม "วิธีการปลูก" — กระถางดินแห้งเร็วกว่า ต้องรดน้ำถี่กว่าปลูกลงดิน
 const METHOD_MODIFIERS = {
   'กระถาง': {
     waterFactor: 0.85,
@@ -107,7 +103,6 @@ const METHOD_MODIFIERS = {
   },
 };
 
-// รวมค่าจาก CARE_PLAN พื้นฐาน + ปรับตามระยะ + ปรับตามวิธีปลูก ให้เป็นแผนดูแลที่ต่างกันจริงในแต่ละกรณี
 function buildCarePlan(plantType, stage, method, potSize) {
   const base = CARE_PLAN[plantType] || CARE_PLAN['กะเพรา'];
   const stageMod = STAGE_MODIFIERS[stage] || STAGE_MODIFIERS['โตเต็มวัย'];
@@ -115,15 +110,14 @@ function buildCarePlan(plantType, stage, method, potSize) {
 
   const plan = {};
   Object.keys(TASK_TYPES).forEach((key) => {
-    if (base[key] == null) return; // งานนี้ไม่เกี่ยวกับพืชชนิดนี้เลย
-    if (stageMod.disableTasks.includes(key)) return; // ระยะนี้ยังไม่ต้องทำงานนี้
+    if (base[key] == null) return;
+    if (stageMod.disableTasks.includes(key)) return;
     const factor = key === 'water' ? stageMod.waterFactor * methodMod.waterFactor : 1;
     plan[key] = Math.max(1, Math.round(base[key] * factor));
   });
 
   plan.health = stageMod.health || base.health;
 
-  // แยกเคล็ดลับเป็น 3 กลุ่ม เพื่อให้เห็นชัดว่าแตกต่างกันตามระยะ/วิธีปลูก/พืชแต่ละชนิด
   const plantingLabel = method === 'กระถาง'
     ? `ปลูกในกระถาง${potSize ? ` ${potSize} นิ้ว` : ''}`
     : 'ปลูกลงดิน';
@@ -203,10 +197,8 @@ function PlantAdvice({ plant, weather, onBack }) {
 
   const [completedTasks, setCompletedTasks] = useState({});
 
-  // State สำหรับ Popup แจ้งเตือนทั่วไป (แทน Toast)
   const [alertData, setAlertData] = useState(null);
 
-  // State สำหรับยืนยันการทำแล้ว/ยังไม่ทำ
   const [pendingConfirm, setPendingConfirm] = useState(null);
 
   useEffect(() => {
@@ -217,7 +209,6 @@ function PlantAdvice({ plant, weather, onBack }) {
     setSelectedDay(todayDate);
   }, [plant?.id]);
 
-  // Google Calendar Integration states
   const [savedReminders, setSavedReminders] = useState({});
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -230,7 +221,6 @@ function PlantAdvice({ plant, weather, onBack }) {
 
   const taskKey = (y, m, d, t) => `${y}-${m}-${d}:${t}`;
 
-  // Helper สร้าง Event Object สำหรับ Google Calendar
   const buildEventPayload = (y, m, d, taskTypeKey) => {
     const tInfo = TASK_TYPES[taskTypeKey] || { label: taskTypeKey, icon: '🌱' };
     const plantLabel = `${plantType} (ระยะ${stage})`;
@@ -269,7 +259,6 @@ function PlantAdvice({ plant, weather, onBack }) {
     };
   };
 
-  // รวมรายการงานทั้งหมดของเดือนที่กำลังแสดงผล
   const allMonthEvents = useMemo(() => {
     const currentMonthEntry = monthsData[monthIndex];
     if (!currentMonthEntry?.map) return [];
@@ -283,7 +272,6 @@ function PlantAdvice({ plant, weather, onBack }) {
     return events;
   }, [monthsData, monthIndex, plan, plantType, stage, method, potSize]);
 
-  // รวมรายการงานของวันที่เลือก
   const selectedDayEvents = useMemo(() => {
     const currentMonthEntry = monthsData[monthIndex];
     if (!currentMonthEntry) return [];
@@ -293,7 +281,6 @@ function PlantAdvice({ plant, weather, onBack }) {
     );
   }, [monthsData, monthIndex, selectedDay, plan, plantType, stage, method, potSize]);
 
-  // จัดการซิงค์แบบกลุ่ม (เช่น ทั้งเดือน หรือทั้งวัน)
   const handleSyncBatch = async (eventsToSync, label = 'ทั้งหมด') => {
     if (!eventsToSync || eventsToSync.length === 0) {
       setAlertData({
@@ -348,7 +335,6 @@ function PlantAdvice({ plant, weather, onBack }) {
     }
   };
 
-  // จัดการตั้งเตือนงานเดี่ยว
   const handleSyncSingleTask = async (d, t) => {
     const currentMonthEntry = monthsData[monthIndex];
     if (!currentMonthEntry) return;
@@ -357,7 +343,6 @@ function PlantAdvice({ plant, weather, onBack }) {
     const ev = buildEventPayload(y, m, d, t);
     const uKey = taskKey(y, m, d, t);
 
-    // ถ้าตั้งเตือนไว้แล้ว กดเพื่อเปิดดูใน Google Calendar
     if (savedReminders[uKey]) {
       const item = savedReminders[uKey];
       window.open(item.htmlLink || 'https://calendar.google.com', '_blank');
@@ -379,7 +364,6 @@ function PlantAdvice({ plant, weather, onBack }) {
         icon: '🔔',
       });
     } catch (err) {
-      // Fallback เปิด Web Intent ทันที
       const intentUrl = getGoogleCalendarWebIntentUrl(ev);
       window.open(intentUrl, '_blank');
       saveReminderStatus(uKey, { title: ev.title, fallback: true });
@@ -389,26 +373,22 @@ function PlantAdvice({ plant, weather, onBack }) {
     }
   };
 
-  // ดาวน์โหลด .ics
   const handleDownloadIcs = (events) => {
     downloadIcsFile(events, `plookploen-${plantType}-schedule.ics`);
   };
 
-  // เช็กว่าเป็นอนาคตหรือไม่
   const isFutureDay = (y, m, d) => {
     const target = new Date(y, m, d);
     const now = new Date(todayYear, todayMonth, todayDate);
     return target.getTime() > now.getTime();
   };
 
-  // เช็กว่าเป็นอดีตที่เลยมาแล้วหรือไม่
   const isPastDay = (y, m, d) => {
     const target = new Date(y, m, d);
     const now = new Date(todayYear, todayMonth, todayDate);
     return target.getTime() < now.getTime();
   };
 
-  // ดับเบิลคลิกที่ "วันในปฏิทิน"
   const handleDayDoubleClick = (y, m, d) => {
     const monthEntry = monthsData.find((entry) => entry.year === y && entry.month === m);
     const tasks = monthEntry?.map[d] || [];
@@ -502,7 +482,6 @@ function PlantAdvice({ plant, weather, onBack }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35 }}
     >
-      {/* ใช้ createPortal เพื่อโยน Popup ไปที่ document.body ให้ลอยกลางจอเสมอ */}
       {createPortal(
         <>
           <AnimatePresence>
@@ -692,7 +671,6 @@ function PlantAdvice({ plant, weather, onBack }) {
                     </div>
                   ) : (
                     <div className="adv-sync-options">
-                      {/* บัตรตั้งเตือนทั้งเดือน (มาครบใน 1 คลิก) */}
                       <div className="adv-sync-option-card adv-sync-primary-card">
                         <div className="adv-sync-option-top">
                           <span className="adv-sync-card-badge">คลิกเดียวมาครบ 🌟</span>
@@ -715,7 +693,6 @@ function PlantAdvice({ plant, weather, onBack }) {
                         </motion.button>
                       </div>
 
-                      {/* บัตรตั้งเตือนเฉพาะวันนี้ */}
                       <div className="adv-sync-option-card">
                         <div className="adv-sync-option-top">
                           <span className="adv-sync-card-badge-neutral">งานเฉพาะวันนี้</span>
@@ -740,7 +717,6 @@ function PlantAdvice({ plant, weather, onBack }) {
                         </motion.button>
                       </div>
 
-                      {/* เมนูเสริม: ดาวน์โหลด ICS หรือปิด */}
                       <div className="adv-sync-alt-row">
                         <button
                           type="button"
@@ -768,7 +744,6 @@ function PlantAdvice({ plant, weather, onBack }) {
         document.body
       )}
 
-
       <div className="adv-wrap">
         <motion.button whileHover={{ x: -5 }} whileTap={{ scale: 0.95 }} className="adv-back-btn" onClick={onBack}>
           ← กลับ
@@ -789,7 +764,6 @@ function PlantAdvice({ plant, weather, onBack }) {
           </div>
         </motion.header>
 
-        {/* Dashboard cards */}
         <div className="adv-dashboard">
           <motion.div className="adv-card adv-stat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <span className="adv-stat-label">สภาพอากาศตอนนี้</span>
@@ -831,7 +805,6 @@ function PlantAdvice({ plant, weather, onBack }) {
         </div>
 
         <div className="adv-content">
-          {/* ปฏิทิน */}
           <section className="adv-card adv-calendar-card">
             <div className="adv-calendar-nav">
               <h2 className="adv-display adv-section-title adv-calendar-title">
@@ -957,7 +930,6 @@ function PlantAdvice({ plant, weather, onBack }) {
             </AnimatePresence>
           </section>
 
-          {/* งานของวันที่เลือก + เคล็ดลับ */}
           <div className="adv-side">
             <section className="adv-card adv-day-card">
               <div className="adv-day-card-header">
@@ -1023,7 +995,6 @@ function PlantAdvice({ plant, weather, onBack }) {
                 </motion.div>
               </AnimatePresence>
             </section>
-
 
             <section className="adv-card adv-tips-card">
               <h3 className="adv-display adv-section-title-sm">💡 เคล็ดลับการดูแล{plantType}</h3>

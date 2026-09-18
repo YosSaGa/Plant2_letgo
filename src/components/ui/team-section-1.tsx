@@ -1,9 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Define interfaces for props
 export interface SocialLink {
-  icon: React.ElementType; // For Shadcn icons or any SVG component
+  icon: React.ElementType;
   href: string;
 }
 
@@ -19,11 +18,10 @@ export interface TeamSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   description: string;
   members: TeamMember[];
   registerLink?: string;
-  logo?: React.ReactNode; // For a custom logo, or you can use a string src
-  socialLinksMain?: SocialLink[]; // Main social links for the company/section
+  logo?: React.ReactNode;
+  socialLinksMain?: SocialLink[];
 }
 
-// TeamSection Component
 export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
   (
     {
@@ -50,7 +48,6 @@ export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
         {...props}
       >
         <div className="container relative z-10 mx-auto grid items-center justify-center gap-6 px-4 text-center md:px-6">
-          {/* Background Grid - for visual appeal */}
           <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
             <svg className="h-full w-full" fill="none">
               <defs>
@@ -75,7 +72,6 @@ export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
             </svg>
           </div>
 
-          {/* Header Section */}
           <div className="relative z-10 flex w-full flex-col items-center justify-between gap-4 md:flex-row md:items-start md:text-left lg:gap-8">
             <div className="grid gap-2 text-center md:text-left">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-muted-foreground">
@@ -101,7 +97,6 @@ export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
             </div>
           </div>
 
-          {/* Main Social Links */}
           {socialLinksMain && socialLinksMain.length > 0 && (
             <div className="relative z-10 flex w-full items-center justify-center gap-4 py-2">
               {socialLinksMain.map((link, index) => (
@@ -121,7 +116,6 @@ export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
             </div>
           )}
 
-          {/* Team Members Grid - Optimized for 2 members or 3+ */}
           <div
             className={cn(
               "relative z-10 mx-auto grid w-full gap-8 lg:gap-12",
@@ -144,13 +138,11 @@ export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
                   color: "hsl(var(--foreground))",
                 }}
               >
-                {/* Background wave animation */}
                 <div
                   className="absolute bottom-0 left-0 right-0 h-1/2 origin-bottom scale-y-0 transform rounded-t-full bg-gradient-to-t from-primary/20 to-transparent transition-transform duration-500 ease-out group-hover:scale-y-100"
                   style={{ transitionDelay: `${index * 50}ms` }}
                 />
 
-                {/* Member Image with mask and border animation */}
                 <div
                   className="relative z-10 h-40 w-40 overflow-hidden rounded-full border-4 border-transparent bg-background/40 transition-all duration-500 ease-out group-hover:border-primary group-hover:scale-105 shadow-md"
                   style={{ transitionDelay: `${index * 100}ms` }}
@@ -169,7 +161,6 @@ export const TeamSection = React.forwardRef<HTMLDivElement, TeamSectionProps>(
                   {member.designation}
                 </p>
 
-                {/* Social Links for individual members */}
                 {member.socialLinks && member.socialLinks.length > 0 && (
                   <div className="relative z-10 mt-4 flex gap-3 opacity-80 sm:opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100">
                     {member.socialLinks.map((link, linkIndex) => (

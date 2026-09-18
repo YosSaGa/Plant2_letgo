@@ -149,11 +149,6 @@ code {
   background: var(--code-bg);
 }
 
-/* ============================================================
-   SCOPED STYLES FOR FOOTER & MODERN SHADCN COMPONENTS
-   (Keeps the rest of the website 100% original while rendering
-    shadcn buttons, inputs, switches, and tooltips perfectly)
-   ============================================================ */
 .footer-scoped,
 .footer-scoped *,
 .footer-scoped *::before,
@@ -198,4 +193,3 @@ code {
   display: inline-block;
   vertical-align: middle;
 }
-

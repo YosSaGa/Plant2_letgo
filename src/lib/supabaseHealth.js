@@ -1,9 +1,3 @@
-/**
- * supabaseHealth.js
- * Utility for verifying Supabase connection status, querying master tables,
- * measuring database latency (in milliseconds and seconds), and reporting health.
- */
-
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 
 export async function checkSupabaseHealth() {
@@ -23,7 +17,6 @@ export async function checkSupabaseHealth() {
 
   const t0 = performance.now();
   try {
-    // 1. Query plant_master table
     const { data: pmData, error: pmErr } = await supabase
       .from('plant_master')
       .select('*')
@@ -49,7 +42,6 @@ export async function checkSupabaseHealth() {
       };
     }
 
-    // 2. Query user_plants table count (quick probe)
     let userPlantsCount = 0;
     try {
       const { count } = await supabase

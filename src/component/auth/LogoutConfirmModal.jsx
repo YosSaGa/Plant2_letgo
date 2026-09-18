@@ -1,10 +1,3 @@
-/**
- * LogoutConfirmModal.jsx
- * PlookPloen Green-Theme Confirmation Modal (Thai Language)
- * Displays ShieldQuestion icon in emerald badge, Thai confirmation text,
- * and split "ยกเลิก" / "ใช่, ออกจากระบบ" buttons.
- */
-
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,7 +10,6 @@ export default function LogoutConfirmModal({
   onConfirm,
   isLoggingOut = false
 }) {
-  // Close on Escape key press
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -53,23 +45,19 @@ export default function LogoutConfirmModal({
           aria-labelledby="logout-modal-title"
         >
           <div className="logout-modal-body">
-            {/* Emerald Circular Badge with Shield Question Icon */}
             <div className="logout-modal-icon-badge">
               <ShieldQuestion size={28} strokeWidth={2.2} />
             </div>
 
-            {/* Title (Thai) */}
             <h3 id="logout-modal-title" className="logout-modal-title">
               ต้องการออกจากระบบใช่หรือไม่?
             </h3>
 
-            {/* Subtext (Thai) */}
             <p className="logout-modal-subtext">
               คุณสามารถเข้าสู่ระบบกลับมาดูแลแปลงปลูกได้ตลอดเวลา
             </p>
           </div>
 
-          {/* Split 50/50 Footer Action Buttons (Thai) */}
           <div className="logout-modal-footer">
             <button
               type="button"

@@ -3,14 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { PLANT_CONFIG, normalizePlantType } from './gardenSceneUtils';
 
-/**
- * SeedPlantingInteraction.jsx
- * Interactive seed sowing stage:
- * - Empty rich soil bed with tap to sow prompt
- * - Seed drop micro-animation
- * - Sparkle celebrations & sown state
- * - Triggers onSeedPlanted() callback
- */
 export default function SeedPlantingInteraction({ plantType, onSeedPlanted }) {
   const [hasPlanted, setHasPlanted] = useState(false);
   const [animating, setAnimating] = useState(false);
@@ -33,7 +25,6 @@ export default function SeedPlantingInteraction({ plantType, onSeedPlanted }) {
 
   return (
     <div className="gs-seed-interaction-container">
-      {/* ดินและแปลงเพาะเมล็ด */}
       <div className="gs-soil-bed-wrapper">
         <svg viewBox="0 0 240 180" className="gs-soil-bed-svg">
           <defs>
@@ -43,23 +34,18 @@ export default function SeedPlantingInteraction({ plantType, onSeedPlanted }) {
               <stop offset="100%" stopColor="#270e03" />
             </radialGradient>
           </defs>
-          {/* Ground Shadow */}
           <ellipse cx="120" cy="155" rx="85" ry="18" fill="rgba(0,0,0,0.22)" />
-          {/* Main Soil Mound */}
           <path
             d="M30 148 C45 105, 85 85, 120 85 C155 85, 195 105, 210 148 C215 160, 185 168, 120 168 C55 168, 25 160, 30 148 Z"
             fill="url(#gsSoilBedGrad)"
           />
-          {/* Soil Pebbles */}
           <circle cx="75" cy="138" r="4.5" fill="#a16207" opacity="0.6" />
           <circle cx="165" cy="132" r="5" fill="#a16207" opacity="0.6" />
           <circle cx="120" cy="120" r="3.5" fill="#ca8a04" opacity="0.5" />
           <circle cx="140" cy="145" r="4" fill="#a16207" opacity="0.6" />
 
-          {/* เมล็ดที่ตกลงดิน (แสดงเมื่อหว่านแล้ว) */}
           {hasPlanted && (
             <g>
-              {/* จุดหลุมเพาะเมล็ดที่มีความชื้น */}
               <ellipse cx="95" cy="115" rx="6" ry="3.5" fill="#1c1917" opacity="0.7" />
               <circle cx="95" cy="114" r="2.8" fill="#ca8a04" />
 
@@ -69,14 +55,12 @@ export default function SeedPlantingInteraction({ plantType, onSeedPlanted }) {
               <ellipse cx="145" cy="114" rx="6" ry="3.5" fill="#1c1917" opacity="0.7" />
               <circle cx="145" cy="113" r="2.8" fill="#ca8a04" />
 
-              {/* ละอองน้ำชุ่มชื้น */}
               <circle cx="106" cy="112" r="1.8" fill="#38bdf8" opacity="0.8" />
               <circle cx="134" cy="110" r="1.8" fill="#38bdf8" opacity="0.8" />
             </g>
           )}
         </svg>
 
-        {/* Animation เมล็ดร่วงลงดินตอนกดหว่าน */}
         <AnimatePresence>
           {animating && (
             <>
@@ -114,7 +98,6 @@ export default function SeedPlantingInteraction({ plantType, onSeedPlanted }) {
           )}
         </AnimatePresence>
 
-        {/* ประกายดาวเมื่อหว่านสำเร็จ */}
         {hasPlanted && (
           <motion.div
             className="gs-sparkle-celebration"
@@ -127,7 +110,6 @@ export default function SeedPlantingInteraction({ plantType, onSeedPlanted }) {
         )}
       </div>
 
-      {/* ปุ่ม / กล่องข้อความสั่งหว่านเมล็ด */}
       <div className="gs-seed-prompt-wrap">
         {!hasPlanted ? (
           <motion.button

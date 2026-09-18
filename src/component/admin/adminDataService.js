@@ -10,7 +10,6 @@ export function formatThaiDate(dateString) {
   return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
 }
 
-// 1. ดึงสรุปตัวเลขสถิติบนการ์ดด้านบน (Summary Cards)
 export async function fetchAdminSummary() {
   if (!supabase) {
     return { totalUsers: 0, userGrowth: '0%', totalPlants: 0, totalDetections: 0 };
@@ -27,7 +26,6 @@ export async function fetchAdminSummary() {
     const totalPlants = (plantsRes.data || []).reduce((sum, item) => sum + Number(item.amount || 1), 0);
     const totalDetections = detectionsRes.count || 0;
 
-    // คำนวณอัตราการเติบโตของผู้ใช้ (30 วันที่ผ่านมา)
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const recentUsers = (usersRes.data || []).filter((u) => new Date(u.created_at) >= thirtyDaysAgo).length;
@@ -45,7 +43,6 @@ export async function fetchAdminSummary() {
   }
 }
 
-// 2. ดึงแนวโน้มการลงทะเบียนผู้ใช้งานแยกตามช่วงเวลา (7 วัน, 30 วัน, รายเดือน)
 export async function fetchRegistrationSeries() {
   const defaultSeries = {
     '7 วัน': [
@@ -71,11 +68,9 @@ export async function fetchRegistrationSeries() {
 
     const now = new Date();
 
-    // 7 วันล่าสุด: นับตามวันในสัปดาห์ (จันทร์ - อาทิตย์)
     const weekMap = { 'จ.': 0, 'อ.': 0, 'พ.': 0, 'พฤ.': 0, 'ศ.': 0, 'ส.': 0, 'อา.': 0 };
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    // 30 วันล่าสุด: นับแบ่งตามช่วง 5 วัน
     const monthBins = [
       { label: '1-5 วัน', min: 0, max: 5, total: 0 },
       { label: '6-10 วัน', min: 6, max: 10, total: 0 },
@@ -85,7 +80,6 @@ export async function fetchRegistrationSeries() {
       { label: '26-30 วัน', min: 26, max: 30, total: 0 },
     ];
 
-    // รายเดือน: ย้อนหลัง 6 เดือน
     const monthlyMap = {};
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -97,20 +91,17 @@ export async function fetchRegistrationSeries() {
       if (!user.created_at) return;
       const uDate = new Date(user.created_at);
 
-      // สำหรับ 7 วัน
       if (uDate >= sevenDaysAgo) {
         const dayName = thaiDays[uDate.getDay()];
         if (weekMap[dayName] !== undefined) weekMap[dayName]++;
       }
 
-      // สำหรับ 30 วัน
       const diffDays = Math.floor((now.getTime() - uDate.getTime()) / (24 * 60 * 60 * 1000));
       if (diffDays >= 0 && diffDays <= 30) {
         const bin = monthBins.find((b) => diffDays >= b.min && diffDays <= b.max);
         if (bin) bin.total++;
       }
 
-      // สำหรับรายเดือน
       const monthLabel = thaiMonths[uDate.getMonth()];
       if (monthlyMap[monthLabel] !== undefined) {
         monthlyMap[monthLabel]++;
@@ -138,7 +129,6 @@ export const defaultDiseaseRankings = [
   { name: 'โรคจากแบคทีเรีย (Bacterial Disease)', total: 2 },
 ];
 
-// 3. ดึงอันดับโรคพืชที่พบบ่อยจากตาราง disease_checks
 export async function fetchDiseaseRankings() {
   if (!supabase) return defaultDiseaseRankings;
 
@@ -153,7 +143,6 @@ export async function fetchDiseaseRankings() {
     data.forEach((row) => {
       const disease = row.detected_disease?.trim() || '';
       if (!disease) return;
-      // กรองใบปกติ / สุขภาพดี / ไม่พบโรค ออกจากการจัดอันดับโรคพืช
       if (
         disease.includes('ปกติ') ||
         disease.includes('Healthy') ||
@@ -177,7 +166,6 @@ export async function fetchDiseaseRankings() {
   }
 }
 
-// 4. ดึงสถิติพืชแยกตามชนิดและวิธีปลูกจาก user_plants + plant_master
 export async function fetchPlantStatistics() {
   const defaultResult = {
     plantTotals: [],
@@ -198,13 +186,11 @@ export async function fetchPlantStatistics() {
     const userPlants = userPlantsRes.data || [];
     const masters = mastersRes.data || [];
 
-    // แผนที่ชื่อพืช
     const masterMap = {};
     masters.forEach((m) => {
       masterMap[m.plant_id] = m.name_th;
     });
 
-    // 4.1 รวมจำนวนพืชแยกตามชนิด
     const typeCounts = {};
     masters.forEach((m) => {
       typeCounts[m.name_th] = 0;
@@ -245,7 +231,6 @@ export async function fetchPlantStatistics() {
   }
 }
 
-// 5. ดึงรายชื่อผู้ใช้งานจริงทั้งหมด (สำหรับหน้า /admin/users)
 export async function fetchAdminUsersList() {
   if (!supabase) return [];
 
@@ -283,7 +268,6 @@ export async function fetchAdminUsersList() {
   }
 }
 
-// 6. ดึงบันทึกการปลูกพืชจริง (สำหรับหน้า /admin/plants หรือ tab พืช)
 export async function fetchAdminPlantsList() {
   if (!supabase) return [];
 
@@ -313,7 +297,6 @@ export async function fetchAdminPlantsList() {
   }
 }
 
-// 7. ดึงรายงานประวัติการตรวจโรคพืชจริง (สำหรับหน้า /admin/disease-reports)
 export async function fetchAdminDiseaseReports() {
   if (!supabase) return [];
 
@@ -344,7 +327,6 @@ export async function fetchAdminDiseaseReports() {
   }
 }
 
-// 8. CRUD สำหรับจัดการข้อมูลพืชกลาง (plant_master)
 export async function fetchPlantMasterList() {
   if (!supabase) return [];
   const { data, error } = await supabase

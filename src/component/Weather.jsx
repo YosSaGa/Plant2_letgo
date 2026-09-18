@@ -128,12 +128,6 @@ function calcWateringAdvice(plantType, temp, humidity) {
   return { hasWeather, baseMl, temp: t, humidity: h, tempFactor, humidityFactor, combinedFactor, finalMl, level, adviceText };
 }
 
-/**
- * Weather Component - Garden Simulation View for PlookPloen
- * Incorporates the 2D Cartoon Interactive GardenScene with dynamic time-of-day backgrounds,
- * 20 distinct plant illustrations across 5 crops × 4 growth stages, seed planting interaction,
- * countdown badges, and real-time environmental advice.
- */
 function Weather({ 
   plant, 
   weather, 
@@ -146,7 +140,6 @@ function Weather({
   onSeedPlanted: propOnSeedPlanted,
   potSize: propPotSize
 }) {
-  // Support both parent app format ({ plant, weather }) and direct GardenScene props
   const rawPlantType = propPlantType || plant?.type || 'chili';
   const rawStage = propStage || plant?.stage || 'seedling';
   
@@ -154,20 +147,17 @@ function Weather({
   const initialStage = normalizeStage(rawStage);
 
   const [currentStage, setCurrentStage] = useState(initialStage);
-  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState(propTimeOfDay || null); // null = auto
+  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState(propTimeOfDay || null);
   const [showFormula, setShowFormula] = useState(false);
   const [showInfoCard, setShowInfoCard] = useState(false);
   const [showPlantedToast, setShowPlantedToast] = useState(false);
 
-  // Sync state if external prop changes
   useEffect(() => {
     setCurrentStage(normalizeStage(rawStage));
   }, [rawStage]);
 
-  // Current effective time of day
   const effectiveTimeOfDay = selectedTimeOfDay || propTimeOfDay || getTimeOfDay();
 
-  // Days calculation
   const computedDays = useMemo(() => {
     if (propDaysUntilNext !== undefined && propDaysUntilNext !== null) {
       return propDaysUntilNext;
@@ -185,14 +175,11 @@ function Weather({
     [plant?.type, plantCfg.nameTh, weather?.temp, weather?.humidity]
   );
 
-  // Handle seed planting callback
   const handleSeedPlanted = () => {
-    // 1. Update local state to seedling
     setCurrentStage('seedling');
     setShowPlantedToast(true);
     setTimeout(() => setShowPlantedToast(false), 4000);
 
-    // 2. Notify parent if callbacks provided
     if (typeof propOnSeedPlanted === 'function') {
       propOnSeedPlanted();
     }
@@ -219,7 +206,6 @@ function Weather({
       animate={{ opacity: 1 }} 
       transition={{ duration: 0.4 }}
     >
-      {/* ---------- TOP NAVIGATION & HUD ---------- */}
       <header className="wx-top-header">
         <div className="wx-header-left">
           {onBack && (
@@ -247,7 +233,6 @@ function Weather({
           </div>
         </div>
 
-        {/* Time of Day Switcher + Weather HUD */}
         <div className="wx-header-right">
           <div className="wx-time-switcher">
             <button
@@ -307,7 +292,6 @@ function Weather({
         </div>
       </header>
 
-      {/* ---------- MAIN 2D CARTOON GARDEN SCENE VIEWPORT ---------- */}
       <main className="wx-garden-canvas-area">
         <div className="wx-garden-scene-container">
           <GardenScene
@@ -322,7 +306,6 @@ function Weather({
           />
         </div>
 
-        {/* Success celebration toast after seed planted */}
         <AnimatePresence>
           {showPlantedToast && (
             <motion.div 
@@ -341,9 +324,7 @@ function Weather({
         </AnimatePresence>
       </main>
 
-      {/* ---------- FOOTER HUD & GROWTH TRACKER ---------- */}
       <footer className="wx-bottom-controls">
-        {/* Growth Stage Stepper Tracker */}
         <div className="wx-stage-stepper">
           <span className="wx-stepper-label">พัฒนาการ:</span>
           <div className="wx-stepper-steps">
@@ -366,7 +347,6 @@ function Weather({
           </div>
         </div>
 
-        {/* Smart Water Advice Drawer Button */}
         <motion.button
           className="wx-view-info-btn"
           whileHover={{ scale: 1.04 }}
@@ -379,7 +359,6 @@ function Weather({
         </motion.button>
       </footer>
 
-      {/* ---------- GLASSMORPHISM INFO CARD & BOTTOM SHEET ---------- */}
       <AnimatePresence>
         {showInfoCard && (
           <motion.div
@@ -423,9 +402,7 @@ function Weather({
 
               <p className="wx-info-desc">{scene.desc}</p>
 
-              {/* Environmental Stats Grid */}
               <div className="wx-stats-grid">
-                {/* Temperature Card */}
                 <div className="wx-stat-card">
                   <div className="wx-stat-icon-wrapper wx-stat-icon-temp">
                     <Thermometer size={20} />
@@ -436,7 +413,6 @@ function Weather({
                   </div>
                 </div>
 
-                {/* Humidity Card */}
                 <div className="wx-stat-card">
                   <div className="wx-stat-icon-wrapper wx-stat-icon-humidity">
                     <Droplets size={20} />
@@ -456,7 +432,6 @@ function Weather({
                 </div>
               </div>
 
-              {/* Smart Water Recommendation Card */}
               <div className={`wx-water-card wx-water-${wateringAdvice.level}`}>
                 <div className="wx-water-card-top">
                   <span className="wx-water-card-heading">
@@ -486,7 +461,6 @@ function Weather({
                 </div>
               </div>
 
-              {/* Plant Meta Details */}
               <div className="wx-meta-tags-row">
                 <span className="wx-meta-tag">🌱 ระยะ: {STAGE_CONFIG[currentStage]?.label || currentStage}</span>
                 <span className="wx-meta-tag">
@@ -499,7 +473,6 @@ function Weather({
         )}
       </AnimatePresence>
 
-      {/* ---------- FORMULA BREAKDOWN MODAL ---------- */}
       <AnimatePresence>
         {showFormula && (
           <motion.div

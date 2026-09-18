@@ -1,16 +1,3 @@
-/**
- * LiveTestOverlay.jsx
- * Functional Testing Suite & Real-App Automated Test Runner
- * Features:
- *  - High-Precision Target Resolver (Text content + CSS selector)
- *  - Full Synthetic Event Dispatcher (pointerover, pointerdown, mousedown, pointerup, mouseup, click)
- *  - Auto-scrolling without animation drift
- *  - Configurable Repeat Count (1x, 2x, 3x, 5x, or custom loops)
- *  - Full System Integration Tour (All 7 Pages sequentially)
- *  - Real-time Google Sheets streaming with loop counter
- *  - Seamless link back to Dedicated Testing Hub (/system-test)
- */
-
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -37,7 +24,6 @@ import './liveTestOverlay.css';
 
 const DEFAULT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxNpNZJlTYYZS2434ZaD3iOJXMyhT0Kv_AGactck5EkcLRVTFX92O12Wi98Cu0dVHgKTg/exec';
 
-// Persistent singleton test runner to survive React page-unmounts & route changes
 export const globalTestRunner = {
   isRunning: false,
   isCancelled: false,
@@ -48,7 +34,7 @@ export const globalTestRunner = {
   currentStepText: null,
   topBannerText: null,
   progressPercent: 0,
-  testMode: 'auto', // 'auto' | 'manual'
+  testMode: 'auto',
   isManualRecording: false,
   cursorState: { 
     x: typeof window !== 'undefined' ? window.innerWidth / 2 : 500, 
@@ -94,7 +80,6 @@ export const globalTestRunner = {
     this.currentStepText = `หยุดการทดสอบ: ${reason}`;
     this.cursorState = { ...this.cursorState, visible: false, isClicking: false };
     
-    // Add entry to timeline
     const stopEntry = {
       id: 'tl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
       timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -120,7 +105,6 @@ export const globalTestRunner = {
   }
 };
 
-// Listen for global Escape key to halt test immediately
 if (typeof window !== 'undefined') {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' || e.code === 'Escape') {
@@ -131,7 +115,6 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Cancellable sleep utility: immediately breaks when globalTestRunner.isCancelled is set
 const sleep = (ms) => new Promise((resolve) => {
   if (globalTestRunner.isCancelled) {
     resolve();
@@ -146,7 +129,6 @@ const sleep = (ms) => new Promise((resolve) => {
   }, 30);
 });
 
-// Subtle synthetic click sound via Web Audio API
 const playClickSound = () => {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -166,7 +148,6 @@ const playClickSound = () => {
   } catch (_) {}
 };
 
-// 6 Functional Modules in PlookPloen (เรียงลำดับ 1 ถึง 6 อย่างถูกต้อง)
 export const FUNCTIONAL_MODULES = [
   {
     id: 'all',
@@ -240,7 +221,6 @@ export const FUNCTIONAL_MODULES = [
   }
 ];
 
-// Reliable element visibility check (does NOT use offsetParent since fixed elements return null!)
 const isElementVisible = (el) => {
   if (!el || !(el instanceof Element)) return false;
   try {
@@ -255,22 +235,18 @@ const isElementVisible = (el) => {
   }
 };
 
-// Smart Element Finder: Supports object { selector, text }, CSS selector string, function, or plain text
 const smartFindElement = (finder) => {
   if (!finder) return null;
   if (typeof finder === 'function') return finder();
   if (typeof Element !== 'undefined' && finder instanceof Element) return finder;
 
-  // Object format: { selector: '.sg-plant-btn', text: 'พริก' }
   if (typeof finder === 'object' && finder !== null) {
     const { selector, text } = finder;
     if (selector) {
       const candidates = Array.from(document.querySelectorAll(selector));
       if (text) {
-        // Priority 1: exact trimmed text inside selector
         const exact = candidates.find(el => isElementVisible(el) && (el.innerText || el.textContent || '').trim() === text);
         if (exact) return exact;
-        // Priority 2: partial includes text inside selector
         const partial = candidates.find(el => isElementVisible(el) && (el.innerText || el.textContent || '').trim().includes(text));
         if (partial) return partial;
       } else {
@@ -281,7 +257,6 @@ const smartFindElement = (finder) => {
   }
 
   if (typeof finder === 'string') {
-    // 1. If it looks like a CSS selector, try direct query
     if (finder.startsWith('.') || finder.startsWith('#') || finder.startsWith('[') || finder.includes(' > ') || finder.includes(' ')) {
       try {
         const candidate = document.querySelector(finder);
@@ -289,12 +264,10 @@ const smartFindElement = (finder) => {
       } catch (_) {}
     }
 
-    // 2. Search clickable elements by exact text first, then partial text
     const clickables = Array.from(
       document.querySelectorAll('button, a, input[type="submit"], input[type="button"], [role="button"], .sg-chip, .sg-plant-btn, .sg-pot-size-btn, .pi-card, .wx-time-pill-btn, .wx-back-button, .lp-primary, .lp-secondary')
     );
 
-    // 2.1 Exact text match
     const exactMatch = clickables.find((el) => {
       if (!isElementVisible(el)) return false;
       const text = (el.innerText || el.textContent || '').trim();
@@ -302,7 +275,6 @@ const smartFindElement = (finder) => {
     });
     if (exactMatch) return exactMatch;
 
-    // 2.2 Includes text match
     const partialMatch = clickables.find((el) => {
       if (!isElementVisible(el)) return false;
       const text = (el.innerText || el.textContent || '').trim();
@@ -310,7 +282,6 @@ const smartFindElement = (finder) => {
     });
     if (partialMatch) return partialMatch;
 
-    // 3. Fallback: Search any visible element in DOM with text, and find closest clickable container
     const allEls = Array.from(document.querySelectorAll('body *'));
     const anyMatch = allEls.find((el) => {
       if (!isElementVisible(el)) return false;
@@ -341,7 +312,6 @@ export default function LiveTestOverlay({
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
   const [ripple, setRipple] = useState(null);
 
-  // Subscribe to persistent global test runner across page navigations
   const [, setTick] = useState(0);
   useEffect(() => {
     return globalTestRunner.subscribe(() => {
@@ -349,7 +319,6 @@ export default function LiveTestOverlay({
     });
   }, []);
 
-  // Pick up auto-run request from Hub if exists
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem('plookploen_autorun');
@@ -409,7 +378,6 @@ export default function LiveTestOverlay({
 
   const handleSelectMode = (newMode) => {
     if (newMode === 'manual') {
-      // IF AUTO RUN IS CURRENTLY RUNNING, STOP IT IMMEDIATELY!
       if (globalTestRunner.isRunning) {
         handleStopTest('สลับไปโหมดทดสอบด้วยตัวเอง (หยุด Auto ทันที)');
       }
@@ -422,7 +390,6 @@ export default function LiveTestOverlay({
     }
   };
 
-  // Add entry to visual timeline
   const addTimelineEntry = ({ title, route, details, status = 'completed', type = 'action', duration }) => {
     const newEntry = {
       id: 'tl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
@@ -442,7 +409,6 @@ export default function LiveTestOverlay({
   const webhookUrl = localStorage.getItem('plookploen_qa_webhook') || DEFAULT_WEBHOOK;
   const currentMod = FUNCTIONAL_MODULES.find(m => m.id === selectedModuleId) || FUNCTIONAL_MODULES[0];
 
-  // Track route changes in Manual Mode
   const prevPathRef = useRef(location.pathname);
   useEffect(() => {
     if (!isManualRecording) return;
@@ -476,12 +442,10 @@ export default function LiveTestOverlay({
     }
   }, [location.pathname, isManualRecording]);
 
-  // Track User Clicks in Manual Mode
   useEffect(() => {
     if (!isManualRecording) return;
 
     const handleDocumentClick = (e) => {
-      // Ignore clicks inside our live overlay, timeline modal, and top banner
       const overlayEl = document.querySelector('.live-qa-controller');
       const modalEl = document.querySelector('.qa-timeline-backdrop');
       const bannerEl = document.querySelector('.live-qa-top-banner');
@@ -524,7 +488,6 @@ export default function LiveTestOverlay({
 
       setCurrentStepText(`👤 [Manual] ${title}`);
 
-      // Stream to Google Sheets if connected
       if (webhookUrl) {
         streamToSheet({
           timestamp: new Date().toLocaleString('th-TH'),
@@ -548,9 +511,7 @@ export default function LiveTestOverlay({
     };
   }, [isManualRecording, location.pathname, webhookUrl]);
 
-  // Toggle Manual Recording
   const handleToggleManualRecord = () => {
-    // If auto is running, cancel it first!
     if (globalTestRunner.isRunning) {
       handleStopTest('สลับมาเริ่มทดสอบด้วยตัวเอง');
     }
@@ -594,7 +555,6 @@ export default function LiveTestOverlay({
     }
   };
 
-  // Helper: Immediately navigate to page when user selects a functional
   const handleSelectModule = (modId) => {
     if (isRunning) return;
     setSelectedModuleId(modId);
@@ -614,9 +574,7 @@ export default function LiveTestOverlay({
     }
   };
 
-  // Stream single step result to Google Sheets in real-time
   const streamToSheet = async (stepResult) => {
-    // Record this step into the visual timeline!
     addTimelineEntry({
       title: stepResult.scenario || stepResult.step,
       route: location.pathname,
@@ -639,7 +597,6 @@ export default function LiveTestOverlay({
     }
   };
 
-  // Ultra-Accurate Click Engine
   const smartClickTarget = async (finder, options = {}) => {
     if (globalTestRunner.isCancelled) return false;
     const { 
@@ -652,7 +609,6 @@ export default function LiveTestOverlay({
       skipClick = false 
     } = options;
 
-    // 1. Wait for element to exist and become visible in layout
     let target = null;
     const start = Date.now();
     while (Date.now() - start < timeout) {
@@ -665,7 +621,6 @@ export default function LiveTestOverlay({
     }
 
     if (!target && !fallbackCoords) {
-      // Element not found - execute fail-safe action if present, but do not fake-click screen center!
       if (typeof clickAction === 'function') {
         try { clickAction(); } catch (_) {}
       }
@@ -676,18 +631,16 @@ export default function LiveTestOverlay({
     let ty = fallbackCoords?.y ?? window.innerHeight / 2;
 
     if (target) {
-      // 2. Instant scroll into view (auto, NO smooth drift!)
       try {
         target.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
       } catch (_) {}
-      await sleep(150); // Let browser layout settle
+      await sleep(150);
 
       const rect = target.getBoundingClientRect();
       tx = rect.left + rect.width / 2;
       ty = rect.top + rect.height / 2;
     }
 
-    // 3. Move Virtual Cursor smoothly to element center
     setCursorState({
       x: tx,
       y: ty,
@@ -699,7 +652,6 @@ export default function LiveTestOverlay({
 
     if (globalTestRunner.isCancelled) return false;
 
-    // 4. Re-measure exact pixel coordinates right before clicking!
     if (target) {
       const rect = target.getBoundingClientRect();
       tx = rect.left + rect.width / 2;
@@ -721,7 +673,6 @@ export default function LiveTestOverlay({
       return false;
     }
 
-    // 5. Trigger Click Animation (shrink cursor, ripple, audio click)
     setCursorState({
       x: tx,
       y: ty,
@@ -734,7 +685,6 @@ export default function LiveTestOverlay({
 
     await sleep(160);
 
-    // 6. Fire Browser Events cleanly (SINGLE CLICK ONLY!)
     if (target && !skipClick) {
       const clickableTarget = target.closest('button, a, input, [role="button"]') || target;
 
@@ -776,7 +726,6 @@ export default function LiveTestOverlay({
         clickableTarget.dispatchEvent(new PointerEvent('pointerup', upEventInit));
         clickableTarget.dispatchEvent(new MouseEvent('mouseup', upEventInit));
 
-        // EXACTLY ONE CLICK INVOCATION
         if (typeof clickableTarget.click === 'function') {
           clickableTarget.click();
         } else {
@@ -787,7 +736,6 @@ export default function LiveTestOverlay({
       }
     }
 
-    // Fail-safe manual programmatic action if provided
     if (typeof clickAction === 'function') {
       try { clickAction(); } catch (_) {}
     }
@@ -810,21 +758,14 @@ export default function LiveTestOverlay({
     return true;
   };
 
-  // -----------------------------------------------------------------
-  // PRECISE INDIVIDUAL FUNCTIONAL TEST ACTIONS
-  // -----------------------------------------------------------------
-
-  // Test Functional 1: Auth & Account Flow (หน้าแรก ➔ เข้าสู่ระบบ ➔ สมัครสมาชิก ➔ ลืมรหัสผ่าน ➔ กลับหน้าแรก)
   const testLandingPage = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     setCurrentStepText(`${loopPrefix}กำลังทดสอบระบบสมาชิก: เริ่มจากหน้าแรก (Landing)...`);
     setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 1: หน้าแรก ➔ กำลังคลิกปุ่ม 'เข้าสู่ระบบ'...`);
 
-    // 1. Start at Home (Landing)
     if (typeof goTo === 'function') goTo('home');
     await sleep(1000);
 
-    // 2. Check if user is logged in or guest on Landing Page
     const loginBtn = document.querySelector('.lp-login') || smartFindElement({ selector: '.lp-login, button', text: 'เข้าสู่ระบบ' });
     if (loginBtn) {
       await smartClickTarget(loginBtn, {
@@ -836,7 +777,6 @@ export default function LiveTestOverlay({
         }
       });
     } else {
-      // User is already logged in: smoothly inform and navigate to /login for the test suite
       setCurrentStepText(`${loopPrefix}คุณเข้าสู่ระบบอยู่แล้ว ➔ กำลังนำทางไปหน้าเข้าสู่ระบบ (/login)...`);
       setTopBannerText(`🤖 ${loopPrefix}ผู้ใช้ล็อกอินอยู่แล้ว ➔ กำลังเปิดหน้า Login เพื่อทดสอบเส้นทาง...`);
       await sleep(600);
@@ -846,7 +786,6 @@ export default function LiveTestOverlay({
     await sleep(1200);
     if (globalTestRunner.isCancelled) return;
 
-    // 3. Now on /login: Click "สมัครสมาชิก"
     setCurrentStepText(`${loopPrefix}อยู่ที่หน้าเข้าสู่ระบบ (/login) ➔ กำลังคลิก 'สมัครสมาชิก'...`);
     setTopBannerText(`🤖 ${loopPrefix}หน้า Login ➔ กำลังคลิกลิงก์ 'สมัครสมาชิก' (/register)...`);
 
@@ -862,7 +801,6 @@ export default function LiveTestOverlay({
     await sleep(1200);
     if (globalTestRunner.isCancelled) return;
 
-    // 4. Now on /register: Click "เข้าสู่ระบบ" to return to login
     setCurrentStepText(`${loopPrefix}อยู่ที่หน้าสมัครสมาชิก (/register) ➔ กำลังคลิกสลับกลับไป 'เข้าสู่ระบบ'...`);
     setTopBannerText(`🤖 ${loopPrefix}หน้า Register ➔ กำลังคลิกสลับกลับไปหน้า 'เข้าสู่ระบบ'...`);
 
@@ -878,7 +816,6 @@ export default function LiveTestOverlay({
     await sleep(1200);
     if (globalTestRunner.isCancelled) return;
 
-    // 5. Back on /login: Click "ลืมรหัสผ่าน?"
     setCurrentStepText(`${loopPrefix}กลับมาหน้าเข้าสู่ระบบ ➔ กำลังคลิก 'ลืมรหัสผ่าน?' (/forgot-password)...`);
     setTopBannerText(`🤖 ${loopPrefix}หน้า Login ➔ กำลังคลิก 'ลืมรหัสผ่าน?'...`);
 
@@ -894,7 +831,6 @@ export default function LiveTestOverlay({
     await sleep(1200);
     if (globalTestRunner.isCancelled) return;
 
-    // 6. Now on /forgot-password: Click "← กลับหน้าแรก"
     setCurrentStepText(`${loopPrefix}อยู่ที่หน้าลืมรหัสผ่าน (/forgot-password) ➔ กำลังกด '← กลับหน้าแรก'...`);
     setTopBannerText(`🤖 ${loopPrefix}หน้ากู้รหัสผ่าน ➔ กำลังกดปุ่ม '← กลับหน้าแรก'...`);
 
@@ -909,7 +845,6 @@ export default function LiveTestOverlay({
 
     await sleep(1000);
 
-    // 7. Stream result to Google Sheets
     await streamToSheet({
       timestamp: new Date().toLocaleString('th-TH'),
       testId: `TC-FUNC-AUTH-FLOW-L${loopNum}`,
@@ -925,39 +860,32 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 2: Add Plant Form (Starts from Home -> Clicks 'เข้าสู่แปลงปลูก' -> Enters Form)
   const testAddPlant = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 2: เริ่มต้นจากหน้าแรก ➔ กด "เข้าสู่แปลงปลูก"...`);
     setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 2: เริ่มต้นจากหน้าแรก: คลิก "เข้าสู่แปลงปลูก"...`);
 
-    // 1. Ensure starting on landing / home page
     if (typeof goTo === 'function') goTo('home');
     await sleep(1100);
 
-    // 1.5 Check login state — ถ้ายังไม่ login จะเจอปุ่ม "เข้าสู่ระบบ" แทน "เข้าสู่แปลงปลูก"
     const gardenBtnCheck = smartFindElement({ selector: '.lp-login, .lp-primary, button', text: 'เข้าสู่แปลงปลูก' })
       || smartFindElement({ selector: '.lp-primary', text: 'เริ่มต้นใช้งาน' });
     const loginBtnCheck = smartFindElement({ selector: '.lp-login, button', text: 'เข้าสู่ระบบ' });
 
     if (!gardenBtnCheck && loginBtnCheck) {
-      // ⚠️ ยังไม่ login — ต้อง auto-login ก่อน
       setTopBannerText(`⚠️ ${loopPrefix}ยังไม่ได้ Login — กำลัง Auto-Login ก่อนทดสอบฟังก์ชัน 2...`);
       setCurrentStepText(`${loopPrefix}ตรวจพบว่ายังไม่ login ➔ รัน Auth Flow อัตโนมัติก่อน...`);
       await sleep(600);
 
-      // รัน Auth Flow (ฟังก์ชัน 1) อัตโนมัติ
       await testLandingPage(loopNum, totalLoops);
       if (globalTestRunner.isCancelled) return;
 
-      // กลับมาที่หน้าแรกหลัง login เสร็จ
       setTopBannerText(`✅ ${loopPrefix}Auto-Login สำเร็จ ➔ ต่อ ฟังก์ชัน 2: เพิ่มพืช...`);
       setCurrentStepText(`${loopPrefix}Login เรียบร้อย ➔ กลับมาที่หน้าแรก เพื่อกด "เข้าสู่แปลงปลูก"...`);
       if (typeof goTo === 'function') goTo('home');
       await sleep(1100);
     }
 
-    // 2. Click button "เข้าสู่แปลงปลูก" or "เริ่มต้นใช้งาน" on landing page
     const enterGardenBtn = smartFindElement({ selector: '.lp-login, .lp-primary, button', text: 'เข้าสู่แปลงปลูก' })
       || smartFindElement({ selector: '.lp-primary', text: 'เริ่มต้นใช้งาน' })
       || smartFindElement({ selector: '.lp-primary' });
@@ -976,7 +904,6 @@ export default function LiveTestOverlay({
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 2: เข้าสู่แปลงปลูกแล้ว ➔ เลือกพริก, ต้นกล้า, กระถาง 8 นิ้ว...`);
     setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 2: ฟอร์มเพิ่มพืช (เลือกพริก, ต้นกล้า, กระถาง 8 นิ้ว)...`);
 
-    // 3. Plant type: พริก (specifically .sg-plant-btn)
     const plantBtn = smartFindElement({ selector: '.sg-plant-btn', text: 'พริก' });
     if (plantBtn && plantBtn.classList.contains('active')) {
       await smartClickTarget(plantBtn, {
@@ -993,7 +920,6 @@ export default function LiveTestOverlay({
       });
     }
 
-    // 4. Growth stage: ต้นกล้า (specifically .sg-chip)
     const stageBtn = smartFindElement({ selector: '.sg-chip', text: 'ต้นกล้า' });
     if (stageBtn && stageBtn.classList.contains('active')) {
       await smartClickTarget(stageBtn, {
@@ -1010,10 +936,8 @@ export default function LiveTestOverlay({
       });
     }
 
-    // 5. Planting method: ปลูกในกระถาง (specifically .sg-chip)
     const methodBtn = smartFindElement({ selector: '.sg-chip', text: 'ปลูกในกระถาง' });
     if (methodBtn && methodBtn.classList.contains('active')) {
-      // Already 'กระถาง' by default - do NOT toggle off!
       await smartClickTarget(methodBtn, {
         label: 'วิธี: ปลูกในกระถาง 🪴 (เลือกแล้ว)',
         waitBefore: 300,
@@ -1030,7 +954,6 @@ export default function LiveTestOverlay({
 
     await sleep(350);
 
-    // 6. Pot size: 8 (specifically .sg-pot-size-btn)
     const potBtn = smartFindElement({ selector: '.sg-pot-size-btn', text: '8' });
     if (potBtn && potBtn.classList.contains('active')) {
       await smartClickTarget(potBtn, {
@@ -1047,14 +970,12 @@ export default function LiveTestOverlay({
       });
     }
 
-    // 7. Submit: + เพิ่มลงแปลงปลูก (.sg-submit)
     await smartClickTarget('.sg-submit', {
       label: '+ เพิ่มลงแปลงปลูก',
       waitBefore: 500,
       waitAfter: 800
     });
 
-    // Probe Supabase Database connection & latency
     const dbStatus = await checkSupabaseHealth();
 
     await streamToSheet({
@@ -1072,13 +993,11 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 3: Garden Scene & Back-to-Garden Redirect (Starts from Summary -> clicks plant card -> opens 2D environment -> clicks back to garden)
   const testGardenScene = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 3: เริ่มจากหน้า summary (/summary) ➔ กดไปดูสภาพแวดล้อม...`);
     setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 3: หน้า summary: คลิกการ์ดพืชเพื่อเปิดดูสภาพแวดล้อม 2D...`);
 
-    // 1. Start from summary dashboard (/summary)
     if (typeof goTo === 'function') goTo('stats');
     await sleep(1400);
 
@@ -1086,7 +1005,6 @@ export default function LiveTestOverlay({
       ? plants[0]
       : { type: 'พริก', stage: 'ต้นกล้า', method: 'กระถาง', potSize: '8', plantedAt: new Date() };
 
-    // 2. Click plant card in summary list (.sg-plant-card)
     await smartClickTarget('.sg-plant-card, .sg-plant-list', {
       label: `คลิกการ์ดพืช "${targetPlant.type}" เพื่อเปิดดูสภาพแวดล้อม 2D 🌿`,
       waitBefore: 500,
@@ -1102,14 +1020,12 @@ export default function LiveTestOverlay({
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 3: สวน 2D & สภาพแวดล้อม ➔ สลับเวลา ➔ คลิก "กลับสู่สวน"...`);
     setTopBannerText(`🤖 ${loopPrefix}ฟังก์ชัน 3: สวน 2D: สลับเวลายามเช้า ➔ คลิก "กลับสู่สวน"...`);
 
-    // 3. Switch time of day to morning in 2D Garden
     await smartClickTarget({ selector: '.wx-time-pill-btn', text: 'เช้า' }, {
       label: 'สลับยามเช้า 🌅',
       waitBefore: 450,
       waitAfter: 450
     });
 
-    // 4. Click button with text "กลับสู่สวน" (.wx-back-button)
     await smartClickTarget('.wx-back-button', {
       label: 'คลิก "กลับสู่สวน" ➔ ตรวจสอบ Redirect ไป /summary',
       waitBefore: 700,
@@ -1136,7 +1052,6 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 4: Dashboard Summary
   const testSummaryDashboard = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 4: กำลังทดสอบแดชบอร์ดสรุปสวน (/summary)...`);
@@ -1145,14 +1060,12 @@ export default function LiveTestOverlay({
     if (typeof goTo === 'function') goTo('stats');
     await sleep(1200);
 
-    // Inspect stat cards
     await smartClickTarget('.sg-dashboard-stat', {
       label: 'สถิติพืชในสวน 🌱',
       waitBefore: 450,
       waitAfter: 450
     });
 
-    // Click button with text "ตรวจโรคพืช"
     await smartClickTarget({ selector: 'button, a', text: 'ตรวจโรคพืช' }, {
       label: 'คลิก "🔬 ตรวจโรคพืช"',
       waitBefore: 600,
@@ -1177,7 +1090,6 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 5: Care Guide
   const testCareGuide = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 5: กำลังทดสอบคู่มือดูแลพืช & ปริมาณน้ำที่แนะนำ (/care-guide)...`);
@@ -1186,14 +1098,12 @@ export default function LiveTestOverlay({
     if (typeof goTo === 'function') goTo('advice');
     await sleep(1200);
 
-    // Inspect care stat card & water recommendation
     await smartClickTarget('.adv-card', {
       label: 'สภาพอากาศ & ปริมาณน้ำที่แนะนำ 💧',
       waitBefore: 450,
       waitAfter: 450
     });
 
-    // Click button with text "กลับ"
     await smartClickTarget({ selector: 'button', text: 'กลับ' }, {
       label: '← กลับหน้าสรุป',
       waitBefore: 500,
@@ -1218,7 +1128,6 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Test Functional 6: AI Disease Detection
   const testDiseaseDetection = async (loopNum, totalLoops) => {
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     setCurrentStepText(`${loopPrefix}ฟังก์ชัน 6: กำลังทดสอบระบบวินิจฉัยโรคพืช AI (/disease-detection)...`);
@@ -1227,7 +1136,6 @@ export default function LiveTestOverlay({
     if (typeof goTo === 'function') goTo('disease');
     await sleep(1200);
 
-    // Click plant picker buttons
     await smartClickTarget({ selector: 'button, .dd-crop-chip', text: 'โหระพา' }, {
       label: 'เลือกตรวจ: โหระพา 🌱',
       waitBefore: 450,
@@ -1240,7 +1148,6 @@ export default function LiveTestOverlay({
       waitAfter: 400
     });
 
-    // Click back button: "กลับหน้าหลัก" or "กลับสู่สวน"
     await smartClickTarget({ selector: 'button', text: 'กลับ' }, {
       label: 'กลับสู่สวน',
       waitBefore: 500,
@@ -1265,10 +1172,6 @@ export default function LiveTestOverlay({
     });
   };
 
-  // -----------------------------------------------------------------
-  // FULL SYSTEM FLOW TEST (ไหลต่อเนื่อง 1 → 2 → 3 → 4 → 5 → 6)
-  // ฟังก์ชัน 1 เสร็จ → ต่อ ฟังก์ชัน 2 ทันที → ... → จบที่ฟังก์ชัน 6
-  // -----------------------------------------------------------------
   const FLOW_STEPS = [
     { num: 1, name: 'ระบบสมาชิก & Auth', icon: '🔐', fn: 'testLandingPage' },
     { num: 2, name: 'ฟอร์มเพิ่มพืชลงแปลง', icon: '🌱', fn: 'testAddPlant' },
@@ -1282,13 +1185,11 @@ export default function LiveTestOverlay({
     const loopPrefix = totalLoops > 1 ? `[รอบที่ ${loopNum}/${totalLoops}] ` : '';
     const total = FLOW_STEPS.length;
 
-    // ═══ เริ่ม Flow ═══
     setTopBannerText(`🌟 ${loopPrefix}เริ่ม Flow ทั้งระบบ: ฟังก์ชัน 1 → 2 → 3 → 4 → 5 → 6`);
     setCurrentStepText(`${loopPrefix}เตรียมรัน Flow ต่อเนื่อง 6 ฟังก์ชัน (ฟังก์ชัน 1 เสร็จ → ต่อ 2 ทันที → ... → 6)`);
     globalTestRunner.update({ progressPercent: 0 });
     await sleep(800);
 
-    // Map function names to actual functions
     const fnMap = {
       testLandingPage,
       testAddPlant,
@@ -1306,20 +1207,16 @@ export default function LiveTestOverlay({
       const pctBefore = Math.round((i / total) * 100);
       const pctAfter = Math.round(((i + 1) / total) * 100);
 
-      // ═══ แสดง Banner ก่อนรันฟังก์ชัน ═══
       globalTestRunner.update({ progressPercent: pctBefore });
       setTopBannerText(`🌟 ${loopPrefix}[${step.num}/${total}] ${step.icon} ฟังก์ชัน ${step.num}: ${step.name}`);
       setCurrentStepText(`${loopPrefix}▶ กำลังรัน [${step.num}/${total}] ${step.name}...`);
       await sleep(400);
 
-      // ═══ รันฟังก์ชัน ═══
       await fnMap[step.fn](loopNum, totalLoops);
       if (globalTestRunner.isCancelled) return;
 
-      // ═══ อัปเดตความคืบหน้า ═══
       globalTestRunner.update({ progressPercent: pctAfter });
 
-      // ═══ แสดง Transition Banner (ถ้ายังไม่ใช่ขั้นตอนสุดท้าย) ═══
       if (nextStep) {
         setTopBannerText(`✅ ${loopPrefix}[${step.num}/${total}] ${step.name} สำเร็จ → ต่อเลย [${nextStep.num}/${total}] ${nextStep.icon} ${nextStep.name}`);
         setCurrentStepText(`${loopPrefix}✅ ฟังก์ชัน ${step.num} ผ่าน! → ต่อ ฟังก์ชัน ${nextStep.num}: ${nextStep.name}...`);
@@ -1331,7 +1228,6 @@ export default function LiveTestOverlay({
       }
     }
 
-    // ═══ สรุปภาพรวมทั้งระบบ ═══
     const dbSummary = await checkSupabaseHealth();
     await streamToSheet({
       timestamp: new Date().toLocaleString('th-TH'),
@@ -1348,7 +1244,6 @@ export default function LiveTestOverlay({
     });
   };
 
-  // Master Test Dispatcher (Auto Mode)
   const handleStartFunctionalTest = async () => {
     if (globalTestRunner.isRunning) {
       handleStopTest('ผู้ใช้กดปุ่มหยุดการทดสอบ');
@@ -1420,7 +1315,6 @@ export default function LiveTestOverlay({
           status: 'completed',
           type: 'system'
         });
-        // Automatically pop up timeline journey modal
         setIsTimelineModalOpen(true);
         setTimeout(() => {
           if (!globalTestRunner.isRunning && !globalTestRunner.isManualRecording) {
@@ -1451,7 +1345,6 @@ export default function LiveTestOverlay({
   return createPortal(
     <>
 
-      {/* Virtual Animated Cursor */}
       <AnimatePresence>
         {cursorState.visible && (
           <motion.div
@@ -1493,7 +1386,6 @@ export default function LiveTestOverlay({
         )}
       </AnimatePresence>
 
-      {/* Expanding Click Ripple Ring */}
       {ripple && (
         <div 
           key={ripple.id} 
@@ -1502,7 +1394,6 @@ export default function LiveTestOverlay({
         />
       )}
 
-      {/* Floating Functional Testing Controller Widget */}
       <div className={`live-qa-controller ${isMinimized ? 'minimized' : ''}`}>
         {isMinimized ? (
           <div className="live-qa-min-btn">
@@ -1574,7 +1465,6 @@ export default function LiveTestOverlay({
             </div>
 
             <div className="live-qa-body">
-              {/* Mode Switcher: Auto vs Manual */}
               <div className="live-qa-mode-switch-group">
                 <button
                   type="button"
@@ -1596,7 +1486,6 @@ export default function LiveTestOverlay({
 
               {testMode === 'auto' ? (
                 <>
-                  {/* 1. Functional Selector */}
                   <div>
                     <div className="live-qa-scenario-badge">
                       <span>เลือก Functional ที่ต้องการทดสอบ:</span>
@@ -1618,7 +1507,6 @@ export default function LiveTestOverlay({
                     </div>
                   </div>
 
-                  {/* Functional Preview Card */}
                   <div className="live-qa-func-preview">
                     <div className="live-qa-func-meta">
                       <span style={{ fontWeight: 700, color: '#34d399' }}>{currentMod.badge}</span>
@@ -1627,7 +1515,6 @@ export default function LiveTestOverlay({
                     <span>{currentMod.description}</span>
                   </div>
 
-                  {/* 2. Repeat Count Selection */}
                   <div>
                     <div className="live-qa-scenario-badge" style={{ marginBottom: 6 }}>
                       <span>จำนวนรอบที่ต้องการทดสอบซ้ำ (Repeat):</span>
@@ -1658,7 +1545,6 @@ export default function LiveTestOverlay({
                     </div>
                   </div>
 
-                  {/* 3. Big Run / Stop Button */}
                   <button
                     type="button"
                     className="live-qa-run-btn"
@@ -1675,14 +1561,12 @@ export default function LiveTestOverlay({
                     </span>
                   </button>
 
-                  {/* Progress bar */}
                   {isRunning && (
                     <div className="live-qa-progress-wrap">
                       <div className="live-qa-progress-fill" style={{ width: `${progressPercent}%` }} />
                     </div>
                   )}
 
-                  {/* Step indicator */}
                   {currentStepText && (
                     <div className="live-qa-step-indicator">
                       <span className="live-qa-dot-pulse" />
@@ -1691,7 +1575,6 @@ export default function LiveTestOverlay({
                   )}
                 </>
               ) : (
-                /* MANUAL INTERACTIVE TEST MODE */
                 <div className="live-qa-manual-container">
                   <p className="live-qa-manual-info">
                     👉 <b>โหมดทดสอบด้วยตัวเอง:</b> คุณสามารถคลิกใช้งานหน้าเว็บจริง ระบบจะดักจับการคลิกปุ่ม การกรอกข้อมูล และการเปลี่ยนหน้า พร้อมบันทึกเข้าไทม์ไลน์อัตโนมัติ
@@ -1728,7 +1611,6 @@ export default function LiveTestOverlay({
                 </div>
               )}
 
-              {/* TIMELINE JOURNEY TRIGGER BUTTON */}
               <button
                 type="button"
                 className="live-qa-timeline-trigger-btn"
@@ -1738,7 +1620,6 @@ export default function LiveTestOverlay({
                 <span>📜 ดูไทม์ไลน์การทดสอบ ({timelineLogs.length} กิจกรรม)</span>
               </button>
 
-              {/* Quick Navigation to Dedicated Hub Page (/system-test) */}
               <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
                 <button
                   type="button"
@@ -1804,7 +1685,6 @@ export default function LiveTestOverlay({
         )}
       </div>
 
-      {/* TIMELINE JOURNEY MODAL (Dark-Mode Vertical Timeline matching user design) */}
       <TestJourneyModal
         isOpen={isTimelineModalOpen}
         onClose={() => setIsTimelineModalOpen(false)}

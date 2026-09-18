@@ -1,17 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * SceneBackground.jsx
- * Cozy 2D Storybook Cartoon Landscape Scene using generated JPG backgrounds
- * with animated SVG overlays (clouds, birds, butterflies, fireflies).
- *
- * Background images are in /assets/garden/backgrounds/
- * - bg_morning.jpg
- * - bg_afternoon.jpg
- * - bg_evening.jpg
- */
-
 const BG_MAP = {
   morning: '/assets/garden/backgrounds/bg_morning.jpg',
   afternoon: '/assets/garden/backgrounds/bg_afternoon.jpg',
@@ -21,20 +10,17 @@ const BG_MAP = {
 export default function SceneBackground({ timeOfDay = 'afternoon' }) {
   const bgSrc = BG_MAP[timeOfDay] || BG_MAP.afternoon;
 
-  // นกยามเช้า
   const morningBirds = useMemo(() => [
     { id: 1, top: 16, delay: 0, duration: 20, scale: 0.85 },
     { id: 2, top: 22, delay: 3, duration: 24, scale: 0.7 },
     { id: 3, top: 14, delay: 1.5, duration: 22, scale: 0.9 },
   ], []);
 
-  // ผีเสื้อยามบ่าย
   const butterflies = useMemo(() => [
     { id: 1, left: '20%', bottom: '36%', color: '#f59e0b', duration: 6.5, delay: 0 },
     { id: 2, left: '76%', bottom: '40%', color: '#ec4899', duration: 7.5, delay: 2 },
   ], []);
 
-  // หิ่งห้อยยามเย็น (Sunset)
   const fireflies = useMemo(() => [
     { id: 1, left: '18%', bottom: '28%', delay: '0s', duration: '4.5s' },
     { id: 2, left: '32%', bottom: '42%', delay: '1.2s', duration: '5.2s' },
@@ -46,7 +32,6 @@ export default function SceneBackground({ timeOfDay = 'afternoon' }) {
 
   return (
     <div className={`gs-scene-bg gs-time-${timeOfDay}`}>
-      {/* 1. Background Image Layer */}
       <img
         src={bgSrc}
         alt={`Garden scene - ${timeOfDay}`}
@@ -54,7 +39,6 @@ export default function SceneBackground({ timeOfDay = 'afternoon' }) {
         draggable={false}
       />
 
-      {/* 2. Animated Overlay Creatures */}
       {timeOfDay === 'morning' && (
         <>
           {morningBirds.map((bird) => (
@@ -130,7 +114,6 @@ export default function SceneBackground({ timeOfDay = 'afternoon' }) {
         </>
       )}
 
-      {/* 3. Warm Sparkle Particles (all times) */}
       <div className="gs-sparkle-layer">
         <span className="gs-glow-dot" style={{ left: '25%', top: '35%' }} />
         <span className="gs-glow-dot" style={{ left: '48%', top: '22%' }} />

@@ -1,14 +1,3 @@
-/**
- * gardenSceneUtils.js
- * Helpers and config lookups for the Garden Scene component.
- */
-
-/**
- * Returns 'morning' | 'afternoon' | 'evening' based on user's current clock.
- * - 05:00 - 11:59 => morning
- * - 12:00 - 16:59 => afternoon
- * - 17:00 - 04:59 => evening
- */
 export function getTimeOfDay() {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) return 'morning';
@@ -16,10 +5,6 @@ export function getTimeOfDay() {
   return 'evening';
 }
 
-/**
- * Normalizes any Thai/English plant name to canonical PlantType:
- * 'chili' | 'basil' | 'holyBasil' | 'tomato' | 'lettuce'
- */
 export function normalizePlantType(rawType) {
   if (!rawType) return 'chili';
   const str = String(rawType).trim().toLowerCase();
@@ -33,10 +18,6 @@ export function normalizePlantType(rawType) {
   return 'chili';
 }
 
-/**
- * Normalizes any Thai/English growth stage to canonical GrowthStage:
- * 'seed' | 'seedling' | 'mature' | 'fruiting'
- */
 export function normalizeStage(rawStage) {
   if (!rawStage) return 'seedling';
   const str = String(rawStage).trim().toLowerCase();
@@ -49,9 +30,6 @@ export function normalizeStage(rawStage) {
   return 'seedling';
 }
 
-/**
- * Thai labels and meta for each plant
- */
 export const PLANT_CONFIG = {
   chili: {
     nameTh: 'พริก',
@@ -90,9 +68,6 @@ export const PLANT_CONFIG = {
   },
 };
 
-/**
- * Stage labels in Thai
- */
 export const STAGE_CONFIG = {
   seed: { label: 'ระยะเมล็ด', nextLabel: 'ต้นกล้า' },
   seedling: { label: 'ระยะต้นกล้า', nextLabel: 'โตเต็มวัย' },
@@ -100,9 +75,6 @@ export const STAGE_CONFIG = {
   fruiting: { label: 'ระยะออกผล', nextLabel: 'พร้อมเก็บเกี่ยว' },
 };
 
-/**
- * Calculates estimated days until next stage if not provided directly.
- */
 export function calcDefaultDaysUntilNext(plantType, stage, plantedDate) {
   const normType = normalizePlantType(plantType);
   const normStage = normalizeStage(stage);

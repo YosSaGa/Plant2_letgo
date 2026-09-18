@@ -2,18 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { normalizePlantType, normalizeStage } from './gardenSceneUtils';
 
-/**
- * PlantRenderer.jsx
- * Renders 2D cartoon plant images from generated JPG assets.
- *
- * Image paths follow:  /assets/garden/plants/{type}/{method}/{stage}.jpg
- * e.g.,  /assets/garden/plants/chili/pot/seedling.jpg
- *
- * If an image is not yet generated (quota limit), falls back to
- * a placeholder gradient box with emoji.
- */
-
-// Map of which plant images are available (all 5 plants 100% complete)
 const AVAILABLE_PLANTS = {
   chili: ['seed', 'seedling', 'mature'],
   tomato: ['seed', 'seedling', 'mature'],
@@ -38,12 +26,8 @@ const PLANT_NAMES = {
   lettuce: 'ผักกาดหอม',
 };
 
-/**
- * Get the image path for a plant, or null if not available
- */
 function getPlantImagePath(plantType, stage, method) {
   const available = AVAILABLE_PLANTS[plantType];
-  // Map 'fruiting' to 'mature' for image lookup
   const imgStage = stage === 'fruiting' ? 'mature' : stage;
   
   if (available && available.includes(imgStage)) {
@@ -52,9 +36,6 @@ function getPlantImagePath(plantType, stage, method) {
   return null;
 }
 
-/**
- * Fallback placeholder when plant image is not yet generated
- */
 function PlantPlaceholder({ plantType, stage }) {
   const emoji = PLANT_EMOJI[plantType] || '🌱';
   const name = PLANT_NAMES[plantType] || plantType;
@@ -105,7 +86,6 @@ export default function PlantRenderer({ plantType, stage, potSize, method = 'pot
   const normType = normalizePlantType(plantType);
   const normStage = normalizeStage(stage);
   
-  // Determine method: 'pot' (กระถาง) or 'ground' (ลงดิน)
   const plantMethod = method === 'ลงดิน' || method === 'ground' ? 'ground' : 'pot';
   
   const imgPath = getPlantImagePath(normType, normStage, plantMethod);
@@ -119,13 +99,11 @@ export default function PlantRenderer({ plantType, stage, potSize, method = 'pot
       exit={{ scale: 0.95, opacity: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
     >
-      {/* Ground Contact Shadow - locks base firmly to terrain */}
       <div className={`gs-ground-shadow-wrap ${plantMethod}`} aria-hidden="true">
         <div className="gs-ground-shadow-ambient" />
         <div className="gs-ground-shadow-core" />
       </div>
 
-      {/* Living Sway Animation on Plant - Pivots at base without lifting off ground */}
       <motion.div
         className="gs-plant-sway"
         animate={{

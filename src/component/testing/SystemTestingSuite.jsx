@@ -1,10 +1,3 @@
-/**
- * SystemTestingSuite.jsx
- * PlookPloen System Testing & QA Portal
- * Complete Functional Test Matrix, Scenario Runner (Auto & Manual Guided),
- * Real-time Google Sheets Webhook Sync, and AI Model Evaluation.
- */
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -49,19 +42,17 @@ import './systemTesting.css';
 
 export default function SystemTestingSuite({ onBack }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('hub'); // 'hub' | 'db' | 'ai' | 'flow'
+  const [activeTab, setActiveTab] = useState('hub');
   const [selectedHubModule, setSelectedHubModule] = useState('all');
   const [hubRepeatCount, setHubRepeatCount] = useState(1);
-  const [shaderTheme, setShaderTheme] = useState('emerald'); // 'emerald' | 'cyber' | 'sunset' | 'midnight'
+  const [shaderTheme, setShaderTheme] = useState('emerald');
   const [enableShader, setEnableShader] = useState(true);
   const [selectedModule, setSelectedModule] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Supabase Database Health State
   const [dbHealth, setDbHealth] = useState(null);
   const [isTestingDb, setIsTestingDb] = useState(false);
   
-  // Google Sheets Webhook State (Pre-filled with your Webhook URL)
   const [webhookUrl, setWebhookUrl] = useState(() => {
     return localStorage.getItem('plookploen_qa_webhook') || 
       'https://script.google.com/macros/s/AKfycbxNpNZJlTYYZS2434ZaD3iOJXMyhT0Kv_AGactck5EkcLRVTFX92O12Wi98Cu0dVHgKTg/exec';
@@ -70,25 +61,21 @@ export default function SystemTestingSuite({ onBack }) {
   const [showScriptModal, setShowScriptModal] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // AI Sandbox State
   const [selectedAiSample, setSelectedAiSample] = useState(AI_MODEL_METRICS.sampleTestCases[0]);
   const [isAnalyzingAi, setIsAnalyzingAi] = useState(false);
   const [aiTestResult, setAiTestResult] = useState(AI_MODEL_METRICS.sampleTestCases[0]);
 
-  // Save webhook URL to localStorage
   useEffect(() => {
     if (webhookUrl) {
       localStorage.setItem('plookploen_qa_webhook', webhookUrl.trim());
     }
   }, [webhookUrl]);
 
-  // Show toast notification
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Filtered Functional Tests
   const filteredTests = useMemo(() => {
     return BLACK_BOX_TEST_CASES.filter((tc) => {
       const matchModule = selectedModule === 'all' || tc.module === selectedModule;
@@ -100,9 +87,6 @@ export default function SystemTestingSuite({ onBack }) {
     });
   }, [selectedModule, searchQuery]);
 
-  // =========================================================================
-  // GOOGLE SHEETS REAL-TIME SYNC
-  // =========================================================================
   const sendToGoogleSheets = async (dataPayload) => {
     if (!webhookUrl || !webhookUrl.trim()) {
       return false;
@@ -110,7 +94,6 @@ export default function SystemTestingSuite({ onBack }) {
 
     try {
       setIsSyncingSheet(true);
-      // Mode 'no-cors' with text/plain is optimal for Google Apps Script Webhook
       await fetch(webhookUrl.trim(), {
         method: 'POST',
         mode: 'no-cors',
@@ -126,7 +109,6 @@ export default function SystemTestingSuite({ onBack }) {
     }
   };
 
-  // Test Ping Google Sheets
   const handleTestWebhook = async () => {
     if (!webhookUrl) {
       showToast('⚠️ กรุณากรอก Webhook URL ก่อนทดสอบ');
@@ -152,11 +134,7 @@ export default function SystemTestingSuite({ onBack }) {
     showToast('✅ ส่งคำขอเข้า Google Sheets เรียบร้อย! ตรวจสอบที่ชีตของคุณ');
   };
 
-  // =========================================================================
-  // EXCEL & WORD EXPORT
-  // =========================================================================
   const exportToExcelCsv = () => {
-    // UTF-8 BOM (\uFEFF) ensures Excel opens Thai characters perfectly
     const headers = ['Test ID', 'Module', 'Title', 'Steps', 'Expected Result', 'Actual Result', 'Status', 'Severity', 'Type'];
     const rows = filteredTests.map((t) => [
       `"${t.id}"`,
@@ -182,7 +160,6 @@ export default function SystemTestingSuite({ onBack }) {
   };
 
   const copyTableForWord = () => {
-    // Generate formatted HTML table that pastes cleanly into Microsoft Word
     const htmlTable = `
       <table border="1" style="border-collapse:collapse; font-family:'Prompt', sans-serif; font-size:12px; width:100%;">
         <thead>
@@ -224,9 +201,6 @@ export default function SystemTestingSuite({ onBack }) {
     });
   };
 
-  // =========================================================================
-  // LAUNCH LIVE TEST FROM DEDICATED HUB
-  // =========================================================================
   const handleLaunchLiveTest = (customModId = null) => {
     const targetModId = customModId || selectedHubModule;
     const mod = FUNCTIONAL_MODULES.find(m => m.id === targetModId) || FUNCTIONAL_MODULES[0];
@@ -246,14 +220,10 @@ export default function SystemTestingSuite({ onBack }) {
     }, 400);
   };
 
-  // =========================================================================
-  // AI SANDBOX SIMULATION
-  // =========================================================================
   const handleRunAiInference = async (sample) => {
     setSelectedAiSample(sample);
     setIsAnalyzingAi(true);
 
-    // Realistic inference delay matching server.py
     await new Promise(r => setTimeout(r, 600));
 
     setAiTestResult(sample);
@@ -261,9 +231,6 @@ export default function SystemTestingSuite({ onBack }) {
     showToast(`🔬 AI วิเคราะห์ผลสำเร็จ: ${sample.plantType} (${sample.confidence}%)`);
   };
 
-  // =========================================================================
-  // SUPABASE DATABASE HEALTH & BENCHMARK
-  // =========================================================================
   const runDatabaseTest = async () => {
     setIsTestingDb(true);
     showToast('⏳ กำลังทดสอบการเชื่อมต่อ Supabase Database...');
@@ -314,7 +281,6 @@ export default function SystemTestingSuite({ onBack }) {
 
   return (
     <div className="qa-root">
-      {/* Explicit User-Specified Font Stylesheet Injection */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chonburi&family=Fjalla+One&family=Lilita+One&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=ZCOOL+KuaiLe&display=swap');
 
@@ -362,7 +328,6 @@ export default function SystemTestingSuite({ onBack }) {
         }
       `}</style>
 
-      {/* ---------- HEADER ---------- */}
       <header className="qa-header">
         <div className="qa-header-inner">
           <div className="qa-brand-group">
@@ -406,7 +371,6 @@ export default function SystemTestingSuite({ onBack }) {
       </header>
 
       <main className="qa-container">
-        {/* ---------- STATS RIBBON ---------- */}
         <section className="qa-stats-grid">
           <div className="qa-stat-card">
             <div className="qa-stat-icon-wrap" style={{ background: '#ecfdf5', color: '#059669' }}>
@@ -453,7 +417,6 @@ export default function SystemTestingSuite({ onBack }) {
           </div>
         </section>
 
-        {/* ---------- GOOGLE SHEETS WEBHOOK BAR ---------- */}
         <section className="qa-webhook-banner">
           <div className="qa-webhook-left">
             <span className="qa-webhook-icon">📊</span>
@@ -488,7 +451,6 @@ export default function SystemTestingSuite({ onBack }) {
           </div>
         </section>
 
-        {/* ---------- TABS NAVIGATION ---------- */}
         <div className="qa-tabs">
           <button 
             type="button" 
@@ -538,9 +500,6 @@ export default function SystemTestingSuite({ onBack }) {
           </button>
         </div>
 
-        {/* ===================================================================
-            TAB 0: DEDICATED FUNCTIONAL TESTING HUB (ศูนย์ควบคุมการทดสอบ)
-            =================================================================== */}
         {activeTab === 'hub' && (
           <motion.section 
             className="qa-hub-section"
@@ -549,8 +508,6 @@ export default function SystemTestingSuite({ onBack }) {
             transition={{ duration: 0.25 }}
           >
 
-
-            {/* REPEAT COUNT CONTROLLER & LAUNCH PANEL */}
             <div className="qa-hub-launch-panel">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
                 <div>
@@ -615,7 +572,6 @@ export default function SystemTestingSuite({ onBack }) {
               </div>
             </div>
 
-            {/* 6 FUNCTIONAL MODULE SHADER CARDS & THEME PICKER */}
             <div style={{ marginTop: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
                 <div>
@@ -627,7 +583,6 @@ export default function SystemTestingSuite({ onBack }) {
                   </span>
                 </div>
 
-                {/* THEME PICKER & SHADER TOGGLE */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 12.5, fontWeight: 700, color: '#475569' }}>🎨 ธีมสีการ์ด:</span>
                   <div style={{ display: 'inline-flex', background: '#e2e8f0', borderRadius: '10px', padding: '3px', gap: '3px' }}>
@@ -703,9 +658,6 @@ export default function SystemTestingSuite({ onBack }) {
           </motion.section>
         )}
 
-        {/* ===================================================================
-            TAB 2: SUPABASE DATABASE HEALTH & QUERY BENCHMARK
-            =================================================================== */}
         {activeTab === 'db' && (
           <motion.section 
             className="qa-hub-section"
@@ -713,7 +665,6 @@ export default function SystemTestingSuite({ onBack }) {
             animate={{ opacity: 1, y: 0 }} 
             transition={{ duration: 0.25 }}
           >
-            {/* DB HERO / INTRO */}
             <div className="qa-hub-header-card" style={{ borderLeft: '5px solid #0284c7' }}>
               <div className="qa-hub-header-left">
                 <h2>⚡ ตรวจสอบการเชื่อมต่อและประสิทธิภาพฐานข้อมูล (Supabase Health & Query Test)</h2>
@@ -746,7 +697,6 @@ export default function SystemTestingSuite({ onBack }) {
               </div>
             </div>
 
-            {/* DB METRICS CARDS */}
             <div className="qa-stats-grid" style={{ margin: '20px 0' }}>
               <div className="qa-stat-card">
                 <div className="qa-stat-icon-wrap" style={{ background: dbHealth?.connected ? '#ecfdf5' : '#fef2f2', color: dbHealth?.connected ? '#059669' : '#dc2626' }}>
@@ -801,7 +751,6 @@ export default function SystemTestingSuite({ onBack }) {
               </div>
             </div>
 
-            {/* LIVE QUERY INSPECTOR & DATA TABLE */}
             <div className="qa-ai-card" style={{ marginTop: 20 }}>
               <div className="qa-ai-card-header">
                 <h3 className="qa-ai-card-title">
@@ -867,13 +816,8 @@ export default function SystemTestingSuite({ onBack }) {
           </motion.section>
         )}
 
-
-        {/* ===================================================================
-            TAB 3: AI MODEL EVALUATION (server.py)
-            =================================================================== */}
         {activeTab === 'ai' && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="qa-ai-grid">
-            {/* Confusion Matrix & Heatmap */}
             <div className="qa-ai-card">
               <div className="qa-ai-card-header">
                 <h3 className="qa-ai-card-title">
@@ -929,7 +873,6 @@ export default function SystemTestingSuite({ onBack }) {
               </div>
             </div>
 
-            {/* AI Sandbox & Per-class Table */}
             <div className="qa-ai-card">
               <div className="qa-ai-card-header">
                 <h3 className="qa-ai-card-title">
@@ -1010,15 +953,11 @@ export default function SystemTestingSuite({ onBack }) {
           </motion.div>
         )}
 
-        {/* ===================================================================
-            TAB 3: SYSTEM ARCHITECTURE & WORKFLOW (แผนผัง Flow การทำงานของระบบ)
-            =================================================================== */}
         {activeTab === 'flow' && (
           <SystemFlowDiagram onShowToast={showToast} />
         )}
       </main>
 
-      {/* ---------- MODAL: GOOGLE SHEETS APPS SCRIPT SETUP ---------- */}
       <AnimatePresence>
         {showScriptModal && (
           <div className="qa-modal-overlay" onClick={() => setShowScriptModal(false)}>
@@ -1097,7 +1036,6 @@ function appendRow(sheet, d) {
         )}
       </AnimatePresence>
 
-      {/* ---------- TOAST NOTIFICATION ---------- */}
       <AnimatePresence>
         {toastMessage && (
           <motion.div 

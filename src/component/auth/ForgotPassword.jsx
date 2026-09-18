@@ -14,7 +14,6 @@ export default function ForgotPassword({ onNavigate }) {
   const [noticeMsg, setNoticeMsg] = useState('');
   const field = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } };
 
-  // 1. ส่ง OTP ไปยังอีเมลจริงผ่าน Supabase Auth
   const sendOtp = async () => {
     if (!email || !email.includes('@')) {
       setErrorMsg('กรุณากรอกอีเมลที่ถูกต้อง');
@@ -51,7 +50,6 @@ export default function ForgotPassword({ onNavigate }) {
     }
   };
 
-  // 2. ยืนยันรหัส OTP 6 หลัก
   const submit = async (event) => {
     event.preventDefault();
     if (!otp || otp.trim().length < 6) {
@@ -76,7 +74,6 @@ export default function ForgotPassword({ onNavigate }) {
       if (error) {
         setErrorMsg('รหัส OTP ไม่ถูกต้องหรือหมดอายุ: ' + error.message);
       } else if (data?.session) {
-        // ยืนยันตัวตนสำเร็จ นำทางไปหน้าตั้งรหัสผ่านใหม่
         onNavigate('/reset-password');
       }
     } catch (err) {

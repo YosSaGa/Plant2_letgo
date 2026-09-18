@@ -58,7 +58,6 @@ export default function AdminDashboard() {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const reduceMotion = useReducedMotion();
 
-  // สถานะข้อมูลจริงจาก Supabase
   const [summary, setSummary] = useState({ totalUsers: 0, userGrowth: '0%', totalPlants: 0, totalDetections: 0 });
   const [seriesMap, setSeriesMap] = useState({ '7 วัน': [], '30 วัน': [], รายเดือน: [] });
   const [diseaseList, setDiseaseList] = useState([]);
@@ -173,7 +172,6 @@ export default function AdminDashboard() {
       </section>
 
       <section className="admin-grid">
-        {/* กราฟแนวโน้มผู้สมัครใหม่ */}
         <Card delay={0.18} className="admin-wide">
           <div className="admin-card-title">
             <div>
@@ -226,7 +224,6 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </Card>
 
-        {/* อันดับโรคพืชที่พบบ่อย */}
         <Card delay={0.22}>
           <div className="admin-card-title">
             <div>
@@ -258,7 +255,6 @@ export default function AdminDashboard() {
           )}
         </Card>
 
-        {/* กราฟแท่งจำนวนพืชแยกตามชนิด */}
         <Card delay={0.26}>
           <div className="admin-card-title">
             <div>
@@ -276,7 +272,6 @@ export default function AdminDashboard() {
           </ResponsiveContainer>
         </Card>
 
-        {/* รายการพืชที่ปลูกบ่อยที่สุด */}
         <Card delay={0.3}>
           <div className="admin-card-title">
             <div>
@@ -301,7 +296,6 @@ export default function AdminDashboard() {
           )}
         </Card>
 
-        {/* สัดส่วนวิธีปลูก */}
         <Card delay={0.34}>
           <div className="admin-card-title">
             <div>
@@ -355,7 +349,6 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        {/* แผนที่ผู้ใช้งานตามพื้นที่จริง */}
         <Card delay={0.38} className="admin-map-card">
           <div className="admin-card-title">
             <div>
@@ -398,7 +391,6 @@ export default function AdminDashboard() {
         </Card>
       </section>
 
-      {/* ลิ้นชักรายละเอียดพืช */}
       {selectedPlant && (
         <motion.div
           className="admin-drawer-backdrop"
@@ -432,4 +424,3 @@ export default function AdminDashboard() {
     </AdminLayout>
   );
 }
-

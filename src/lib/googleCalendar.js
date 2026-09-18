@@ -1,7 +1,3 @@
-/**
- * Google Calendar API Integration Helper for PlookPloen (ปลูกเพลิน)
- * Handles Google OAuth 2.0 (GIS), Calendar REST API v3, and Direct Web Intent
- */
 import { supabase } from './supabaseClient';
 
 const GOOGLE_CLIENT_ID =
@@ -15,9 +11,6 @@ let tokenClient = null;
 let currentAccessToken = null;
 let tokenExpiresAt = 0;
 
-/**
- * โหลดสถานะรายการที่เคยตั้งเตือนลง Google Calendar แล้วจาก LocalStorage
- */
 export function getSavedReminders() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -28,9 +21,6 @@ export function getSavedReminders() {
   }
 }
 
-/**
- * บันทึกสถานะการตั้งเตือนลง LocalStorage
- */
 export function saveReminderStatus(uniqueKey, details) {
   try {
     const current = getSavedReminders();
@@ -44,9 +34,6 @@ export function saveReminderStatus(uniqueKey, details) {
   }
 }
 
-/**
- * ลบสถานะการตั้งเตือนจาก LocalStorage
- */
 export function removeReminderStatus(uniqueKey) {
   try {
     const current = getSavedReminders();
@@ -57,9 +44,6 @@ export function removeReminderStatus(uniqueKey) {
   }
 }
 
-/**
- * ตรวจสอบความพร้อมของ Google Identity Services (GIS)
- */
 function waitForGoogleGIS(timeoutMs = 5000) {
   return new Promise((resolve, reject) => {
     if (window.google?.accounts?.oauth2) {
@@ -79,9 +63,6 @@ function waitForGoogleGIS(timeoutMs = 5000) {
   });
 }
 
-/**
- * ขอสิทธิ์ Google Calendar Access Token ผ่าน Popup
- */
 export async function requestGoogleAccessToken() {
   if (currentAccessToken && Date.now() < tokenExpiresAt - 60000) {
     return currentAccessToken;
@@ -114,18 +95,12 @@ export async function requestGoogleAccessToken() {
   });
 }
 
-/**
- * แปลง Date ให้เป็น Format YYYY-MM-DD
- */
 export function formatIsoDate(year, month, day) {
   const m = String(month + 1).padStart(2, '0');
   const d = String(day).padStart(2, '0');
   return `${year}-${m}-${d}`;
 }
 
-/**
- * สร้าง Google Calendar Event ผ่าน REST API v3
- */
 export async function createGoogleCalendarEvent({
   title,
   description,
@@ -138,7 +113,6 @@ export async function createGoogleCalendarEvent({
 }) {
   const token = await requestGoogleAccessToken();
 
-  // สร้าง Date object สำหรับเริ่มและจบ
   const startDate = new Date(year, month, day, hour, minute, 0);
   const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
 
@@ -160,7 +134,7 @@ export async function createGoogleCalendarEvent({
         { method: 'popup', minutes: 10 },
       ],
     },
-    colorId: '10', // สีเขียว (Basil) ใน Google Calendar
+    colorId: '10',
   };
 
   const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
@@ -184,9 +158,6 @@ export async function createGoogleCalendarEvent({
   };
 }
 
-/**
- * สร้าง Google Calendar Events ทีละหลายรายการในคลิกเดียว (Batch Sync)
- */
 export async function batchCreateCalendarEvents(eventsList, onProgress) {
   if (!eventsList || eventsList.length === 0) {
     return { createdEvents: [], errors: [] };
@@ -220,7 +191,7 @@ export async function batchCreateCalendarEvents(eventsList, onProgress) {
             { method: 'popup', minutes: 10 },
           ],
         },
-        colorId: item.colorId || '10', // 10 = Basil green ใน Google Calendar
+        colorId: item.colorId || '10',
       };
 
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
@@ -236,7 +207,6 @@ export async function batchCreateCalendarEvents(eventsList, onProgress) {
         const result = await response.json();
         createdEvents.push(result);
 
-        // บันทึกสถานะลง Supabase
         await syncActivityToSupabase({
           userPlantId: item.userPlantId,
           activityType: item.activityType || item.title,
@@ -268,9 +238,6 @@ export async function batchCreateCalendarEvents(eventsList, onProgress) {
   return { createdEvents, errors };
 }
 
-/**
- * ดาวน์โหลดไฟล์ .ics เพื่อนำเข้าสู่ Google Calendar หรือ Apple Calendar ได้ในคลิกเดียว (Offline Fallback)
- */
 export function downloadIcsFile(eventsList, filename = 'plookploen-calendar.ics') {
   if (!eventsList || eventsList.length === 0) return;
 
@@ -324,9 +291,6 @@ export function downloadIcsFile(eventsList, filename = 'plookploen-calendar.ics'
   URL.revokeObjectURL(url);
 }
 
-/**
- * สร้าง Direct Web Intent URL สำหรับเปิดหน้า Google Calendar สำเร็จรูป (ไม่ต้องขอ OAuth)
- */
 export function getGoogleCalendarWebIntentUrl({
   title,
   description,
@@ -357,9 +321,6 @@ export function getGoogleCalendarWebIntentUrl({
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-/**
- * บันทึกประวัติการตั้งเตือนกิจกรรมลงตาราง Supabase calendar_activities
- */
 export async function syncActivityToSupabase({
   userPlantId = null,
   activityType,
@@ -390,4 +351,3 @@ export async function syncActivityToSupabase({
     return null;
   }
 }
-

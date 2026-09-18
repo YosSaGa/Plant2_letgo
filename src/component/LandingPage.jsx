@@ -250,7 +250,6 @@ export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, on
         <button className="lp-primary" onClick={start}>เริ่มเพิ่มพืช →</button>
       </section>
 
-      {/* Footer ONLY on front page with Our Creative Team */}
       <div 
         className="lp-footer-container" 
         style={{ 

@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/tooltip"
 import { Send, Users, ArrowRight } from "lucide-react"
 
-// Clean Brand SVG Icons
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -72,7 +71,6 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
       <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           
-          {/* Column 1: Newsletter / Stay Connected */}
           <div className="relative">
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground">Stay Connected</h2>
             <p className="mb-6 text-muted-foreground text-sm leading-relaxed">
@@ -105,7 +103,6 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
             <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
           </div>
 
-          {/* Column 2: Quick Links & Team Link */}
           <div>
             <h3 className="mb-4 text-lg font-semibold text-foreground">Quick Links</h3>
             <nav className="space-y-2.5 text-sm">
@@ -113,7 +110,6 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
                 Home (หน้าแรก)
               </a>
               
-              {/* Highlighted Link to OUR CREATIVE TEAM */}
               <button
                 type="button"
                 onClick={onOpenTeam ? onOpenTeam : () => { window.location.href = '/team'; }}
@@ -157,7 +153,6 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
             </nav>
           </div>
 
-          {/* Column 3: Contact Us */}
           <div>
             <h3 className="mb-4 text-lg font-semibold text-foreground">Contact Us</h3>
             <address className="space-y-2 text-sm not-italic text-muted-foreground leading-relaxed">
@@ -168,7 +163,6 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
             </address>
           </div>
 
-          {/* Column 4: Follow Us & Theme Toggle */}
           <div className="relative">
             <h3 className="mb-4 text-lg font-semibold text-foreground">Follow Us</h3>
             <div className="mb-6 flex space-x-3">
@@ -256,7 +250,6 @@ function Footerdemo({ onOpenTeam, onStart, onPlantInfo, onAdmin }: FooterdemoPro
 
         </div>
 
-        {/* Bottom Bar */}
         <div 
           className="mt-12 flex flex-col items-center justify-between gap-4 pt-8 text-center md:flex-row"
           style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}

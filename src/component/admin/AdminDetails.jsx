@@ -56,7 +56,6 @@ export default function AdminDetails({ type }) {
     loadData();
   }, [type]);
 
-  // ตัวเลือกฟิลเตอร์
   const options = useMemo(() => {
     if (type === 'plants') {
       return ['ทั้งหมด', 'กระถาง', 'ลงดิน', 'ต้นกล้า', 'เมล็ด', 'โตเต็มวัย'];
@@ -179,4 +178,3 @@ export default function AdminDetails({ type }) {
     </AdminLayout>
   );
 }
-

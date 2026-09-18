@@ -1,9 +1,3 @@
-/**
- * SystemFlowDiagram.jsx
- * Interactive Botanical Blueprint Flowchart
- * High-End Visual Workflow with Real Decision Diamonds, Process Cards, Connectors & Inspector Drawer
- */
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,7 +26,7 @@ import './systemFlow.css';
 
 export default function SystemFlowDiagram({ onShowToast }) {
   const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState('user'); // 'user' | 'admin' | 'all'
+  const [activeMode, setActiveMode] = useState('user');
   const [selectedNode, setSelectedNode] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -53,7 +47,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
 
   return (
     <div className="qa-flow-canvas-wrapper">
-      {/* Top Toolbar */}
       <div className="qa-flow-toolbar">
         <div className="qa-flow-toolbar-left">
           <div style={{ background: '#ecfdf5', color: '#059669', padding: '8px', borderRadius: '10px' }}>
@@ -69,7 +62,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
           </div>
         </div>
 
-        {/* View Switcher Tabs */}
         <div className="qa-flow-mode-tabs">
           <button
             type="button"
@@ -100,7 +92,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
         </div>
       </div>
 
-      {/* Flowchart Legend */}
       <div className="qa-flowchart-legend">
         <span style={{ fontWeight: 700, color: '#334155' }}>สัญลักษณ์ Flowchart:</span>
         <div className="qa-legend-item">
@@ -121,11 +112,7 @@ export default function SystemFlowDiagram({ onShowToast }) {
         </div>
       </div>
 
-      {/* Interactive Blueprint Board */}
       <div className="qa-flow-board">
-        {/* ===================================================================
-            VIEW 1: USER WORKFLOW FLOWCHART
-            =================================================================== */}
         {(activeMode === 'user' || activeMode === 'all') && (
           <div className="qa-fc-container" style={{ marginBottom: activeMode === 'all' ? 60 : 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
@@ -134,7 +121,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </span>
             </div>
 
-            {/* 1. START NODE */}
             <div 
               className="qa-fc-terminal-node"
               onClick={() => setSelectedNode({
@@ -150,13 +136,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               <span>START: ผู้ใช้เข้าสู่เว็บไซต์ PlookPloen</span>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 2. DECISION NODE: Check Login */}
             <div 
               className="qa-fc-decision-card"
               onClick={() => setSelectedNode({
@@ -172,9 +156,7 @@ export default function SystemFlowDiagram({ onShowToast }) {
               <p className="qa-fc-decision-sub">ตรวจสอบค่า `user` ใน `useAuth()` จาก Supabase</p>
             </div>
 
-            {/* 3. BRANCHING (NO -> Auth Flow / YES -> Direct Garden) */}
             <div className="qa-fc-branch-row">
-              {/* Branch NO */}
               <div className="qa-fc-branch-col">
                 <span className="qa-fc-arrow-label no">❌ ยังไม่ล็อกอิน (No)</span>
                 <div className="qa-fc-arrow-line dashed" style={{ height: 24 }} />
@@ -217,7 +199,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </div>
               </div>
 
-              {/* Branch YES */}
               <div className="qa-fc-branch-col">
                 <span className="qa-fc-arrow-label yes">✅ ล็อกอินอยู่แล้ว (Yes)</span>
                 <div className="qa-fc-arrow-line" style={{ height: 24 }} />
@@ -235,14 +216,12 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* MERGE CONNECTOR INTO MAIN GARDEN */}
             <div className="qa-fc-connector">
               <span className="qa-fc-arrow-label">รวมกระบวนการเข้าสู่พื้นที่สวน</span>
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 4. PROCESS: Garden Landing & Live Weather */}
             <div 
               className="qa-fc-process-node user-border"
               onClick={() => setSelectedNode({
@@ -273,13 +252,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 5. PROCESS: Add Plant */}
             <div 
               className="qa-fc-process-node user-border"
               onClick={() => setSelectedNode({
@@ -310,13 +287,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 6. PROCESS: Plant Care & Details */}
             <div 
               className="qa-fc-process-node user-border"
               onClick={() => setSelectedNode({
@@ -347,13 +322,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 7. DECISION: Leaf Image ExG Filter */}
             <div 
               className="qa-fc-decision-card"
               onClick={() => setSelectedNode({
@@ -369,9 +342,7 @@ export default function SystemFlowDiagram({ onShowToast }) {
               <p className="qa-fc-decision-sub">ตัวกรองสีกรีนเพื่อคัดกรองสิ่งแปลกปลอมก่อนเข้าสู่ AI</p>
             </div>
 
-            {/* 8. BRANCHING (ExG No -> Warn / ExG Yes -> FastAPI ResNet-50) */}
             <div className="qa-fc-branch-row">
-              {/* ExG No */}
               <div className="qa-fc-branch-col">
                 <span className="qa-fc-arrow-label no">❌ ExG &lt; 0.05 (ไม่ใช่ใบพืช)</span>
                 <div className="qa-fc-arrow-line dashed" style={{ height: 24 }} />
@@ -383,7 +354,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </div>
               </div>
 
-              {/* ExG Yes */}
               <div className="qa-fc-branch-col">
                 <span className="qa-fc-arrow-label yes">✅ ExG &gt; 0.05 (ใบพืชสมบูรณ์)</span>
                 <div className="qa-fc-arrow-line" style={{ height: 24 }} />
@@ -421,13 +391,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 9. PROCESS: Garden Analytics */}
             <div 
               className="qa-fc-process-node user-border"
               onClick={() => setSelectedNode({
@@ -458,22 +426,17 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 10. END NODE */}
             <div className="qa-fc-terminal-node end">
               <span>END: สิ้นสุดขั้นตอนของผู้ใช้งานทั่วไป</span>
             </div>
           </div>
         )}
 
-        {/* ===================================================================
-            VIEW 2: ADMIN ROLE & GUARD FLOWCHART
-            =================================================================== */}
         {(activeMode === 'admin' || activeMode === 'all') && (
           <div className="qa-fc-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
@@ -482,7 +445,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </span>
             </div>
 
-            {/* 1. START NODE (ADMIN) */}
             <div 
               className="qa-fc-terminal-node admin"
               onClick={() => setSelectedNode({
@@ -498,13 +460,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               <span>START: ผู้ดูแลระบบเข้าสู่ส่วนควบคุม (/admin/login)</span>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 2. DECISION NODE: Admin Guard Check */}
             <div 
               className="qa-fc-decision-card"
               style={{ borderColor: '#8b5cf6', boxShadow: '0 6px 18px rgba(139, 92, 246, 0.15)' }}
@@ -525,9 +485,7 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </p>
             </div>
 
-            {/* 3. BRANCHING (NO -> 403 Redirect / YES -> Admin Control Room) */}
             <div className="qa-fc-branch-row">
-              {/* Branch NO */}
               <div className="qa-fc-branch-col">
                 <span className="qa-fc-arrow-label no">❌ บทบาทไม่ใช่ Admin (No)</span>
                 <div className="qa-fc-arrow-line dashed" style={{ height: 24 }} />
@@ -541,7 +499,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </div>
               </div>
 
-              {/* Branch YES */}
               <div className="qa-fc-branch-col">
                 <span className="qa-fc-arrow-label yes">✅ สิทธิ์ถูกต้อง (Role: admin)</span>
                 <div className="qa-fc-arrow-line" style={{ height: 24 }} />
@@ -556,16 +513,13 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR TO PARALLEL DISPATCHER */}
             <div className="qa-fc-connector">
               <span className="qa-fc-arrow-label">กระจายการทำงานไปยัง 5 โมดูลผู้ดูแลระบบ</span>
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 4. PARALLEL ADMIN MODULES GRID */}
             <div className="qa-fc-parallel-grid">
-              {/* Module 1: Dashboard */}
               <div 
                 className="qa-fc-parallel-card"
                 onClick={() => setSelectedNode({
@@ -591,7 +545,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </button>
               </div>
 
-              {/* Module 2: GIS User Map */}
               <div 
                 className="qa-fc-parallel-card"
                 onClick={() => setSelectedNode({
@@ -617,7 +570,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </button>
               </div>
 
-              {/* Module 3: Users Management */}
               <div 
                 className="qa-fc-parallel-card"
                 onClick={() => setSelectedNode({
@@ -643,7 +595,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </button>
               </div>
 
-              {/* Module 4: Plant Master Data */}
               <div 
                 className="qa-fc-parallel-card"
                 onClick={() => setSelectedNode({
@@ -669,7 +620,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
                 </button>
               </div>
 
-              {/* Module 5: Disease Reports */}
               <div 
                 className="qa-fc-parallel-card"
                 onClick={() => setSelectedNode({
@@ -696,13 +646,11 @@ export default function SystemFlowDiagram({ onShowToast }) {
               </div>
             </div>
 
-            {/* CONNECTOR */}
             <div className="qa-fc-connector">
               <div className="qa-fc-arrow-line" />
               <div className="qa-fc-arrow-head">▼</div>
             </div>
 
-            {/* 5. END NODE (ADMIN) */}
             <div className="qa-fc-terminal-node admin end">
               <span>END: สิ้นสุดการบริหารจัดการระบบโดยผู้ดูแล</span>
             </div>
@@ -710,9 +658,6 @@ export default function SystemFlowDiagram({ onShowToast }) {
         )}
       </div>
 
-      {/* ===================================================================
-          INTERACTIVE NODE INSPECTOR DRAWER
-          =================================================================== */}
       <AnimatePresence>
         {selectedNode && (
           <div className="qa-fc-inspector-overlay" onClick={() => setSelectedNode(null)}>

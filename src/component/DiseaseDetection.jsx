@@ -5,7 +5,6 @@ import './disease.css';
 import { supabase } from '../lib/supabaseClient';
 import { AnimatedLoadingModal } from './AnimatedLoadingModal';
 
-// 15 Classes Knowledge Base matching Thesis บทที่ 1 & 2
 const diseaseDatabase = {
   'Chili Pepper': {
     thai: 'พริก', emoji: '🌶️',
@@ -173,9 +172,8 @@ export default function DiseaseDetection({ onBack }) {
   const [isDragging, setIsDragging] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
-  const [backendStatus, setBackendStatus] = useState('checking'); // 'online' | 'offline' | 'checking'
+  const [backendStatus, setBackendStatus] = useState('checking');
 
-  // Check if FastAPI ML backend is online
   useEffect(() => {
     fetch(`${API_URL}/health`)
       .then((res) => res.json())
@@ -199,7 +197,6 @@ export default function DiseaseDetection({ onBack }) {
     reader.readAsDataURL(file);
   };
 
-  // บันทึกผลการตรวจลง Supabase ตาราง disease_checks (ตามบทที่ 3 ตารางที่ 20)
   const saveDiseaseCheck = async (detectedDisease, confidenceScore) => {
     if (!supabase) return;
     try {
@@ -229,10 +226,8 @@ export default function DiseaseDetection({ onBack }) {
     setAnalyzing(true);
     setResult(null);
 
-    // Minimum delay timer for the gorgeous loading modal (2.5 seconds)
     const minWait = new Promise((resolve) => setTimeout(resolve, 2500));
 
-    // 1. Try sending to Real PyTorch ML API (MobileNetV3 on FastAPI)
     if (fileObj) {
       try {
         const formData = new FormData();
@@ -250,7 +245,6 @@ export default function DiseaseDetection({ onBack }) {
           setBackendStatus('online');
 
           if (data.is_uncertain) {
-            // ภาพไม่ชัดเจน หรือความมั่นใจต่ำ (ไม่ใช่ใบพืช)
             setResult({
               is_uncertain: true,
               uncertainty_reason: data.uncertainty_reason,
@@ -277,7 +271,6 @@ export default function DiseaseDetection({ onBack }) {
             };
             setResult(finalResult);
 
-            // บันทึกลง Supabase ตาราง disease_checks จริง
             saveDiseaseCheck(data.disease_name, data.confidence);
           }
 
@@ -285,17 +278,14 @@ export default function DiseaseDetection({ onBack }) {
           return;
         }
       } catch {
-        // Backend offline, will gracefully fallback below
       }
     }
 
-    // 2. Graceful Fallback if backend server is not running
     await minWait;
     const entries = diseaseDatabase[plant].diseases;
     const nextResult = entries[Math.floor(Math.random() * entries.length)];
     setResult({ ...nextResult, is_real_ai: false, is_uncertain: false });
 
-    // บันทึกลง Supabase ตาราง disease_checks จริง
     saveDiseaseCheck(nextResult.name, nextResult.confidence);
     setAnalyzing(false);
   };
@@ -337,7 +327,6 @@ export default function DiseaseDetection({ onBack }) {
               )}
             </div>
 
-            {/* Plant Picker for 5 plants */}
             <div className="dd-plant-picker" aria-label="Select plant">
               {Object.entries(diseaseDatabase).map(([key, value]) => (
                 <button
@@ -351,7 +340,6 @@ export default function DiseaseDetection({ onBack }) {
               ))}
             </div>
 
-            {/* Drag & Drop Upload Zone */}
             <div
               className={`dd-dropzone ${isDragging ? 'dragging' : ''} ${image ? 'has-image' : ''}`}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -403,7 +391,6 @@ export default function DiseaseDetection({ onBack }) {
             </motion.button>
           </section>
 
-          {/* Result Panel */}
           <section className="dd-panel dd-result-panel">
             <div className="dd-panel-heading">
               <div>
@@ -527,7 +514,6 @@ export default function DiseaseDetection({ onBack }) {
         </p>
       </div>
 
-      {/* Premium Animated Loading Modal with SVG Path & Text Shimmer */}
       <AnimatedLoadingModal isOpen={analyzing} plantName={currentPlant.thai} />
     </main>
   );
