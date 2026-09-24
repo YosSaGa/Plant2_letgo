@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Pencil, Plus, RefreshCw, Search, Sprout, Trash2, X } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Plus, RefreshCw, Search, Sprout, Trash2, X } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import { deletePlantMaster, fetchPlantMasterList, insertPlantMaster, updatePlantMaster } from './adminDataService';
 import './admin-interactions.css';
@@ -56,6 +56,7 @@ export default function AdminPlantMaster() {
       if (modal === 'create') {
         const created = await insertPlantMaster(form);
         if (created) {
+          const isHidden = form.status === 'ซ่อนไว้' || form.status === 'ปิดใช้งาน';
           setPlants((items) => [
             ...items,
             {
@@ -63,9 +64,9 @@ export default function AdminPlantMaster() {
               emoji: created.icon || form.emoji,
               name: created.name_th,
               nameEn: created.name_en,
-              category: created.category,
+              category: (created.category || form.category).replace(' (ซ่อนไว้)', '').trim(),
               scientificName: created.scientific_name,
-              status: 'เปิดใช้งาน',
+              status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน',
             },
           ]);
         }
@@ -83,14 +84,46 @@ export default function AdminPlantMaster() {
     }
   };
 
-  const remove = async (plant) => {
-    if (!window.confirm(`ยืนยันการลบชนิดพืช “${plant.name}” ออกจากฐานข้อมูลกลางหรือไม่?`)) return;
-
+  const toggleStatus = async (plant) => {
+    const nextStatus = plant.status === 'เปิดใช้งาน' ? 'ซ่อนไว้' : 'เปิดใช้งาน';
     try {
-      await deletePlantMaster(plant.id);
-      setPlants((items) => items.filter((item) => item.id !== plant.id));
+      await updatePlantMaster(plant.id, { ...plant, status: nextStatus });
+      setPlants((items) =>
+        items.map((item) => (item.id === plant.id ? { ...item, status: nextStatus } : item))
+      );
     } catch (err) {
-      alert(`ไม่สามารถลบได้: ${err.message}`);
+      alert(`ไม่สามารถเปลี่ยนสถานะได้: ${err.message}`);
+    }
+  };
+
+  const remove = async (plant) => {
+    const action = window.prompt(
+      `⚙️ การจัดการชนิดพืช "${plant.name}":\n\n` +
+      `[1] ซ่อนไว้ (แนะนำ) — ซ่อนจากหน้ารายการปลูกของผู้ใช้ใหม่ แต่แปลงปลูกของผู้ใช้เดิมไม่พัง\n` +
+      `[2] ลบถาวร (Danger) — ลบออกจากฐานข้อมูลทันที (แปลงปลูกของสมาชิกที่เคยปลูกพืชนี้จะถูกลบด้วย)\n\n` +
+      `พิมพ์ 1 หรือ 2 แล้วกดตกลง (หรือกด Cancel เพื่อยกเลิก):`,
+      '1'
+    );
+
+    if (action === '1') {
+      try {
+        await updatePlantMaster(plant.id, { ...plant, status: 'ซ่อนไว้' });
+        setPlants((items) =>
+          items.map((item) => (item.id === plant.id ? { ...item, status: 'ซ่อนไว้' } : item))
+        );
+        alert(`ซ่อนพืช "${plant.name}" เรียบร้อยแล้ว (สมาชิกใหม่จะไม่เห็นพืชนี้ในหน้ารายการปลูก)`);
+      } catch (err) {
+        alert(`ไม่สามารถซ่อนพืชได้: ${err.message}`);
+      }
+    } else if (action === '2') {
+      if (!window.confirm(`⚠️ คำเตือนขั้นเด็ดขาด: ยืนยันการลบชนิดพืช “${plant.name}” ออกจากระบบถาวรหรือไม่?`)) return;
+      try {
+        await deletePlantMaster(plant.id);
+        setPlants((items) => items.filter((item) => item.id !== plant.id));
+        alert(`ลบ "${plant.name}" ออกจากระบบถาวรเรียบร้อยแล้ว`);
+      } catch (err) {
+        alert(`ไม่สามารถลบได้: ${err.message}`);
+      }
     }
   };
 
@@ -194,20 +227,31 @@ export default function AdminPlantMaster() {
                     <em>{plant.scientificName || '-'}</em>
                   </td>
                   <td>
-                    <span className="plant-master-status">{plant.status}</span>
+                    <span className={`plant-master-status ${plant.status === 'ซ่อนไว้' ? 'hidden' : ''}`}>
+                      {plant.status === 'ซ่อนไว้' ? '🟡 ซ่อนไว้' : '🟢 เปิดใช้งาน'}
+                    </span>
                   </td>
                   <td>
                     <div className="plant-master-actions">
                       <button
+                        onClick={() => toggleStatus(plant)}
+                        title={plant.status === 'เปิดใช้งาน' ? 'คลิกเพื่อซ่อนพืชนี้ (ไม่ให้สมาชิกเลือกปลูกใหม่)' : 'คลิกเพื่อเปิดใช้งาน'}
+                        style={plant.status === 'ซ่อนไว้' ? { background: '#fef3c7', color: '#b45309' } : {}}
+                      >
+                        {plant.status === 'เปิดใช้งาน' ? <Eye size={16} /> : <EyeOff size={16} />}
+                      </button>
+                      <button
                         onClick={() => openEdit(plant)}
                         aria-label={`แก้ไข ${plant.name}`}
+                        title="แก้ไขข้อมูลพืช"
                       >
                         <Pencil size={16} />
                       </button>
                       <button
                         className="danger"
                         onClick={() => remove(plant)}
-                        aria-label={`ลบ ${plant.name}`}
+                        aria-label={`ลบหรือซ่อน ${plant.name}`}
+                        title="ตัวเลือก ซ่อน หรือ ลบถาวร"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -307,13 +351,13 @@ export default function AdminPlantMaster() {
                   />
                 </label>
                 <label>
-                  สถานะ
+                  สถานะการแสดงผล
                   <select
                     value={form.status}
                     onChange={(event) => setForm({ ...form, status: event.target.value })}
                   >
-                    <option>เปิดใช้งาน</option>
-                    <option>ปิดใช้งาน</option>
+                    <option value="เปิดใช้งาน">🟢 เปิดใช้งาน (แสดงให้สมาชิกเลือกปลูก)</option>
+                    <option value="ซ่อนไว้">🟡 ซ่อนไว้ (ไม่แสดงให้สมาชิกเลือกปลูกใหม่)</option>
                   </select>
                 </label>
               </div>

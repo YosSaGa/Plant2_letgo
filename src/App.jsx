@@ -10,7 +10,7 @@ import Register from './component/auth/Register';
 import { useAuth } from './context/AuthContext';
 import { supabase } from './lib/supabaseClient';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { LogOut } from 'lucide-react';
+import { LogOut, Trash2 } from 'lucide-react';
 import './component/dashboard.css';
 
 const Weather = lazy(() => import("./component/Weather"));
@@ -131,17 +131,58 @@ function App() {
     team: '/team',
   }[nextPage]);
 
-  const plantOptions = [
+  const [plantOptions, setPlantOptions] = useState([
     { name: 'พริก', emoji: '🌶️', group: 'ผักสวนครัวยอดนิยม' },
     { name: 'โหระพา', emoji: '🌱', group: 'ผักสวนครัวยอดนิยม' },
     { name: 'กะเพรา', emoji: '🌿', group: 'ผักสวนครัวยอดนิยม' },
     { name: 'มะเขือเทศ', emoji: '🍅', group: 'พืชเศรษฐกิจ' },
     { name: 'ผักกาดหอม', emoji: '🥬', group: 'พืชเศรษฐกิจ' },
-  ];
-  const plantGroups = [
-    { name: 'ผักสวนครัวยอดนิยม', icon: '🌿', description: 'ปลูกง่าย ใช้ประกอบอาหารได้ทุกวัน' },
-    { name: 'พืชเศรษฐกิจ', icon: '📈', description: 'เหมาะสำหรับปลูกเพื่อสร้างรายได้' },
-  ];
+  ]);
+
+  const plantGroups = useMemo(() => {
+    const baseGroups = [
+      { name: 'ผักสวนครัวยอดนิยม', icon: '🌿', description: 'ปลูกง่าย ใช้ประกอบอาหารได้ทุกวัน' },
+      { name: 'พืชเศรษฐกิจ', icon: '📈', description: 'เหมาะสำหรับปลูกเพื่อสร้างรายได้' },
+    ];
+    plantOptions.forEach((p) => {
+      if (p.group && !baseGroups.some((g) => g.name === p.group)) {
+        baseGroups.push({
+          name: p.group,
+          icon: '🌱',
+          description: `หมวดหมู่ ${p.group}`,
+        });
+      }
+    });
+    return baseGroups;
+  }, [plantOptions]);
+
+  // ดึงรายการพืชจาก plant_master ใน Supabase แบบไดนามิก (กรองพืชที่ถูกแอดมินซ่อนออก)
+  useEffect(() => {
+    if (!supabase) return;
+    supabase
+      .from('plant_master')
+      .select('*')
+      .order('plant_id', { ascending: true })
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          const activePlants = data.filter((p) => {
+            if (p.is_active === false) return false;
+            if (p.status === 'ซ่อนไว้' || p.status === 'ปิดใช้งาน') return false;
+            if (p.category && p.category.includes('(ซ่อนไว้)')) return false;
+            return true;
+          });
+          if (activePlants.length > 0) {
+            setPlantOptions(
+              activePlants.map((p) => ({
+                name: p.name_th,
+                emoji: p.icon || '🌱',
+                group: (p.category || 'ผักสวนครัวยอดนิยม').replace(' (ซ่อนไว้)', '').trim(),
+              }))
+            );
+          }
+        }
+      });
+  }, []);
 
   const stageOptions = ['เมล็ด', 'ต้นกล้า', 'โตเต็มวัย'];
   const methodOptions = [
@@ -201,9 +242,14 @@ function App() {
 
   useEffect(() => {
     if (!supabase) return;
+    if (!user) {
+      setPlants([]);
+      return;
+    }
     supabase
       .from('user_plants')
       .select('*, plant_master(*)')
+      .eq('user_id', user.id)
       .order('planted_date', { ascending: false })
       .then(({ data, error }) => {
         if (!error && data) {
@@ -221,7 +267,7 @@ function App() {
           );
         }
       });
-  }, []);
+  }, [user]);
 
   const weatherTheme = {
     Clear: { icon: '☀️', label: 'แดดจัด เหมาะแก่การรดน้ำตอนเช้า' },
@@ -484,6 +530,27 @@ function App() {
     }
   };
 
+  const handleDeleteUserPlant = async (plant) => {
+    if (!window.confirm(`คุณต้องการลบ "${plant.type}" ออกจากแปลงปลูกของคุณหรือไม่?`)) return;
+    try {
+      if (supabase && plant.id && plant.id !== 'live-test-chili') {
+        const { error } = await supabase
+          .from('user_plants')
+          .delete()
+          .eq('user_plant_id', plant.id)
+          .eq('user_id', user?.id);
+        if (error) {
+          alert('ไม่สามารถลบพืชได้: ' + error.message);
+          return;
+        }
+      }
+      setPlants((prev) => prev.filter((p) => p.id !== plant.id));
+    } catch (err) {
+      console.error('Delete plant error:', err);
+      alert('เกิดข้อผิดพลาดในการลบพืช: ' + err.message);
+    }
+  };
+
   const renderPlantCard = (plant) => {
     const plantInfo = plantOptions.find((p) => p.name === plant.type);
     return (
@@ -504,17 +571,45 @@ function App() {
           <p>ระยะ: {plant.stage} · {getPotSizeLabel(plant)}</p>
           <p className="sg-plant-time">🕒 เริ่มปลูก: {formatPlantedTime(plant.plantedAt)}</p>
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => {
-              e.preventDefault();   
-              e.stopPropagation();  
-              handleViewAdvice(plant); 
-            }}
-          >
-            👁️ ดูคำแนะนำการดูแล
-          </motion.button>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => {
+                e.preventDefault();   
+                e.stopPropagation();  
+                handleViewAdvice(plant); 
+              }}
+            >
+              👁️ ดูคำแนะนำการดูแล
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                color: '#dc2626',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                padding: '7px 11px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDeleteUserPlant(plant);
+              }}
+              title="ลบพืชออกจากแปลงของคุณ"
+            >
+              <Trash2 size={13} />
+              <span>ถอน/เก็บเกี่ยว</span>
+            </motion.button>
+          </div>
         </div>
         <span className="sg-plant-count">{plant.amount} ต้น</span>
       </motion.div>

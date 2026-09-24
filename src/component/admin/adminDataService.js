@@ -339,28 +339,68 @@ export async function fetchPlantMasterList() {
     return [];
   }
 
-  return (data || []).map((p) => ({
-    id: p.plant_id,
-    emoji: p.icon || '🌱',
-    name: p.name_th,
-    nameEn: p.name_en,
-    category: p.category || 'ผักสวนครัว',
-    scientificName: p.scientific_name || '',
-    status: 'เปิดใช้งาน',
-  }));
+  return (data || []).map((p) => {
+    const isHidden = p.is_active === false || p.status === 'ซ่อนไว้' || p.status === 'ปิดใช้งาน' || p.category?.includes('(ซ่อนไว้)') || p.category?.includes('[HIDDEN]');
+    const cleanCategory = (p.category || 'พืชผักสวนครัวยอดนิยม').replace(' (ซ่อนไว้)', '').replace('(ซ่อนไว้)', '').trim();
+
+    return {
+      id: p.plant_id,
+      emoji: p.icon || '🌱',
+      name: p.name_th,
+      nameEn: p.name_en,
+      category: cleanCategory,
+      scientificName: p.scientific_name || '',
+      status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน',
+    };
+  });
 }
 
 export async function insertPlantMaster(plant) {
   if (!supabase) return null;
+
+  // 1. หาค่า plant_id สูงสุดในตาราง เพื่อป้องกัน duplicate key error จาก sequence ไม่ตรงกับข้อมูลเริ่มต้น
+  const { data: maxRow } = await supabase
+    .from('plant_master')
+    .select('plant_id')
+    .order('plant_id', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextId = (maxRow?.plant_id ? Number(maxRow.plant_id) : 0) + 1;
+  const isHidden = plant.status === 'ซ่อนไว้' || plant.status === 'ปิดใช้งาน';
+  let category = plant.category || 'พืชผักสวนครัวยอดนิยม';
+  if (isHidden && !category.includes('(ซ่อนไว้)')) {
+    category = `${category} (ซ่อนไว้)`;
+  }
+
+  const basePayload = {
+    plant_id: nextId,
+    name_th: plant.name,
+    name_en: plant.nameEn || plant.name,
+    scientific_name: plant.scientificName || '-',
+    category: category,
+    icon: plant.emoji || '🌱',
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from('plant_master')
+      .insert({
+        ...basePayload,
+        is_active: !isHidden,
+        status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน',
+      })
+      .select()
+      .single();
+
+    if (!error && data) return data;
+  } catch (_) {
+    // Fallback if is_active or status columns do not exist yet
+  }
+
   const { data, error } = await supabase
     .from('plant_master')
-    .insert({
-      name_th: plant.name,
-      name_en: plant.nameEn || plant.name,
-      scientific_name: plant.scientificName || '-',
-      category: plant.category || 'พืชผักสวนครัวยอดนิยม',
-      icon: plant.emoji || '🌱',
-    })
+    .insert(basePayload)
     .select()
     .single();
 
@@ -370,15 +410,45 @@ export async function insertPlantMaster(plant) {
 
 export async function updatePlantMaster(id, plant) {
   if (!supabase) return null;
+
+  const isHidden = plant.status === 'ซ่อนไว้' || plant.status === 'ปิดใช้งาน';
+  let category = plant.category || 'พืชผักสวนครัวยอดนิยม';
+  if (isHidden) {
+    if (!category.includes('(ซ่อนไว้)')) {
+      category = `${category} (ซ่อนไว้)`;
+    }
+  } else {
+    category = category.replace(' (ซ่อนไว้)', '').replace('(ซ่อนไว้)', '').trim();
+  }
+
+  const basePayload = {
+    name_th: plant.name,
+    name_en: plant.nameEn || plant.name,
+    scientific_name: plant.scientificName || '-',
+    category: category,
+    icon: plant.emoji,
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from('plant_master')
+      .update({
+        ...basePayload,
+        is_active: !isHidden,
+        status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน',
+      })
+      .eq('plant_id', id)
+      .select()
+      .single();
+
+    if (!error && data) return data;
+  } catch (_) {
+    // Fallback if is_active or status columns do not exist yet
+  }
+
   const { data, error } = await supabase
     .from('plant_master')
-    .update({
-      name_th: plant.name,
-      name_en: plant.nameEn || plant.name,
-      scientific_name: plant.scientificName || '-',
-      category: plant.category,
-      icon: plant.emoji,
-    })
+    .update(basePayload)
     .eq('plant_id', id)
     .select()
     .single();
