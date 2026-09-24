@@ -396,7 +396,53 @@ function App() {
   if (page === 'forgotPassword') return <Suspense fallback={<ActionLoader title="กำลังเตรียมหน้ากู้รหัสผ่าน..." />}><ForgotPassword onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
   if (page === 'resetPassword') return <Suspense fallback={<ActionLoader title="กำลังเตรียมหน้ารีเซ็ตรหัส..." />}><ResetPassword onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
   if (page === 'add' && !user && !globalTestRunner.isRunning && !liveTestActive) return <><Login onNavigate={navigate} />{renderLiveOverlay()}</>;
-  if (page === 'adminLogin') return <Suspense fallback={<ActionLoader title="กำลังเปิดหน้าแอดมิน..." />}><AdminLogin onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
+
+  const isAdmin = profile?.role === 'admin';
+  const adminPages = ['adminDashboard', 'adminUserMap', 'adminUsers', 'adminPlants', 'adminReports'];
+
+  if (page === 'adminLogin') {
+    if (user && isAdmin) {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    return <Suspense fallback={<ActionLoader title="กำลังเปิดหน้าแอดมิน..." />}><AdminLogin onNavigate={navigate} />{renderLiveOverlay()}</Suspense>;
+  }
+
+  // ป้องกันการเข้าถึงหน้าผู้ดูแล (Role Guard)
+  if (adminPages.includes(page)) {
+    if (!user) {
+      return <Navigate to="/admin/login" replace />;
+    }
+    if (!isAdmin) {
+      return (
+        <div className="sg-root" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', textAlign: 'center', padding: '24px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', padding: '36px', maxWidth: '440px', boxShadow: '0 12px 32px rgba(0,0,0,0.08)' }}>
+            <span style={{ fontSize: '48px' }}>🚫</span>
+            <h2 style={{ color: '#991b1b', marginTop: '12px', fontSize: '22px' }}>ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
+            <p style={{ color: '#6b7280', margin: '12px 0 20px', fontSize: '14px', lineHeight: '1.6' }}>
+              หน้านี้สงวนสิทธิ์เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น<br />
+              บัญชีปัจจุบันของคุณคือ <b>{profile?.email || user.email}</b> (สถานะ: ผู้ใช้ทั่วไป)
+            </p>
+            <button
+              onClick={() => goTo('home')}
+              style={{
+                background: '#047857',
+                color: '#fff',
+                border: 'none',
+                padding: '10px 24px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '14px',
+              }}
+            >
+              กลับหน้าแรก
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
   if (page === 'adminDashboard') return <Suspense fallback={<ActionLoader title="กำลังโหลดแดชบอร์ด..." />}><AdminDashboard />{renderLiveOverlay()}</Suspense>;
   if (page === 'adminUserMap') return <Suspense fallback={<ActionLoader title="กำลังโหลดแผนที่..." />}><AdminUserMap />{renderLiveOverlay()}</Suspense>;
   if (page === 'adminUsers') return <Suspense fallback={<ActionLoader title="กำลังโหลดรายชื่อผู้ใช้..." />}><AdminDetails type="users" />{renderLiveOverlay()}</Suspense>;
@@ -419,7 +465,13 @@ function App() {
         onStart={() => user ? goTo('add') : goTo('login')} 
         onPlantInfo={() => goTo('info')} 
         onLogin={() => user ? goTo('add') : goTo('login')} 
-        onAdmin={() => navigate('/admin/login')} 
+        onAdmin={() => {
+          if (user && isAdmin) {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/admin/login');
+          }
+        }} 
         onOpenTeam={() => goTo('team')}
         onLogout={async () => {
           await logout();

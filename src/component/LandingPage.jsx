@@ -61,7 +61,11 @@ export default function LandingPage({ onStart, onPlantInfo, onLogin, onAdmin, on
           <motion.span animate={{ rotate: [0, 10, -8, 0] }} transition={{ duration: 2.6, repeat: Infinity }}>🌿</motion.span> PlookPloen
         </div>
         <div className="lp-nav-actions">
-          <button onClick={onAdmin}>ดูข้อมูลแอดมิน</button>
+          {(!isLoggedIn || profile?.role === 'admin') && (
+            <button onClick={onAdmin}>
+              {profile?.role === 'admin' ? '🛡️ แดชบอร์ดแอดมิน' : 'สำหรับผู้ดูแล'}
+            </button>
+          )}
           {isLoggedIn ? (
             <div className="lp-nav-user-actions">
               <motion.button className="lp-login" onClick={onStart} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.97 }}>

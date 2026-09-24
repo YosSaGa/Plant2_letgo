@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -6,12 +6,18 @@ import './admin-login.css';
 import '../auth/auth-navigation.css';
 
 export default function AdminLogin({ onNavigate }) {
-  const { loginAsAdmin } = useAuth();
+  const { user, profile, loginAsAdmin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (user && profile?.role === 'admin') {
+      onNavigate('/admin/dashboard');
+    }
+  }, [user, profile, onNavigate]);
 
   const submit = async (event) => {
     event.preventDefault();
