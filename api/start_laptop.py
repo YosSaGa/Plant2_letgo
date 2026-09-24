@@ -11,8 +11,34 @@ def main():
     print("=" * 75)
     print("      🌱 PlookPloen Dedicated AI Server (RTX 3050 + Cloudflare) 🌱")
     print("=" * 75)
-    print(f"Python Version: {sys.version.split()[0]}")
+    print(f"Current Python: {sys.version.split()[0]}")
     
+    # Check Python version compatibility for PyTorch (PyTorch supports Python 3.9 - 3.12)
+    if sys.version_info >= (3, 13):
+        # Attempt to auto-switch if user has Python 3.11 or 3.12 installed via 'py'
+        switched = False
+        for candidate in [["py", "-3.11"], ["py", "-3.12"], ["py", "-3.10"]]:
+            try:
+                chk = subprocess.run(candidate + ["--version"], capture_output=True, text=True)
+                if chk.returncode == 0:
+                    print(f"[*] Auto-switching to compatible Python: {chk.stdout.strip()}...")
+                    subprocess.run(candidate + ["start_laptop.py"])
+                    return
+            except Exception:
+                pass
+                
+        print("\n" + "!" * 75)
+        print(" [คำเตือนสำคัญ / CRITICAL WARNING]")
+        print(f" ตรวจพบ Python เวอร์ชัน {sys.version.split()[0]} ซึ่งเป็นเวอร์ชันใหม่เกินไป!")
+        print(" โมเดล AI และ PyTorch ยังไม่รองรับ Python 3.13 หรือ 3.14 ครับ")
+        print(" แนะนำให้ติดตั้ง Python 3.11 หรือ 3.12 (เสถียรที่สุดสำหรับงาน AI):")
+        print(" 👉 ลิงก์ดาวน์โหลด Python 3.11.9 (64-bit):")
+        print("    https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe")
+        print(" ⚠️ อย่าลืมติ๊กถูกช่อง 'Add python.exe to PATH' ตอนติดตั้งด้วยนะครับ")
+        print("!" * 75 + "\n")
+        input("กด Enter เพื่อปิด...")
+        return
+
     # 1. Check cloudflared.exe
     cloudflared_path = os.path.join(dir_path, "cloudflared.exe")
     if not os.path.exists(cloudflared_path):
