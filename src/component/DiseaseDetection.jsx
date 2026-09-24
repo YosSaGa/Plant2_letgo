@@ -163,6 +163,13 @@ const PLANT_TO_ID = {
   'Lettuce': 5,
 };
 
+const severityClass = {
+  Low: 'dd-low',
+  Medium: 'dd-medium',
+  High: 'dd-high',
+  None: 'dd-low',
+};
+
 export default function DiseaseDetection({ onBack }) {
   const inputRef = useRef(null);
   const [plant, setPlant] = useState('Chili Pepper');
@@ -534,12 +541,12 @@ export default function DiseaseDetection({ onBack }) {
 
                     <div className="dd-detail">
                       <h5>อาการที่สังเกตได้ (Observed symptoms)</h5>
-                      {result.symptoms.map((item) => <p key={item}>• {item}</p>)}
+                      {(Array.isArray(result?.symptoms) ? result.symptoms : (result?.symptoms ? [result.symptoms] : ['ไม่พบข้อมูลอาการระบุเฉพาะ'])).map((item) => <p key={item}>• {item}</p>)}
                     </div>
 
                     <div className="dd-treatment">
                       <div><Sparkles size={17} /><h5>คำแนะนำการดูแลรักษา (Recommended Care)</h5></div>
-                      {result.treatment.map((item) => (
+                      {(Array.isArray(result?.treatment) ? result.treatment : (result?.treatment ? [result.treatment] : ['ดูแลรักษาตามสุขอนามัยพืชทั่วไป'])).map((item) => (
                         <p key={item}><CheckCircle2 size={15} /> {item}</p>
                       ))}
                     </div>

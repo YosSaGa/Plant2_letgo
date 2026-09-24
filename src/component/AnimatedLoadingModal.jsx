@@ -57,8 +57,12 @@ export function SvgPathLoader({ size = 56, strokeWidth = 2.5, className, ...prop
     }
 
     if (!cachedPathLength && pathRef.current) {
-      cachedPathLength = pathRef.current.getTotalLength();
-      setPathLength(cachedPathLength);
+      try {
+        cachedPathLength = pathRef.current.getTotalLength();
+        setPathLength(cachedPathLength);
+      } catch {
+        setPathLength(100);
+      }
     }
   }, []);
 
