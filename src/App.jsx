@@ -29,6 +29,7 @@ const OurCreativeTeamPage = lazy(() => import('./components/OurCreativeTeamPage'
 import LiveTestOverlay, { globalTestRunner } from './component/testing/LiveTestOverlay';
 
 const thaiDateFormatter = new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+const supportedCorePlants = ['พริก', 'โหระพา', 'กะเพรา', 'มะเขือเทศ', 'ผักกาดหอม'];
 
 function App() {
   const { user, profile, loading, logout, requestLogout } = useAuth();
@@ -60,6 +61,7 @@ function App() {
   const [currentSeed, setCurrentSeed] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [plantFilter, setPlantFilter] = useState({ type: 'all', stage: 'all', method: 'all', sort: 'newest' });
+  const [previewPlantModal, setPreviewPlantModal] = useState(null);
   const pageByPath = {
     '/': 'landing',
     '/add-plant': 'add',
@@ -132,11 +134,11 @@ function App() {
   }[nextPage]);
 
   const [plantOptions, setPlantOptions] = useState([
-    { name: 'พริก', emoji: '🌶️', group: 'ผักสวนครัวยอดนิยม' },
-    { name: 'โหระพา', emoji: '🌱', group: 'ผักสวนครัวยอดนิยม' },
-    { name: 'กะเพรา', emoji: '🌿', group: 'ผักสวนครัวยอดนิยม' },
-    { name: 'มะเขือเทศ', emoji: '🍅', group: 'พืชเศรษฐกิจ' },
-    { name: 'ผักกาดหอม', emoji: '🥬', group: 'พืชเศรษฐกิจ' },
+    { name: 'พริก', emoji: '🌶️', group: 'ผักสวนครัวยอดนิยม', isSupported: true },
+    { name: 'โหระพา', emoji: '🌱', group: 'ผักสวนครัวยอดนิยม', isSupported: true },
+    { name: 'กะเพรา', emoji: '🌿', group: 'ผักสวนครัวยอดนิยม', isSupported: true },
+    { name: 'มะเขือเทศ', emoji: '🍅', group: 'พืชเศรษฐกิจ', isSupported: true },
+    { name: 'ผักกาดหอม', emoji: '🥬', group: 'พืชเศรษฐกิจ', isSupported: true },
   ]);
 
   const plantGroups = useMemo(() => {
@@ -185,6 +187,7 @@ function App() {
                 name: p.name_th,
                 emoji: p.icon || '🌱',
                 group: resolvePlantGroup(p.category),
+                isSupported: supportedCorePlants.includes(p.name_th),
               }))
             );
           }
@@ -501,10 +504,15 @@ function App() {
   const adjustAmount = (delta) => setFormData((prev) => ({ ...prev, amount: Math.max(1, Number(prev.amount) + delta) }));
   const getPotSizeLabel = (plant) => plant.method === 'กระถาง' && plant.potSize ? `กระถาง ${plant.potSize} นิ้ว` : 'ปลูกลงดิน';
   const isFormReady = formData.type && formData.stage && formData.method
+    && supportedCorePlants.includes(formData.type)
     && (formData.method !== 'กระถาง' || (formData.potSize && (formData.potSize !== 'custom' || formData.customPotSize)));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!supportedCorePlants.includes(formData.type)) {
+      setPreviewPlantModal({ name: formData.type, emoji: '🌱' });
+      return;
+    }
     if (!isFormReady || isPlanting) return;
     const potSize = formData.method === 'กระถาง'
       ? (formData.potSize === 'custom' ? formData.customPotSize : formData.potSize)
@@ -568,6 +576,10 @@ function App() {
   };
 
   const handleViewAdvice = (plant) => {
+    if (!supportedCorePlants.includes(plant?.type)) {
+      setPreviewPlantModal({ name: plant?.type || 'พืชชนิดนี้', emoji: '🌱' });
+      return;
+    }
     setSelectedPlant(plant);
     goTo('advice');
   };
@@ -578,6 +590,10 @@ function App() {
   };
 
   const handleViewPlant = (plant) => {
+    if (!supportedCorePlants.includes(plant?.type)) {
+      setPreviewPlantModal({ name: plant?.type || 'พืชชนิดนี้', emoji: '🌱' });
+      return;
+    }
     setSelectedPlant(plant);
     goTo('detail');
   };
@@ -640,8 +656,14 @@ function App() {
                 e.stopPropagation();  
                 handleViewAdvice(plant); 
               }}
+              style={
+                !supportedCorePlants.includes(plant.type)
+                  ? { background: '#f8fafc', color: '#64748b', border: '1px solid #cbd5e1' }
+                  : {}
+              }
+              title={!supportedCorePlants.includes(plant.type) ? 'ยังไม่มีข้อมูลคู่มือสำหรับพืชนี้' : 'ดูคำแนะนำการดูแล'}
             >
-              👁️ ดูคำแนะนำการดูแล
+              {supportedCorePlants.includes(plant.type) ? '👁️ ดูคำแนะนำการดูแล' : '⏳ ยังไม่มีคู่มือ'}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -731,6 +753,51 @@ function App() {
             </motion.div>
           )}
         </AnimatePresence>, document.body
+      )}
+
+      {createPortal(
+        <AnimatePresence>
+          {previewPlantModal && (
+            <motion.div
+              className="sg-modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPreviewPlantModal(null)}
+            >
+              <motion.div
+                className="sg-modal"
+                initial={{ scale: 0.85, opacity: 0, y: 25 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.85, opacity: 0, y: 25 }}
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: '440px', textAlign: 'center' }}
+              >
+                <div className="sg-modal-icon" style={{ fontSize: '2.5rem' }}>{previewPlantModal.emoji || '🌱'}</div>
+                <div style={{ display: 'inline-block', padding: '3px 10px', background: '#fef3c7', color: '#92400e', borderRadius: '99px', fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>
+                  ⏳ โหมดแสดงตัวอย่าง (Preview Only)
+                </div>
+                <h3 style={{ margin: '6px 0 10px', color: '#1c1917', fontSize: '1.25rem' }}>{previewPlantModal.name}</h3>
+                <p style={{ color: '#64748b', fontSize: '0.88rem', lineHeight: '1.6', margin: '0 0 18px', textAlign: 'left' }}>
+                  พืชชนิดนี้อยู่ในโหมด <strong>แสดงให้ดูตัวอย่างเท่านั้น</strong> เนื่องจากระบบยังไม่มีฐานข้อมูลคู่มือการรดน้ำ ใส่ปุ๋ย การประเมินสภาพแวดล้อม และโมเดล AI ตรวจโรค จึง<strong>ยังไม่เปิดให้บันทึกแปลงปลูกจริง</strong>
+                  <br /><br />
+                  <span style={{ color: '#047857', fontWeight: 600 }}>ขณะนี้ระบบเปิดให้ปลูกและแนะนำการดูแลเต็มรูปแบบสำหรับ 5 พืชหลัก:</span><br />
+                  🌶️ พริก · 🌱 โหระพา · 🌿 กะเพรา · 🍅 มะเขือเทศ · 🥬 ผักกาดหอม
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="sg-btn-confirm"
+                  onClick={() => setPreviewPlantModal(null)}
+                  style={{ width: '100%', padding: '10px 16px', borderRadius: '10px', cursor: 'pointer' }}
+                >
+                  รับทราบ (เลือกพืชหลักอื่น)
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
 
       <motion.div className="sg-blob sg-blob1" animate={{ y: [0, -20, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}></motion.div>
@@ -849,23 +916,32 @@ function App() {
                             <div><p className="sg-plant-group-title">{group.name}</p><span>{group.description}</span></div>
                           </div>
                           <div className="sg-plant-grid">
-                        {plantOptions.filter((plant) => plant.group === group.name).map((plant) => (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="button"
-                            key={plant.name}
-                            onClick={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              toggleChoice('type', plant.name);
-                            }}
-                            className={`sg-plant-btn ${formData.type === plant.name ? 'active' : ''}`}
-                          >
-                            <span className="sg-plant-emoji">{plant.emoji}</span>
-                            <span className="sg-plant-name">{plant.name}</span>
-                          </motion.button>
-                        ))}
+                        {plantOptions.filter((plant) => plant.group === group.name).map((plant) => {
+                          const isCore = plant.isSupported ?? supportedCorePlants.includes(plant.name);
+                          return (
+                            <motion.button
+                              whileHover={isCore ? { scale: 1.05 } : { scale: 1.02 }}
+                              whileTap={isCore ? { scale: 0.95 } : { scale: 0.98 }}
+                              type="button"
+                              key={plant.name}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                if (!isCore) {
+                                  setPreviewPlantModal(plant);
+                                  return;
+                                }
+                                toggleChoice('type', plant.name);
+                              }}
+                              className={`sg-plant-btn ${formData.type === plant.name ? 'active' : ''} ${!isCore ? 'preview-mode' : ''}`}
+                              title={!isCore ? `${plant.name} (เร็ว ๆ นี้ - อยู่ระหว่างจัดทำคู่มือ)` : plant.name}
+                            >
+                              {!isCore && <span className="sg-plant-badge-soon">เร็ว ๆ นี้</span>}
+                              <span className="sg-plant-emoji">{plant.emoji}</span>
+                              <span className="sg-plant-name">{plant.name}</span>
+                            </motion.button>
+                          );
+                        })}
                           </div>
                         </div>
                       ))}
