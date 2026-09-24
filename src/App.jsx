@@ -298,17 +298,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!supabase) return;
-    if (!user) {
-      setPlants([]);
-      return;
-    }
-    supabase
-      .from('user_plants')
-      .select('*, plant_master(*)')
-      .eq('user_id', user.id)
-      .order('planted_date', { ascending: false })
-      .then(({ data, error }) => {
+    setPlants([]);
+    if (!supabase || !user?.id) return;
+
+    const fetchMyPlants = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_plants')
+          .select('*, plant_master(*)')
+          .eq('user_id', user.id)
+          .order('planted_date', { ascending: false });
+
         if (!error && data) {
           setPlants(
             data.map((item) => ({
@@ -323,8 +323,33 @@ function App() {
             }))
           );
         }
-      });
-  }, [user]);
+      } catch (err) {
+        console.error('Error fetching user plants:', err);
+      }
+    };
+
+    fetchMyPlants();
+
+    const userPlantChannel = supabase
+      .channel(`user_plants_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_plants',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchMyPlants();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(userPlantChannel);
+    };
+  }, [user?.id]);
 
   const weatherTheme = {
     Clear: { icon: '☀️', label: 'แดดจัด เหมาะแก่การรดน้ำตอนเช้า' },
@@ -555,6 +580,11 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user?.id) {
+      alert('กรุณาเข้าสู่ระบบก่อนทำการเพิ่มพืชลงแปลงปลูก');
+      navigate('/login');
+      return;
+    }
     if (!supportedCorePlants.includes(formData.type)) {
       setPreviewPlantModal({ name: formData.type, emoji: '🌱' });
       return;
@@ -563,10 +593,8 @@ function App() {
     const potSize = formData.method === 'กระถาง'
       ? (formData.potSize === 'custom' ? formData.customPotSize : formData.potSize)
       : null;
-    let newPlant = { ...formData, potSize, id: Date.now(), plantedAt: new Date() };
 
     setIsPlanting(true);
-    window.setTimeout(() => setIsPlanting(false), 1300);
 
     if (supabase) {
       try {
@@ -584,7 +612,7 @@ function App() {
         const { data, error } = await supabase
           .from('user_plants')
           .insert({
-            user_id: user?.id || null,
+            user_id: user.id,
             plant_id: plantId,
             growth_stage: formData.stage,
             planting_method: formData.method,
@@ -594,8 +622,14 @@ function App() {
           .select('*, plant_master(*)')
           .single();
 
-        if (!error && data) {
-          newPlant = {
+        if (error) {
+          setIsPlanting(false);
+          alert(`ไม่สามารถบันทึกพืชได้: ${error.message}`);
+          return;
+        }
+
+        if (data) {
+          const newPlant = {
             id: data.user_plant_id,
             user_id: data.user_id,
             type: data.plant_master?.name_th || formData.type,
@@ -605,19 +639,23 @@ function App() {
             amount: Number(data.amount || 1),
             plantedAt: new Date(data.planted_date || data.updated_at),
           };
+
+          setPlants((prev) => [newPlant, ...prev]);
+
+          if (formData.stage === 'เมล็ด') {
+            setCurrentSeed(newPlant);
+            window.setTimeout(() => setShowPopup(true), 1300);
+          } else {
+            setJustAdded(true);
+            setTimeout(() => setJustAdded(false), 2200);
+          }
         }
       } catch (err) {
         console.warn('user_plants insert error:', err);
+        alert(`เกิดข้อผิดพลาดในการบันทึก: ${err.message}`);
+      } finally {
+        window.setTimeout(() => setIsPlanting(false), 1300);
       }
-    }
-    setPlants((prev) => [newPlant, ...prev]);
-
-    if (formData.stage === 'เมล็ด') {
-      setCurrentSeed(newPlant);
-      window.setTimeout(() => setShowPopup(true), 1300);
-    } else {
-      setJustAdded(true);
-      setTimeout(() => setJustAdded(false), 2200);
     }
   };
 
@@ -653,6 +691,7 @@ function App() {
   };
 
   const handleDeleteUserPlant = async (plant) => {
+    if (!user?.id) return;
     if (!window.confirm(`คุณต้องการลบ "${plant.type}" ออกจากแปลงปลูกของคุณหรือไม่?`)) return;
     try {
       if (supabase && plant.id && plant.id !== 'live-test-chili') {
@@ -660,7 +699,7 @@ function App() {
           .from('user_plants')
           .delete()
           .eq('user_plant_id', plant.id)
-          .eq('user_id', user?.id);
+          .eq('user_id', user.id);
         if (error) {
           alert('ไม่สามารถลบพืชได้: ' + error.message);
           return;
