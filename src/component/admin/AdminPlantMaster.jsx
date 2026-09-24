@@ -354,24 +354,26 @@ export default function AdminPlantMaster() {
                     <option>ไม้ดอก</option>
                   </select>
                 </label>
-                <label>
-                  ชื่อวิทยาศาสตร์
-                  <input
-                    value={form.scientificName}
-                    onChange={(event) => setForm({ ...form, scientificName: event.target.value })}
-                    placeholder="เช่น Ocimum tenuiflorum L."
-                  />
-                </label>
-                <label>
-                  สถานะการแสดงผล
-                  <select
-                    value={form.status}
-                    onChange={(event) => setForm({ ...form, status: event.target.value })}
-                  >
-                    <option value="เปิดใช้งาน">🟢 เปิดใช้งาน (แสดงให้สมาชิกเลือกปลูก)</option>
-                    <option value="ซ่อนไว้">🟡 ซ่อนไว้ (ไม่แสดงให้สมาชิกเลือกปลูกใหม่)</option>
-                  </select>
-                </label>
+                <div className="form-row">
+                  <label>
+                    ชื่อวิทยาศาสตร์
+                    <input
+                      value={form.scientificName}
+                      onChange={(event) => setForm({ ...form, scientificName: event.target.value })}
+                      placeholder="เช่น Ocimum tenuiflorum L."
+                    />
+                  </label>
+                  <label>
+                    สถานะการแสดงผล
+                    <select
+                      value={form.status}
+                      onChange={(event) => setForm({ ...form, status: event.target.value })}
+                    >
+                      <option value="เปิดใช้งาน">🟢 เปิดใช้งาน</option>
+                      <option value="ซ่อนไว้">🟡 ซ่อนไว้</option>
+                    </select>
+                  </label>
+                </div>
               </div>
 
               <footer>
