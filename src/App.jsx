@@ -169,31 +169,71 @@ function App() {
   // ดึงรายการพืชจาก plant_master ใน Supabase แบบไดนามิก (กรองพืชที่ถูกแอดมินซ่อนออก)
   useEffect(() => {
     if (!supabase) return;
-    supabase
-      .from('plant_master')
-      .select('*')
-      .order('plant_id', { ascending: true })
-      .then(({ data, error }) => {
+
+    const fetchActivePlants = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('plant_master')
+          .select('*')
+          .order('plant_id', { ascending: true });
+
         if (!error && data && data.length > 0) {
           const activePlants = data.filter((p) => {
             if (p.is_active === false) return false;
-            if (p.status === 'ซ่อนไว้' || p.status === 'ปิดใช้งาน') return false;
-            if (p.category && p.category.includes('(ซ่อนไว้)')) return false;
+            if (p.status && (p.status === 'ซ่อนไว้' || p.status === 'ปิดใช้งาน' || p.status.includes('ซ่อน'))) return false;
+            if (p.category && (p.category.includes('(ซ่อนไว้)') || p.category.includes('ซ่อนไว้') || p.category.includes('[HIDDEN]'))) return false;
             return true;
           });
+
           if (activePlants.length > 0) {
-            setPlantOptions(
-              activePlants.map((p) => ({
-                name: p.name_th,
-                emoji: p.icon || '🌱',
-                group: resolvePlantGroup(p.category),
-                isSupported: supportedCorePlants.includes(p.name_th),
-              }))
-            );
+            const mapped = activePlants.map((p) => ({
+              name: p.name_th,
+              emoji: p.icon || '🌱',
+              group: resolvePlantGroup(p.category),
+              isSupported: supportedCorePlants.includes(p.name_th),
+            }));
+            setPlantOptions(mapped);
+
+            // ถ้าพืชที่เลือกอยู่ถูกซ่อน ให้ล้างการเลือกออกทันที
+            setFormData((prev) => {
+              if (prev.type && !mapped.some((item) => item.name === prev.type)) {
+                return { ...prev, type: '' };
+              }
+              return prev;
+            });
           }
         }
-      });
-  }, []);
+      } catch (_) {}
+    };
+
+    fetchActivePlants();
+
+    // 1. รับฟังการเปลี่ยนแปลงแบบเรียลไทม์จาก Supabase
+    const channel = supabase
+      .channel('public:plant_master')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'plant_master' }, () => {
+        fetchActivePlants();
+      })
+      .subscribe();
+
+    // 2. ซิงก์ข้ามแท็บและในแท็บทันทีเมื่อมีการอัปเดตจากหน้า Admin หรือสลับแท็บกลับมา
+    const handleSync = () => fetchActivePlants();
+    window.addEventListener('plant_master_updated', handleSync);
+    const handleStorage = (e) => {
+      if (e.key === 'plookploen_plant_master_sync') {
+        fetchActivePlants();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleSync);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('plant_master_updated', handleSync);
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleSync);
+    };
+  }, [location.pathname]);
 
   const stageOptions = ['เมล็ด', 'ต้นกล้า', 'โตเต็มวัย'];
   const methodOptions = [
@@ -909,42 +949,46 @@ function App() {
                     <div>
                       <label className="sg-label">ชนิดพืช</label>
                       <div className="sg-plant-groups">
-                      {plantGroups.map((group) => (
-                        <div className="sg-plant-group" key={group.name}>
-                          <div className="sg-plant-group-header">
-                            <span className="sg-plant-group-icon">{group.icon}</span>
-                            <div><p className="sg-plant-group-title">{group.name}</p><span>{group.description}</span></div>
+                      {plantGroups.map((group) => {
+                        const groupPlants = plantOptions.filter((plant) => plant.group === group.name);
+                        if (groupPlants.length === 0) return null;
+                        return (
+                          <div className="sg-plant-group" key={group.name}>
+                            <div className="sg-plant-group-header">
+                              <span className="sg-plant-group-icon">{group.icon}</span>
+                              <div><p className="sg-plant-group-title">{group.name}</p><span>{group.description}</span></div>
+                            </div>
+                            <div className="sg-plant-grid">
+                          {groupPlants.map((plant) => {
+                            const isCore = plant.isSupported ?? supportedCorePlants.includes(plant.name);
+                            return (
+                              <motion.button
+                                whileHover={isCore ? { scale: 1.05 } : { scale: 1.02 }}
+                                whileTap={isCore ? { scale: 0.95 } : { scale: 0.98 }}
+                                type="button"
+                                key={plant.name}
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  if (!isCore) {
+                                    setPreviewPlantModal(plant);
+                                    return;
+                                  }
+                                  toggleChoice('type', plant.name);
+                                }}
+                                className={`sg-plant-btn ${formData.type === plant.name ? 'active' : ''} ${!isCore ? 'preview-mode' : ''}`}
+                                title={!isCore ? `${plant.name} (เร็ว ๆ นี้ - อยู่ระหว่างจัดทำคู่มือ)` : plant.name}
+                              >
+                                {!isCore && <span className="sg-plant-badge-soon">เร็ว ๆ นี้</span>}
+                                <span className="sg-plant-emoji">{plant.emoji}</span>
+                                <span className="sg-plant-name">{plant.name}</span>
+                              </motion.button>
+                            );
+                          })}
+                            </div>
                           </div>
-                          <div className="sg-plant-grid">
-                        {plantOptions.filter((plant) => plant.group === group.name).map((plant) => {
-                          const isCore = plant.isSupported ?? supportedCorePlants.includes(plant.name);
-                          return (
-                            <motion.button
-                              whileHover={isCore ? { scale: 1.05 } : { scale: 1.02 }}
-                              whileTap={isCore ? { scale: 0.95 } : { scale: 0.98 }}
-                              type="button"
-                              key={plant.name}
-                              onClick={(event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                                if (!isCore) {
-                                  setPreviewPlantModal(plant);
-                                  return;
-                                }
-                                toggleChoice('type', plant.name);
-                              }}
-                              className={`sg-plant-btn ${formData.type === plant.name ? 'active' : ''} ${!isCore ? 'preview-mode' : ''}`}
-                              title={!isCore ? `${plant.name} (เร็ว ๆ นี้ - อยู่ระหว่างจัดทำคู่มือ)` : plant.name}
-                            >
-                              {!isCore && <span className="sg-plant-badge-soon">เร็ว ๆ นี้</span>}
-                              <span className="sg-plant-emoji">{plant.emoji}</span>
-                              <span className="sg-plant-name">{plant.name}</span>
-                            </motion.button>
-                          );
-                        })}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       </div>
                     </div>
 

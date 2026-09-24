@@ -47,6 +47,13 @@ export default function AdminPlantMaster() {
     );
   }, [plants, query]);
 
+  const notifyPlantMasterChange = () => {
+    try {
+      localStorage.setItem('plookploen_plant_master_sync', Date.now().toString());
+      window.dispatchEvent(new Event('plant_master_updated'));
+    } catch (_) {}
+  };
+
   const save = async (event) => {
     event.preventDefault();
     if (!form.name.trim()) return;
@@ -69,12 +76,14 @@ export default function AdminPlantMaster() {
               status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน',
             },
           ]);
+          notifyPlantMasterChange();
         }
       } else if (modal === 'edit') {
         await updatePlantMaster(form.id, form);
         setPlants((items) =>
           items.map((item) => (item.id === form.id ? { ...item, ...form } : item))
         );
+        notifyPlantMasterChange();
       }
       setModal(null);
     } catch (err) {
@@ -91,6 +100,7 @@ export default function AdminPlantMaster() {
       setPlants((items) =>
         items.map((item) => (item.id === plant.id ? { ...item, status: nextStatus } : item))
       );
+      notifyPlantMasterChange();
     } catch (err) {
       alert(`ไม่สามารถเปลี่ยนสถานะได้: ${err.message}`);
     }
@@ -111,6 +121,7 @@ export default function AdminPlantMaster() {
         setPlants((items) =>
           items.map((item) => (item.id === plant.id ? { ...item, status: 'ซ่อนไว้' } : item))
         );
+        notifyPlantMasterChange();
         alert(`ซ่อนพืช "${plant.name}" เรียบร้อยแล้ว (สมาชิกใหม่จะไม่เห็นพืชนี้ในหน้ารายการปลูก)`);
       } catch (err) {
         alert(`ไม่สามารถซ่อนพืชได้: ${err.message}`);
@@ -120,6 +131,7 @@ export default function AdminPlantMaster() {
       try {
         await deletePlantMaster(plant.id);
         setPlants((items) => items.filter((item) => item.id !== plant.id));
+        notifyPlantMasterChange();
         alert(`ลบ "${plant.name}" ออกจากระบบถาวรเรียบร้อยแล้ว`);
       } catch (err) {
         alert(`ไม่สามารถลบได้: ${err.message}`);
