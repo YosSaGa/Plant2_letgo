@@ -1,8 +1,7 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $Host.UI.RawUI.WindowTitle = "PlookPloen AI Inference Server (RTX 3050 + Cloudflare Tunnel)"
 
 Write-Host "===============================================================================" -ForegroundColor Green
-Write-Host "      🌱 PlookPloen Dedicated AI Server (RTX 3050 + Cloudflare Tunnel) 🌱" -ForegroundColor Green
+Write-Host "      PlookPloen Dedicated AI Server (RTX 3050 + Cloudflare Tunnel)" -ForegroundColor Green
 Write-Host "===============================================================================" -ForegroundColor Green
 Write-Host ""
 
@@ -14,15 +13,15 @@ if (-not $pythonCmd) {
     if ($pyCmd) {
         $pythonExe = "py"
     } else {
-        Write-Host "[ERROR] ไม่พบ Python ในเครื่อง หรือยังไม่ได้เพิ่มลงใน PATH!" -ForegroundColor Red
-        Write-Host "กรุณาติดตั้ง Python (แนะนำ 3.10 หรือ 3.11) และอย่าลืมติ๊ก 'Add python.exe to PATH'" -ForegroundColor Yellow
-        Write-Host "ดาวน์โหลดได้ที่: https://www.python.org/downloads/" -ForegroundColor Cyan
-        Read-Host "กด Enter เพื่อปิด..."
+        Write-Host "[ERROR] Python is not installed or not added to PATH!" -ForegroundColor Red
+        Write-Host "Please install Python (3.10 or 3.11 recommended) and check 'Add python.exe to PATH'." -ForegroundColor Yellow
+        Write-Host "Download: https://www.python.org/downloads/" -ForegroundColor Cyan
+        Read-Host "Press Enter to exit..."
         exit 1
     }
 }
 $pyVer = & $pythonExe --version 2>&1
-Write-Host "[OK] ตรวจพบ Python: $pyVer" -ForegroundColor Cyan
+Write-Host "[OK] Detected Python: $pyVer" -ForegroundColor Cyan
 
 # 2. Check and Setup Directory
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -32,7 +31,7 @@ $cloudflaredPath = Join-Path $scriptDir "cloudflared.exe"
 
 # Download cloudflared.exe if missing
 if (-not (Test-Path $cloudflaredPath)) {
-    Write-Host "[*] ยังไม่พบ cloudflared.exe กำลังดาวน์โหลดอัตโนมัติจาก Cloudflare..." -ForegroundColor Yellow
+    Write-Host "[*] cloudflared.exe not found. Downloading automatically from Cloudflare..." -ForegroundColor Yellow
     $downloadUrl = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
     $downloadSuccess = $false
     
@@ -52,41 +51,41 @@ if (-not (Test-Path $cloudflaredPath)) {
     }
 
     if ($downloadSuccess) {
-        Write-Host "[OK] ดาวน์โหลด cloudflared.exe สำเร็จเรียบร้อย!" -ForegroundColor Green
+        Write-Host "[OK] cloudflared.exe downloaded successfully!" -ForegroundColor Green
     } else {
-        Write-Host "[ERROR] ดาวน์โหลด cloudflared.exe อัตโนมัติไม่สำเร็จ" -ForegroundColor Red
-        Write-Host "กรุณาดาวน์โหลด cloudflared-windows-amd64.exe ด้วยตนเองจาก:" -ForegroundColor Yellow
+        Write-Host "[ERROR] Automatic download of cloudflared.exe failed." -ForegroundColor Red
+        Write-Host "Please download cloudflared-windows-amd64.exe manually from:" -ForegroundColor Yellow
         Write-Host "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -ForegroundColor Cyan
-        Write-Host "แล้วนำมาวางในโฟลเดอร์ api และเปลี่ยนชื่อเป็น cloudflared.exe" -ForegroundColor Yellow
-        Read-Host "กด Enter เพื่อปิด..."
+        Write-Host "Place it inside the 'api' folder and rename it to 'cloudflared.exe'." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit..."
         exit 1
     }
 } else {
-    Write-Host "[OK] ตรวจพบ cloudflared.exe พร้อมใช้งาน" -ForegroundColor Green
+    Write-Host "[OK] cloudflared.exe is ready." -ForegroundColor Green
 }
 
 # 3. Check Dependencies & Install
-Write-Host "[*] กำลังตรวจสอบแพ็กเกจ Python (PyTorch, FastAPI, ฯลฯ)..." -ForegroundColor Yellow
+Write-Host "[*] Checking Python packages (PyTorch, FastAPI, etc.)..." -ForegroundColor Yellow
 $checkPkgs = & $pythonExe -c "import fastapi, uvicorn, PIL, numpy, torch, torchvision" 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[!] ยังไม่ได้ติดตั้งแพ็กเกจที่จำเป็น กำลังติดตั้งให้โดยอัตโนมัติ..." -ForegroundColor Yellow
+    Write-Host "[!] Missing required packages. Installing automatically..." -ForegroundColor Yellow
     $nvidiaSmi = Get-Command nvidia-smi -ErrorAction SilentlyContinue
     if ($nvidiaSmi) {
-        Write-Host "[GPU DETECTED] พบการ์ดจอ NVIDIA! กำลังติดตั้ง PyTorch แบบเปิดใช้งาน CUDA 12.1 (สำหรับ RTX 3050)..." -ForegroundColor Green
+        Write-Host "[GPU DETECTED] NVIDIA GPU detected! Installing PyTorch with CUDA 12.1 for RTX 3050..." -ForegroundColor Green
         & $pythonExe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
     } else {
-        Write-Host "[CPU ONLY] กำลังติดตั้ง PyTorch แบบมาตรฐาน..." -ForegroundColor Cyan
+        Write-Host "[CPU ONLY] Installing standard CPU PyTorch..." -ForegroundColor Cyan
         & $pythonExe -m pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
     }
     & $pythonExe -m pip install fastapi "uvicorn[standard]" python-multipart pillow numpy
-    Write-Host "[OK] ติดตั้งแพ็กเกจทั้งหมดเรียบร้อยแล้ว!" -ForegroundColor Green
+    Write-Host "[OK] All dependencies installed successfully!" -ForegroundColor Green
 } else {
-    Write-Host "[OK] แพ็กเกจ Python ครบถ้วนพร้อมรัน" -ForegroundColor Green
+    Write-Host "[OK] All required packages are installed." -ForegroundColor Green
 }
 
 # 4. Start FastAPI server in separate window
 Write-Host ""
-Write-Host "[*] กำลังเปิดเซิร์ฟเวอร์ AI FastAPI (พอร์ต 8000)..." -ForegroundColor Cyan
+Write-Host "[*] Starting FastAPI AI Server on port 8000..." -ForegroundColor Cyan
 $appProcess = Start-Process cmd -ArgumentList "/k", "$pythonExe app.py" -WorkingDirectory $scriptDir -PassThru -WindowStyle Normal
 if ($appProcess) {
     try { $appProcess.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::High } catch {}
@@ -96,10 +95,10 @@ Start-Sleep -Seconds 4
 
 Write-Host ""
 Write-Host "===============================================================================" -ForegroundColor Green
-Write-Host " 🚀 กำลังเปิดอุโมงค์ Cloudflare Tunnel เชื่อมต่อเซิร์ฟเวอร์สู่โลกภายนอก..." -ForegroundColor Green
-Write-Host " 📌 มองหาบรรทัดลิงก์ HTTPS ที่ลงท้ายด้วย '.trycloudflare.com'" -ForegroundColor Yellow
-Write-Host " 👉 เช่น: https://xxxx-xxxx-xxxx.trycloudflare.com" -ForegroundColor Cyan
-Write-Host " 👉 ก๊อปปี้ลิงก์นั้นมาแจ้งผม หรือนำไปใส่ในเว็บ Vercel ได้ทันที!" -ForegroundColor Green
+Write-Host "  Starting Cloudflare Tunnel to expose your server to the internet..." -ForegroundColor Green
+Write-Host "  LOOK FOR THE HTTPS LINK ENDING WITH: .trycloudflare.com" -ForegroundColor Yellow
+Write-Host "  Example: https://xxxx-xxxx-xxxx.trycloudflare.com" -ForegroundColor Cyan
+Write-Host "  Copy that link and share it or paste it into your web app!" -ForegroundColor Green
 Write-Host "===============================================================================" -ForegroundColor Green
 Write-Host ""
 
