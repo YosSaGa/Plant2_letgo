@@ -348,8 +348,23 @@ inference_transform = transforms.Compose([
 ])
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# High-Performance Hardware Tuning (Maximize CPU & GPU)
+if torch.cuda.is_available():
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+    gpu_name = torch.cuda.get_device_name(0)
+    gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+    print(f"[TURBO GPU] NVIDIA Acceleration ACTIVE: {gpu_name} ({gpu_mem:.1f} GB VRAM)")
+else:
+    cpu_cores = os.cpu_count() or 4
+    torch.set_num_threads(max(1, cpu_cores - 1))
+    print(f"[CPU TURBO] Multithreading ACTIVE: {torch.get_num_threads()} CPU threads")
+
 model = None
 classes = []
+
 
 # -------------------------------------------------------------
 # TWO-STAGE VALIDATION PIPELINE (STAGE 1: OBJECT & PERSON DETECTOR)
@@ -470,6 +485,17 @@ def load_ml_model():
 load_ml_model()
 load_object_detector()
 
+# Pre-warm GPU & CPU execution pipeline (Eliminates first-request lag)
+try:
+    with torch.inference_mode():
+        dummy_in = torch.zeros(1, 3, 224, 224, device=device)
+        if model is not None:
+            _ = model(dummy_in)
+    print(f"[OK] Full Engine Pre-Warmed and Ready for Instant Response on {device}!")
+except Exception as e:
+    print(f"Pre-warm notice: {e}")
+
+
 @app.get("/")
 def root_check():
     return {"status": "online", "message": "PlookPloen AI API is running!"}
@@ -572,9 +598,14 @@ async def predict_disease(
     # Transform image
     input_tensor = inference_transform(image).unsqueeze(0).to(device)
 
-    with torch.no_grad():
-        outputs = model(input_tensor)
-        raw_probs = torch.softmax(outputs, dim=1)[0]
+    with torch.inference_mode():
+        if device.type == "cuda":
+            with torch.amp.autocast(device_type="cuda", dtype=torch.float16):
+                outputs = model(input_tensor)
+        else:
+            outputs = model(input_tensor)
+        raw_probs = torch.softmax(outputs.float(), dim=1)[0]
+
 
     # Map selected plant to prefix
     plant_prefix_map = {

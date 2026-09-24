@@ -60,7 +60,7 @@ if %errorlevel% neq 0 (
 :: 4. Start FastAPI server in separate window
 echo.
 echo [*] กำลังเปิดเซิร์ฟเวอร์ AI FastAPI (พอร์ต 8000)...
-start "🌱 PlookPloen AI Engine (FastAPI Console)" cmd /k "python app.py"
+start "🌱 PlookPloen AI Engine (FastAPI Console)" /high cmd /k "python app.py"
 
 :: Wait 3 seconds for server boot
 timeout /t 3 /nobreak >nul
