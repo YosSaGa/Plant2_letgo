@@ -430,31 +430,29 @@ export async function updatePlantMaster(id, plant) {
   };
 
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('plant_master')
       .update({
         ...basePayload,
         is_active: !isHidden,
         status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน',
       })
-      .eq('plant_id', id)
-      .select()
-      .single();
+      .eq('plant_id', id);
 
-    if (!error && data) return data;
+    if (!error) {
+      return { ...plant, ...basePayload, is_active: !isHidden, status: isHidden ? 'ซ่อนไว้' : 'เปิดใช้งาน' };
+    }
   } catch (_) {
     // Fallback if is_active or status columns do not exist yet
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('plant_master')
     .update(basePayload)
-    .eq('plant_id', id)
-    .select()
-    .single();
+    .eq('plant_id', id);
 
   if (error) throw error;
-  return data;
+  return { ...plant, ...basePayload };
 }
 
 export async function deletePlantMaster(id) {
