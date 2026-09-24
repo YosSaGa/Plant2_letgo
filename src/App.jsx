@@ -156,6 +156,14 @@ function App() {
     return baseGroups;
   }, [plantOptions]);
 
+  const resolvePlantGroup = (cat) => {
+    if (!cat) return 'ผักสวนครัวยอดนิยม';
+    const c = cat.replace(' (ซ่อนไว้)', '').replace('(ซ่อนไว้)', '').trim();
+    if (c.includes('ผัก') || c.includes('ครัว')) return 'ผักสวนครัวยอดนิยม';
+    if (c.includes('เศรษฐกิจ')) return 'พืชเศรษฐกิจ';
+    return c;
+  };
+
   // ดึงรายการพืชจาก plant_master ใน Supabase แบบไดนามิก (กรองพืชที่ถูกแอดมินซ่อนออก)
   useEffect(() => {
     if (!supabase) return;
@@ -176,7 +184,7 @@ function App() {
               activePlants.map((p) => ({
                 name: p.name_th,
                 emoji: p.icon || '🌱',
-                group: (p.category || 'ผักสวนครัวยอดนิยม').replace(' (ซ่อนไว้)', '').trim(),
+                group: resolvePlantGroup(p.category),
               }))
             );
           }

@@ -1,0 +1,7 @@
+# Ignore Python backend and training files on Vercel
+api/
+src/plant_train/
+*.bat
+.venv/
+__pycache__/
+*.pyc
