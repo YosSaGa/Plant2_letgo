@@ -8,6 +8,14 @@ import re
 import threading
 from datetime import datetime, timezone
 
+# Ensure UTF-8 stdout/stderr on Windows Thai locale (cp874)
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 SUPABASE_URL = "https://akutwibjlxmqoohhqvob.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrdXR3aWJqbHhtcW9vaGhxdm9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNDY2MTIsImV4cCI6MjEwNDYyMjYxMn0.kjRu7Ks4fOKSRwGpsxKfKnZyq6ij6cMt3iXgRKk9cwY"
 
@@ -159,6 +167,8 @@ def main():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         bufsize=1
     )
     
@@ -166,9 +176,15 @@ def main():
     stop_heartbeat = threading.Event()
     
     try:
-        for line in iter(tunnel_proc.stdout.readline, ''):
-            sys.stdout.write(line)
-            sys.stdout.flush()
+        while True:
+            line = tunnel_proc.stdout.readline()
+            if not line:
+                break
+            try:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+            except Exception:
+                pass
             
             if not tunnel_url and "trycloudflare.com" in line:
                 m = re.search(r'https://[a-zA-Z0-9-]+\.trycloudflare\.com', line)
@@ -186,6 +202,8 @@ def main():
         tunnel_proc.wait()
     except KeyboardInterrupt:
         print("\nShutting down AI Server...")
+    except Exception as e:
+        print(f"\n[STREAM NOTICE] {e}")
     finally:
         stop_heartbeat.set()
         if tunnel_url:
