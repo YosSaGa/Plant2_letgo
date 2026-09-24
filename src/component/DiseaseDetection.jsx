@@ -154,7 +154,7 @@ const diseaseDatabase = {
 };
 
 const severityClass = { None: 'dd-low', Low: 'dd-low', Medium: 'dd-medium', High: 'dd-high' };
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 
 const PLANT_TO_ID = {
   'Chili Pepper': 1,
@@ -282,11 +282,17 @@ export default function DiseaseDetection({ onBack }) {
     }
 
     await minWait;
-    const entries = diseaseDatabase[plant].diseases;
-    const nextResult = entries[Math.floor(Math.random() * entries.length)];
-    setResult({ ...nextResult, is_real_ai: false, is_uncertain: false });
-
-    saveDiseaseCheck(nextResult.name, nextResult.confidence);
+    setBackendStatus('offline');
+    setResult({
+      is_uncertain: true,
+      uncertainty_reason: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ AI ได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือรอสักครู่แล้วลองใหม่อีกครั้ง',
+      confidence: 0,
+      name: 'การเชื่อมต่อเซิร์ฟเวอร์ AI ขัดข้อง',
+      severity: 'Low',
+      is_real_ai: false,
+      predicted_class: 'server_offline',
+      emoji: '🔌',
+    });
     setAnalyzing(false);
   };
 
