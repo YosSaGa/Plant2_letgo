@@ -12,6 +12,10 @@ import { supabase } from './lib/supabaseClient';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { LogOut, Trash2 } from 'lucide-react';
 import './component/dashboard.css';
+import './component/admin/admin.css';
+import './component/admin/admin-polish.css';
+import './component/admin/admin-interactions.css';
+import './component/admin/admin-plant-master.css';
 
 const Weather = lazy(() => import("./component/Weather"));
 const PlantAdvice = lazy(() => import("./component/PlantAdvice"));
