@@ -153,7 +153,7 @@ const diseaseDatabase = {
   },
 };
 
-const API_URL = (import.meta.env.VITE_API_URL || 'https://plant-disease-api-l93u.onrender.com').replace(/\/$/, '');
+const API_URL = (import.meta.env.VITE_API_URL || 'https://preparing-suspected-mozilla-costs.trycloudflare.com').replace(/\/$/, '');
 
 const PLANT_TO_ID = {
   'Chili Pepper': 1,
@@ -174,18 +174,24 @@ export default function DiseaseDetection({ onBack }) {
   const [backendStatus, setBackendStatus] = useState('checking');
 
   useEffect(() => {
-    fetch(`${API_URL}/health`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 'online' && data.model_loaded) {
-          setBackendStatus('online');
-        } else {
+    const checkServerHealth = () => {
+      fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(4000) })
+        .then((res) => (res.ok ? res.json() : Promise.reject()))
+        .then((data) => {
+          if (data.status === 'online' && data.model_loaded) {
+            setBackendStatus('online');
+          } else {
+            setBackendStatus('offline');
+          }
+        })
+        .catch(() => {
           setBackendStatus('offline');
-        }
-      })
-      .catch(() => {
-        setBackendStatus('offline');
-      });
+        });
+    };
+
+    checkServerHealth();
+    const timer = setInterval(checkServerHealth, 10000);
+    return () => clearInterval(timer);
   }, []);
 
   const chooseFile = (file) => {
@@ -322,12 +328,19 @@ export default function DiseaseDetection({ onBack }) {
                 <h3>เลือกชนิดพืชและภาพใบเพื่อตรวจสอบ</h3>
               </div>
               {backendStatus === 'online' ? (
-                <span className="dd-secure" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0' }}>
-                  <Cpu size={16} /> Real AI Active (99.12% Acc)
+                <span className="dd-secure" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0', display: 'inline-flex', alignItems: 'center', gap: '7px', fontWeight: 600 }}>
+                  <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+                  <Cpu size={16} /> โน๊ตบุ๊ก RTX 3050 พร้อมตรวจ (Online)
+                </span>
+              ) : backendStatus === 'checking' ? (
+                <span className="dd-secure" style={{ background: '#fefce8', color: '#ca8a04', borderColor: '#fef08a', display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
+                  <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#eab308' }} />
+                  กำลังเชื่อมต่อ AI...
                 </span>
               ) : (
-                <span className="dd-secure" title="เปิด python src/plant_train/server.py เพื่อใช้งานโมเดลจริง">
-                  <ShieldCheck size={16} /> Ready
+                <span className="dd-secure" style={{ background: '#fef2f2', color: '#dc2626', borderColor: '#fecaca', display: 'inline-flex', alignItems: 'center', gap: '7px', fontWeight: 500 }} title="กรุณาเปิด start_ai_tunnel.bat บนโน๊ตบุ๊ก">
+                  <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 8px #ef4444' }} />
+                  <AlertTriangle size={16} /> เซิร์ฟเวอร์ AI ออฟไลน์ (Offline)
                 </span>
               )}
             </div>
