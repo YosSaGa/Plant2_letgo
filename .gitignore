@@ -28,3 +28,7 @@ __pycache__/
 *.pyc
 .venv/
 benchmark_results/
+
+# Binaries
+*.exe
+api/cloudflared.exe

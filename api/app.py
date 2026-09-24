@@ -402,6 +402,7 @@ FOREIGN_OBJECT_THAI = {
 def load_object_detector():
     global object_detector, object_preprocess, object_categories
     try:
+        from torchvision.models.detection import ssdlite320_mobilenet_v3_large, SSDLite320_MobileNet_V3_Large_Weights
         weights = SSDLite320_MobileNet_V3_Large_Weights.DEFAULT
         detector = ssdlite320_mobilenet_v3_large(weights=weights)
         detector.to(device)
