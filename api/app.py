@@ -76,6 +76,50 @@ def analyze_botanical_chlorosis(image: Image.Image):
         "is_fresh_green": is_fresh_green
     }
 
+def crop_leaf_roi(image: Image.Image, padding_ratio: float = 0.08) -> Image.Image:
+    """
+    ตรวจจับกรอบของใบพืช (Leaf Bounding Box) เพื่อตัดเฉพาะส่วนใบมาขยายขนาด
+    ช่วยให้จุดโรคเล็กๆ ไม่ถูกย่อจนหายไป และกำจัดพื้นหลังรบกวนออกไปอัตโนมัติ
+    """
+    try:
+        w, h = image.size
+        small = image.resize((240, int(240 * h / w)))
+        sw, sh = small.size
+        arr = np.array(small, dtype=np.float32)
+        r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+        
+        # Color mask capturing green leaf area + yellow/brown diseased lesions
+        exg = 2 * g - r - b
+        leaf_mask = ((exg > 6) | ((r > 50) & (g > 40) & (r > b * 1.1))) & (g > 20)
+        
+        # If enough leaf pixels detected (> 3% of small image)
+        if np.sum(leaf_mask) > (sw * sh * 0.03):
+            y_indices, x_indices = np.where(leaf_mask)
+            min_x, max_x = np.min(x_indices), np.max(x_indices)
+            min_y, max_y = np.min(y_indices), np.max(y_indices)
+            
+            scale_x = w / sw
+            scale_y = h / sh
+            orig_min_x = int(min_x * scale_x)
+            orig_max_x = int(max_x * scale_x)
+            orig_min_y = int(min_y * scale_y)
+            orig_max_y = int(max_y * scale_y)
+            
+            pad_x = int((orig_max_x - orig_min_x) * padding_ratio)
+            pad_y = int((orig_max_y - orig_min_y) * padding_ratio)
+            
+            crop_x1 = max(0, orig_min_x - pad_x)
+            crop_y1 = max(0, orig_min_y - pad_y)
+            crop_x2 = min(w, orig_max_x + pad_x)
+            crop_y2 = min(h, orig_max_y + pad_y)
+            
+            # Crop if ROI is reasonably sized
+            if (crop_x2 - crop_x1) >= w * 0.25 and (crop_y2 - crop_y1) >= h * 0.25:
+                return image.crop((crop_x1, crop_y1, crop_x2, crop_y2))
+        return image
+    except Exception:
+        return image
+
 
 app = FastAPI(title="PlookPloen Plant Disease API", version="1.0.0")
 
@@ -598,8 +642,11 @@ async def predict_disease(
             "is_healthy": False
         }
 
+    # Auto-Crop Leaf ROI: zoom in on leaf and remove background interference
+    analysis_leaf = crop_leaf_roi(image)
+
     # Transform image
-    input_tensor = inference_transform(image).unsqueeze(0).to(device)
+    input_tensor = inference_transform(analysis_leaf).unsqueeze(0).to(device)
 
     with torch.inference_mode():
         if device.type == "cuda":
