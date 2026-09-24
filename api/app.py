@@ -620,23 +620,119 @@ async def predict_disease(
         "Lettuce": "lettuce"
     }
 
-    prefix = plant_prefix_map.get(selected_plant)
-    
-    if prefix:
-        # Filter only classes that belong to this plant
-        plant_indices = [i for i, c in enumerate(classes) if c.startswith(prefix)]
-        if plant_indices:
-            # Softmax specifically within the selected plant's classes
-            plant_logits = outputs[0, plant_indices]
-            plant_softmax = torch.softmax(plant_logits, dim=0)
-            local_conf, local_idx = torch.max(plant_softmax, dim=0)
-            pred_idx = plant_indices[local_idx.item()]
-            predicted_class = classes[pred_idx]
-            confidence = round(local_conf.item() * 100, 1)
+    prefix_to_plant_info = {
+        "chili": {"en": "Chili Pepper", "thai": "พริก", "emoji": "🌶️"},
+        "basil": {"en": "Thai Basil", "thai": "โหระพา", "emoji": "🌱"},
+        "krapao": {"en": "Holy Basil", "thai": "กะเพรา", "emoji": "🌿"},
+        "tomato": {"en": "Tomato", "thai": "มะเขือเทศ", "emoji": "🍅"},
+        "lettuce": {"en": "Lettuce", "thai": "ผักกาดหอม", "emoji": "🥬"},
+    }
+
+    expected_prefix = plant_prefix_map.get(selected_plant)
+
+    # 1. Global Multi-Class Evaluation across all 15 classes
+    global_conf_tensor, global_pred_idx_tensor = torch.max(raw_probs, dim=0)
+    global_conf = round(global_conf_tensor.item() * 100, 1)
+    global_class = classes[global_pred_idx_tensor.item()]
+
+    # 2. Calculate aggregate score for each of the 5 plant species
+    plant_scores = {}
+    for pfx in prefix_to_plant_info:
+        pfx_indices = [i for i, c in enumerate(classes) if c.startswith(pfx)]
+        if pfx_indices:
+            plant_scores[pfx] = float(torch.sum(raw_probs[pfx_indices]).item())
         else:
-            conf, pred_idx = torch.max(raw_probs, dim=0)
-            predicted_class = classes[pred_idx.item()]
-            confidence = round(conf.item() * 100, 1)
+            plant_scores[pfx] = 0.0
+
+    sorted_plants = sorted(plant_scores.items(), key=lambda x: x[1], reverse=True)
+    best_plant_prefix, best_plant_score = sorted_plants[0]
+    best_plant_conf = round(best_plant_score * 100, 1)
+
+    # -------------------------------------------------------------
+    # STAGE 3A: UNSUPPORTED PLANT DETECTION (ไม่ใช่ 1 ใน 5 พืชที่ระบบรองรับ)
+    # -------------------------------------------------------------
+    if best_plant_conf < 42.0 or (best_plant_conf < 52.0 and global_conf < 38.0):
+        expected_thai = prefix_to_plant_info.get(expected_prefix, {}).get("thai", selected_plant or "พืช")
+        return {
+            "success": True,
+            "is_uncertain": True,
+            "is_plant_mismatch": False,
+            "is_unsupported_plant": True,
+            "uncertainty_reason": (
+                f"ไม่สามารถระบุชนิดพืชได้อย่างมั่นใจ (ความเชื่อมั่นสูงสุดเพียง {best_plant_conf}%) "
+                "ภาพนี้อาจไม่ใช่ 1 ใน 5 ชนิดพืชที่ระบบรองรับ (พริก, โหระพา, กะเพรา, มะเขือเทศ, ผักกาดหอม) "
+                "หรือภาพถ่ายมีระยะไกล มีแสงสะท้อน หรือพื้นหลังรบกวนมากเกินไป กรุณาถ่ายภาพใบพืชเฉพาะส่วนที่ชัดเจน"
+            ),
+            "confidence": best_plant_conf,
+            "predicted_class": "unsupported_plant",
+            "disease_name": "ไม่สามารถระบุชนิดพืชได้อย่างมั่นใจ",
+            "severity": "Low",
+            "plant_key": selected_plant or "Unknown",
+            "plant_thai": expected_thai,
+            "emoji": "🌱",
+            "symptoms": ["ลักษณะโครงสร้างของใบไม่ตรงกับฐานข้อมูลพืช 5 ชนิดที่ระบบรองรับ"],
+            "treatment": ["กรุณาใช้ภาพถ่ายใบของ: พริก, โหระพา, กะเพรา, มะเขือเทศ หรือผักกาดหอม"],
+            "is_healthy": False
+        }
+
+    # -------------------------------------------------------------
+    # STAGE 3B: PLANT MISMATCH DETECTION (ตรวจจับการเลือกพืชไม่ตรงกับภาพ)
+    # -------------------------------------------------------------
+    if expected_prefix and best_plant_prefix != expected_prefix:
+        expected_score = plant_scores.get(expected_prefix, 0.0)
+        # ตรวจพบพืชอื่นอย่างมีนัยสำคัญ (คะแนนเกิน 48% และสูงกว่าพืชที่เลือกอย่างน้อย 1.8 เท่า)
+        if best_plant_score >= 0.48 and (best_plant_score > expected_score * 1.8):
+            detected_info = prefix_to_plant_info[best_plant_prefix]
+            selected_info = prefix_to_plant_info.get(expected_prefix, {"en": selected_plant, "thai": selected_plant, "emoji": "🌿"})
+            detected_disease_info = DISEASE_INFO.get(global_class, {})
+
+            return {
+                "success": True,
+                "is_uncertain": True,
+                "is_plant_mismatch": True,
+                "is_unsupported_plant": False,
+                "selected_plant": selected_info["en"],
+                "selected_plant_thai": selected_info["thai"],
+                "selected_plant_emoji": selected_info["emoji"],
+                "detected_plant": detected_info["en"],
+                "detected_plant_thai": detected_info["thai"],
+                "detected_plant_emoji": detected_info["emoji"],
+                "detected_disease_name": detected_disease_info.get("thai_disease", global_class),
+                "uncertainty_reason": (
+                    f"ระบบ AI ตรวจพบว่าภาพนี้น่าจะเป็นใบของ {detected_info['emoji']} \"{detected_info['thai']}\" "
+                    f"(ความมั่นใจ {best_plant_conf}%) ซึ่งไม่ตรงกับช่องพืชที่คุณเลือกไว้คือ \"{selected_info['thai']}\""
+                ),
+                "confidence": best_plant_conf,
+                "predicted_class": global_class,
+                "disease_name": f"ตรวจพบพืชไม่ตรงชนิด (น่าจะเป็น {detected_info['thai']})",
+                "severity": "Low",
+                "plant_key": detected_info["en"],
+                "plant_thai": detected_info["thai"],
+                "emoji": detected_info["emoji"],
+                "symptoms": [
+                    f"ลักษณะทางพฤกษศาสตร์ของใบตรงกับ {detected_info['thai']} มากกว่า {selected_info['thai']}",
+                    f"ระดับความสอดคล้องกับ {detected_info['thai']} สูงถึง {best_plant_conf}% (ขณะที่ {selected_info['thai']} มีเพียง {round(expected_score * 100, 1)}%)"
+                ],
+                "treatment": [
+                    f"กดปุ่ม 'สลับเป็น {detected_info['thai']}' ด้านล่าง เพื่อรับผลการตรวจวินิจฉัยโรคอย่างละเอียด",
+                    f"หรือหากต้องการตรวจ {selected_info['thai']} จริงๆ กรุณาอัปโหลดภาพใบ{selected_info['thai']}ใหม่"
+                ],
+                "is_healthy": False
+            }
+
+    # -------------------------------------------------------------
+    # STAGE 3C: MATCHED PLANT - DISEASE PREDICTION
+    # -------------------------------------------------------------
+    target_prefix = expected_prefix if expected_prefix else best_plant_prefix
+    plant_indices = [i for i, c in enumerate(classes) if c.startswith(target_prefix)]
+    
+    if plant_indices:
+        plant_logits = outputs[0, plant_indices]
+        plant_softmax = torch.softmax(plant_logits, dim=0)
+        local_conf, local_idx = torch.max(plant_softmax, dim=0)
+        pred_idx = plant_indices[local_idx.item()]
+        predicted_class = classes[pred_idx]
+        confidence = round(local_conf.item() * 100, 1)
     else:
         conf, pred_idx = torch.max(raw_probs, dim=0)
         predicted_class = classes[pred_idx.item()]
@@ -657,14 +753,13 @@ async def predict_disease(
     # -------------------------------------------------------------
     raw_global_max = torch.max(raw_probs).item() * 100
     
-    # ถ้าความมั่นใจต่ำกว่า 60% หรือโมเดลสับสนมาก แสดงว่าภาพอาจไม่ใช่ใบพืช
     is_uncertain = False
     uncertainty_reason = ""
     
-    if confidence < 60.0 or raw_global_max < 40.0:
+    if confidence < 60.0 or raw_global_max < 35.0:
         is_uncertain = True
         uncertainty_reason = (
-            f"ความมั่นใจต่ำ ({confidence}%) ระบบตรวจพบว่าภาพนี้อาจไม่ใช่ใบพืช หรือภาพไม่ชัดเจนเพียงพอ "
+            f"ความมั่นใจในการระบุโรคต่ำ ({confidence}%) ระบบตรวจพบว่ารอยโรคอาจยังไม่ชัดเจนเพียงพอ "
             "กรุณาถ่ายภาพเฉพาะส่วนใบพืชในระยะใกล้ ให้แสงสว่างเพียงพอ และหลีกเลี่ยงพื้นหลังรบกวน"
         )
 

@@ -266,7 +266,8 @@ export default function DiseaseDetection({ onBack }) {
     }
   };
 
-  const analyze = async () => {
+  const analyze = async (overridePlant = null) => {
+    const targetPlant = (typeof overridePlant === 'string') ? overridePlant : plant;
     setAnalyzing(true);
     setResult(null);
 
@@ -276,7 +277,7 @@ export default function DiseaseDetection({ onBack }) {
       try {
         const formData = new FormData();
         formData.append('file', fileObj);
-        formData.append('selected_plant', plant);
+        formData.append('selected_plant', targetPlant);
 
         const targetEndpoint = activeApiUrl || API_URL;
         const fetchPromise = fetch(`${targetEndpoint}/predict`, {
@@ -292,10 +293,18 @@ export default function DiseaseDetection({ onBack }) {
           if (data.is_uncertain) {
             setResult({
               is_uncertain: true,
+              is_plant_mismatch: data.is_plant_mismatch || false,
+              is_unsupported_plant: data.is_unsupported_plant || false,
+              selected_plant: data.selected_plant,
+              selected_plant_thai: data.selected_plant_thai,
+              selected_plant_emoji: data.selected_plant_emoji,
+              detected_plant: data.detected_plant,
+              detected_plant_thai: data.detected_plant_thai,
+              detected_plant_emoji: data.detected_plant_emoji,
               uncertainty_reason: data.uncertainty_reason,
               confidence: data.confidence,
               plant_thai: data.plant_thai,
-              name: data.disease_name || 'ไม่สามารถระบุได้อย่างชัดเจน (ภาพอาจไม่ใช่ใบพืช)',
+              name: data.disease_name || 'ไม่สามารถระบุได้อย่างชัดเจน',
               severity: 'Low',
               is_real_ai: true,
               predicted_class: data.predicted_class,
@@ -339,6 +348,12 @@ export default function DiseaseDetection({ onBack }) {
       emoji: '🔌',
     });
     setAnalyzing(false);
+  };
+
+  const handleSwitchPlant = (targetPlantKey) => {
+    if (!targetPlantKey) return;
+    setPlant(targetPlantKey);
+    analyze(targetPlantKey);
   };
 
   const currentPlant = diseaseDatabase[plant];
@@ -472,35 +487,72 @@ export default function DiseaseDetection({ onBack }) {
                 </motion.div>
               ) : result ? (
                 result.is_uncertain ? (
-                  <motion.div key="uncertain" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '10px 4px' }}>
-                    <div style={{ width: '64px', height: '64px', margin: '0 auto 12px', borderRadius: '20px', background: result.predicted_class === 'person' ? '#eff6ff' : '#fff7ed', display: 'grid', placeItems: 'center', color: result.predicted_class === 'person' ? '#2563eb' : '#ea580c', border: result.predicted_class === 'person' ? '1.5px solid #bfdbfe' : '1.5px solid #fed7aa', boxShadow: '0 8px 20px -8px rgba(0,0,0,0.1)', fontSize: '30px' }}>
-                      {result.emoji ? result.emoji : <AlertTriangle size={34} />}
-                    </div>
-                    <span style={{ display: 'inline-block', background: result.predicted_class === 'person' ? '#dbeafe' : '#ffedd5', color: result.predicted_class === 'person' ? '#1d4ed8' : '#c2410c', padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>
-                      {result.predicted_class === 'person'
-                        ? `🎯 ตรวจพบบุคคลด้วย AI (ความมั่นใจ ${result.confidence}%)`
-                        : result.confidence < 60
-                          ? `Confidence: ${result.confidence}% (ต่ำกว่าเกณฑ์ 60%)`
-                          : `AI Pre-filter: ${result.confidence}%`}
-                    </span>
-                    <h4 style={{ color: result.predicted_class === 'person' ? '#1e3a8a' : '#9a3412', fontFamily: 'Prompt, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
-                      {result.name || 'ไม่สามารถวินิจฉัยได้อย่างมั่นใจ'}
-                    </h4>
-                    <p style={{ fontSize: '13px', color: '#7c2d12', background: '#fffbeb', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fef3c7', lineHeight: '1.55', margin: '0 0 16px', textAlign: 'left' }}>
-                      {result.uncertainty_reason}
-                    </p>
+                  result.is_plant_mismatch ? (
+                    <motion.div key="mismatch" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '10px 4px' }}>
+                      <div style={{ width: '68px', height: '68px', margin: '0 auto 12px', borderRadius: '22px', background: '#fff7ed', display: 'grid', placeItems: 'center', color: '#ea580c', border: '1.5px solid #fed7aa', boxShadow: '0 8px 20px -8px rgba(234, 88, 12, 0.25)', fontSize: '32px' }}>
+                        {result.detected_plant_emoji || '⚠️'}
+                      </div>
+                      <span style={{ display: 'inline-block', background: '#ffedd5', color: '#c2410c', padding: '5px 14px', borderRadius: '99px', fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>
+                        ⚠️ ตรวจพบพืชไม่ตรงกับช่องที่เลือก (AI มั่นใจ {result.confidence}%)
+                      </span>
+                      <h4 style={{ color: '#9a3412', fontFamily: 'Prompt, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
+                        ภาพนี้น่าจะเป็น "{result.detected_plant_thai}"
+                      </h4>
+                      <p style={{ fontSize: '13px', color: '#7c2d12', background: '#fffbeb', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fef3c7', lineHeight: '1.55', margin: '0 0 16px', textAlign: 'left' }}>
+                        {result.uncertainty_reason}
+                      </p>
 
-                    <div style={{ textAlign: 'left', background: '#f8fafc', padding: '14px 16px', borderRadius: '14px', border: '1px solid #e2e8f0', fontSize: '13px', color: '#334155' }}>
-                      <strong style={{ display: 'block', color: '#0f172a', marginBottom: '6px' }}>💡 คำแนะนำในการถ่ายภาพให้โมเดล AI:</strong>
-                      <p style={{ margin: '4px 0' }}>• 📸 ถ่ายระยะใกล้ ให้เห็นตัวใบพืชชัดเจนอย่างน้อย 70% ของภาพ</p>
-                      <p style={{ margin: '4px 0' }}>• ☀️ ถ่ายในที่ที่มีแสงสว่างเพียงพอ หลีกเลี่ยงเงามืด</p>
-                      <p style={{ margin: '4px 0' }}>• 🌿 หลีกเลี่ยงการถ่ายติดนิ้วมือ ดิน หรือสิ่งของอื่นๆ นอกเหนือจากใบพืช</p>
-                    </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
+                        <motion.button
+                          className="dd-analyze"
+                          style={{ margin: 0, background: 'linear-gradient(100deg, #059669, #10b981)', padding: '13px 18px', fontSize: '14px' }}
+                          onClick={() => handleSwitchPlant(result.detected_plant)}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Sparkles size={18} /> สลับเป็น {result.detected_plant_thai} ({result.detected_plant_emoji}) และวิเคราะห์ทันที
+                        </motion.button>
+                        <button
+                          className="dd-new-scan"
+                          style={{ margin: 0 }}
+                          onClick={() => { setResult(null); inputRef.current?.click(); }}
+                        >
+                          เลือกภาพ {result.selected_plant_thai} ใหม่
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="uncertain" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '10px 4px' }}>
+                      <div style={{ width: '64px', height: '64px', margin: '0 auto 12px', borderRadius: '20px', background: result.predicted_class === 'person' ? '#eff6ff' : '#fff7ed', display: 'grid', placeItems: 'center', color: result.predicted_class === 'person' ? '#2563eb' : '#ea580c', border: result.predicted_class === 'person' ? '1.5px solid #bfdbfe' : '1.5px solid #fed7aa', boxShadow: '0 8px 20px -8px rgba(0,0,0,0.1)', fontSize: '30px' }}>
+                        {result.emoji ? result.emoji : <AlertTriangle size={34} />}
+                      </div>
+                      <span style={{ display: 'inline-block', background: result.predicted_class === 'person' ? '#dbeafe' : '#ffedd5', color: result.predicted_class === 'person' ? '#1d4ed8' : '#c2410c', padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>
+                        {result.predicted_class === 'person'
+                          ? `🎯 ตรวจพบบุคคลด้วย AI (ความมั่นใจ ${result.confidence}%)`
+                          : result.is_unsupported_plant
+                            ? `⚠️ ตรวจไม่พบใน 5 พืชที่รองรับ (${result.confidence}%)`
+                            : result.confidence < 60
+                              ? `Confidence: ${result.confidence}% (ต่ำกว่าเกณฑ์ 60%)`
+                              : `AI Pre-filter: ${result.confidence}%`}
+                      </span>
+                      <h4 style={{ color: result.predicted_class === 'person' ? '#1e3a8a' : '#9a3412', fontFamily: 'Prompt, sans-serif', fontSize: '19px', margin: '0 0 8px' }}>
+                        {result.name || 'ไม่สามารถวินิจฉัยได้อย่างมั่นใจ'}
+                      </h4>
+                      <p style={{ fontSize: '13px', color: '#7c2d12', background: '#fffbeb', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fef3c7', lineHeight: '1.55', margin: '0 0 16px', textAlign: 'left' }}>
+                        {result.uncertainty_reason}
+                      </p>
 
-                    <button className="dd-new-scan" style={{ marginTop: '16px' }} onClick={() => { setResult(null); inputRef.current?.click(); }}>
-                      ถ่ายภาพหรือเลือกไฟล์ใหม่
-                    </button>
-                  </motion.div>
+                      <div style={{ textAlign: 'left', background: '#f8fafc', padding: '14px 16px', borderRadius: '14px', border: '1px solid #e2e8f0', fontSize: '13px', color: '#334155' }}>
+                        <strong style={{ display: 'block', color: '#0f172a', marginBottom: '6px' }}>💡 คำแนะนำในการถ่ายภาพให้โมเดล AI:</strong>
+                        <p style={{ margin: '4px 0' }}>• 📸 ถ่ายระยะใกล้ ให้เห็นตัวใบพืชชัดเจนอย่างน้อย 70% ของภาพ</p>
+                        <p style={{ margin: '4px 0' }}>• 🌿 เลือกรองรับเฉพาะ: พริก, โหระพา, กะเพรา, มะเขือเทศ, ผักกาดหอม</p>
+                        <p style={{ margin: '4px 0' }}>• ☀️ ถ่ายในที่ที่มีแสงสว่างเพียงพอ หลีกเลี่ยงเงามืดและพื้นหลังรบกวน</p>
+                      </div>
+
+                      <button className="dd-new-scan" style={{ marginTop: '16px' }} onClick={() => { setResult(null); inputRef.current?.click(); }}>
+                        ถ่ายภาพหรือเลือกไฟล์ใหม่
+                      </button>
+                    </motion.div>
+                  )
                 ) : (
                   <motion.div key="result" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
                     <div className="dd-result-plant">
