@@ -16,6 +16,8 @@ import './component/admin/admin.css';
 import './component/admin/admin-polish.css';
 import './component/admin/admin-interactions.css';
 import './component/admin/admin-plant-master.css';
+import './component/admin/admin-delete-modal.css';
+import './component/common/hold-to-confirm.css';
 
 const Weather = lazy(() => import("./component/Weather"));
 const PlantAdvice = lazy(() => import("./component/PlantAdvice"));

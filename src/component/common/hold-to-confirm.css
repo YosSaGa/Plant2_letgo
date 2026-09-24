@@ -1,0 +1,124 @@
+/* ===== Hold to Confirm Component Styling ===== */
+
+.hold-confirm-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 12px 0 6px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hold-confirm-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.hold-confirm-btn {
+  position: relative;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: #fee2e2;
+  color: #991b1b;
+  font-family: 'Prompt', -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.15);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  touch-action: none;
+  padding: 12px 20px;
+}
+
+.hold-confirm-btn:hover:not(:disabled) {
+  border-color: #ef4444;
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.25);
+}
+
+.hold-confirm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(40%);
+}
+
+/* Background fill progress */
+.hold-confirm-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  z-index: 1;
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* Text & Icon content layer */
+.hold-confirm-content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+  transition: color 0.15s ease;
+}
+
+.hold-confirm-btn.holding .hold-confirm-content {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Circular ring indicator positioned neatly inside or around button */
+.hold-confirm-ring-wrap {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hold-confirm-ring-svg {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+/* Helpful prompt under the button */
+.hold-confirm-hint {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: #b91c1c;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Prompt', sans-serif;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.hold-confirm-hint.holding {
+  color: #dc2626;
+  font-weight: 600;
+  animation: hold-pulse 0.8s infinite alternate;
+}
+
+@keyframes hold-pulse {
+  from { opacity: 0.65; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1.02); }
+}

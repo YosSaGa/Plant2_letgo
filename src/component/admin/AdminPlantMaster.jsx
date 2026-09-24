@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Eye, EyeOff, Pencil, Plus, RefreshCw, Search, Sprout, Trash2, X } from 'lucide-react';
 import AdminLayout from './AdminLayout';
+import AdminDeletePlantModal from './AdminDeletePlantModal';
 import { deletePlantMaster, fetchPlantMasterList, insertPlantMaster, updatePlantMaster } from './adminDataService';
 import './admin-interactions.css';
 import './admin-plant-master.css';
@@ -22,6 +23,14 @@ export default function AdminPlantMaster() {
   const [query, setQuery] = useState('');
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isProcessingDelete, setIsProcessingDelete] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   const loadPlants = async () => {
     setLoading(true);
@@ -106,36 +115,39 @@ export default function AdminPlantMaster() {
     }
   };
 
-  const remove = async (plant) => {
-    const action = window.prompt(
-      `⚙️ การจัดการชนิดพืช "${plant.name}":\n\n` +
-      `[1] ซ่อนไว้ (แนะนำ) — ซ่อนจากหน้ารายการปลูกของผู้ใช้ใหม่ แต่แปลงปลูกของผู้ใช้เดิมไม่พัง\n` +
-      `[2] ลบถาวร (Danger) — ลบออกจากฐานข้อมูลทันที (แปลงปลูกของสมาชิกที่เคยปลูกพืชนี้จะถูกลบด้วย)\n\n` +
-      `พิมพ์ 1 หรือ 2 แล้วกดตกลง (หรือกด Cancel เพื่อยกเลิก):`,
-      '1'
-    );
+  const remove = (plant) => {
+    setDeleteTarget(plant);
+  };
 
-    if (action === '1') {
-      try {
-        await updatePlantMaster(plant.id, { ...plant, status: 'ซ่อนไว้' });
-        setPlants((items) =>
-          items.map((item) => (item.id === plant.id ? { ...item, status: 'ซ่อนไว้' } : item))
-        );
-        notifyPlantMasterChange();
-        alert(`ซ่อนพืช "${plant.name}" เรียบร้อยแล้ว (สมาชิกใหม่จะไม่เห็นพืชนี้ในหน้ารายการปลูก)`);
-      } catch (err) {
-        alert(`ไม่สามารถซ่อนพืชได้: ${err.message}`);
-      }
-    } else if (action === '2') {
-      if (!window.confirm(`⚠️ คำเตือนขั้นเด็ดขาด: ยืนยันการลบชนิดพืช “${plant.name}” ออกจากระบบถาวรหรือไม่?`)) return;
-      try {
-        await deletePlantMaster(plant.id);
-        setPlants((items) => items.filter((item) => item.id !== plant.id));
-        notifyPlantMasterChange();
-        alert(`ลบ "${plant.name}" ออกจากระบบถาวรเรียบร้อยแล้ว`);
-      } catch (err) {
-        alert(`ไม่สามารถลบได้: ${err.message}`);
-      }
+  const handleHidePlant = async (plant) => {
+    setIsProcessingDelete(true);
+    try {
+      await updatePlantMaster(plant.id, { ...plant, status: 'ซ่อนไว้' });
+      setPlants((items) =>
+        items.map((item) => (item.id === plant.id ? { ...item, status: 'ซ่อนไว้' } : item))
+      );
+      notifyPlantMasterChange();
+      setDeleteTarget(null);
+      showToast(`ซ่อนพืช "${plant.name}" เรียบร้อยแล้ว (สมาชิกใหม่จะไม่เห็นในรายการเลือกปลูก)`, 'success');
+    } catch (err) {
+      showToast(`ไม่สามารถซ่อนพืชได้: ${err.message}`, 'error');
+    } finally {
+      setIsProcessingDelete(false);
+    }
+  };
+
+  const handlePermanentDelete = async (plant) => {
+    setIsProcessingDelete(true);
+    try {
+      await deletePlantMaster(plant.id);
+      setPlants((items) => items.filter((item) => item.id !== plant.id));
+      notifyPlantMasterChange();
+      setDeleteTarget(null);
+      showToast(`ลบชนิดพืช "${plant.name}" ออกจากระบบถาวรเรียบร้อยแล้ว`, 'success');
+    } catch (err) {
+      showToast(`ไม่สามารถลบได้: ${err.message}`, 'error');
+    } finally {
+      setIsProcessingDelete(false);
     }
   };
 
@@ -390,6 +402,48 @@ export default function AdminPlantMaster() {
                 </button>
               </footer>
             </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete / Manage Modal with Hold-to-Confirm */}
+      <AdminDeletePlantModal
+        isOpen={Boolean(deleteTarget)}
+        plant={deleteTarget}
+        isProcessing={isProcessingDelete}
+        onClose={() => setDeleteTarget(null)}
+        onHide={handleHidePlant}
+        onPermanentDelete={handlePermanentDelete}
+      />
+
+      {/* Modern Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -15, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: 'fixed',
+              top: '24px',
+              right: '24px',
+              zIndex: 5000,
+              background: toast.type === 'error' ? '#991b1b' : '#047857',
+              color: '#ffffff',
+              padding: '12px 20px',
+              borderRadius: '12px',
+              boxShadow: '0 12px 28px rgba(0,0,0,0.22)',
+              fontFamily: "'Prompt', sans-serif",
+              fontSize: '14px',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '9px',
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>{toast.type === 'error' ? '⚠️' : '✅'}</span>
+            <span>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
