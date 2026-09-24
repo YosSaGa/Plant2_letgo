@@ -482,9 +482,8 @@ def load_ml_model():
     print(f"[OK] Loaded MobileNetV3 ({len(classes)} classes) successfully on {device}!")
     return True
 
-# Load models on startup
+# Load primary plant disease model on startup (instant from local disk)
 load_ml_model()
-load_object_detector()
 
 # Pre-warm GPU & CPU execution pipeline (Eliminates first-request lag)
 try:
@@ -492,9 +491,13 @@ try:
         dummy_in = torch.zeros(1, 3, 224, 224, device=device)
         if model is not None:
             _ = model(dummy_in)
-    print(f"[OK] Full Engine Pre-Warmed and Ready for Instant Response on {device}!")
+    print(f"[OK] Full Engine Pre-Warmed and Ready for Instant Response on {device}!", flush=True)
 except Exception as e:
-    print(f"Pre-warm notice: {e}")
+    print(f"Pre-warm notice: {e}", flush=True)
+
+# Load object detector asynchronously in background thread so server starts instantly!
+import threading
+threading.Thread(target=load_object_detector, daemon=True).start()
 
 
 @app.get("/")
@@ -696,5 +699,5 @@ async def predict_disease(
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
-    print(f">>> Starting PlookPloen ML API Server on port {port} ...")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f">>> Starting PlookPloen ML API Server on port {port} (127.0.0.1)...", flush=True)
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")

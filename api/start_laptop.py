@@ -92,12 +92,16 @@ def main():
         
     # 3. Start FastAPI server in a separate process
     print("\n[*] Starting FastAPI AI Server (port 8000)...")
-    server_cmd = [sys.executable, "app.py"]
+    server_cmd = [sys.executable, "-u", "app.py"]
     server_proc = subprocess.Popen(server_cmd, cwd=dir_path)
     
     # Wait for FastAPI server to initialize
-    print("[*] Waiting 4 seconds for AI model to load...")
-    time.sleep(4)
+    print("[*] Waiting 3 seconds for AI model to load...")
+    time.sleep(3)
+    if server_proc.poll() is not None:
+        print(f"\n[ERROR] FastAPI Server stopped unexpectedly with code {server_proc.returncode}!")
+        input("Press Enter to exit...")
+        return
     
     # 4. Start Cloudflare Tunnel
     print("\n" + "=" * 75)
