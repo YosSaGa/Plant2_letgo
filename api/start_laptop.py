@@ -3,6 +3,48 @@ import sys
 import subprocess
 import time
 import urllib.request
+import json
+import re
+import threading
+from datetime import datetime, timezone
+
+SUPABASE_URL = "https://akutwibjlxmqoohhqvob.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrdXR3aWJqbHhtcW9vaGhxdm9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNDY2MTIsImV4cCI6MjEwNDYyMjYxMn0.kjRu7Ks4fOKSRwGpsxKfKnZyq6ij6cMt3iXgRKk9cwY"
+
+def sync_supabase_status(tunnel_url, status="online"):
+    try:
+        now_str = datetime.now(timezone.utc).isoformat()
+        payload = json.dumps({
+            "id": "active",
+            "url": tunnel_url,
+            "status": status,
+            "device": "NVIDIA RTX 3050",
+            "updated_at": now_str
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            f"{SUPABASE_URL}/rest/v1/ai_server_status?on_conflict=id",
+            data=payload,
+            headers={
+                "apikey": SUPABASE_KEY,
+                "Authorization": f"Bearer {SUPABASE_KEY}",
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates"
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=5) as res:
+            pass
+        return True
+    except Exception as e:
+        print(f"[SYNC NOTICE] Could not sync with Supabase: {e}")
+        return False
+
+def start_heartbeat_loop(tunnel_url, stop_event):
+    while not stop_event.is_set():
+        time.sleep(15)
+        if not stop_event.is_set():
+            sync_supabase_status(tunnel_url, "online")
 
 def main():
     dir_path = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +58,6 @@ def main():
     # Check Python version compatibility for PyTorch (PyTorch supports Python 3.9 - 3.12)
     if sys.version_info >= (3, 13):
         # Attempt to auto-switch if user has Python 3.11 or 3.12 installed via 'py'
-        switched = False
         for candidate in [["py", "-3.11"], ["py", "-3.12"], ["py", "-3.10"]]:
             try:
                 chk = subprocess.run(candidate + ["--version"], capture_output=True, text=True)
@@ -108,18 +149,53 @@ def main():
     print(" 🚀 STARTING CLOUDFLARE TUNNEL (Connecting to internet)...")
     print(" 📌 Look for your public HTTPS link ending in: .trycloudflare.com")
     print(" 👉 Example: https://xxxx-xxxx-xxxx.trycloudflare.com")
-    print(" 👉 Copy that link and send it to connect to the website!")
+    print(" 🔄 Auto-Sync: The tunnel URL will be synced to Supabase automatically!")
     print("=" * 75 + "\n")
     
     tunnel_cmd = [cloudflared_path, "tunnel", "--url", "http://127.0.0.1:8000"]
-    tunnel_proc = subprocess.Popen(tunnel_cmd, cwd=dir_path)
+    tunnel_proc = subprocess.Popen(
+        tunnel_cmd,
+        cwd=dir_path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
+    )
+    
+    tunnel_url = None
+    stop_heartbeat = threading.Event()
     
     try:
+        for line in iter(tunnel_proc.stdout.readline, ''):
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            
+            if not tunnel_url and "trycloudflare.com" in line:
+                m = re.search(r'https://[a-zA-Z0-9-]+\.trycloudflare\.com', line)
+                if m:
+                    tunnel_url = m.group(0)
+                    print("\n" + "=" * 75)
+                    print(f" 🚀 [AUTO-SYNC ACTIVE] Live URL synced to Supabase!")
+                    print(f" 👉 URL: {tunnel_url}")
+                    print(" 👉 Website (Vercel) will connect automatically within 5 seconds!")
+                    print("=" * 75 + "\n")
+                    sync_supabase_status(tunnel_url, "online")
+                    hb_thread = threading.Thread(target=start_heartbeat_loop, args=(tunnel_url, stop_heartbeat), daemon=True)
+                    hb_thread.start()
+                    
         tunnel_proc.wait()
     except KeyboardInterrupt:
-        print("\nShutting down server...")
-        tunnel_proc.terminate()
-        server_proc.terminate()
+        print("\nShutting down AI Server...")
+    finally:
+        stop_heartbeat.set()
+        if tunnel_url:
+            print("[SYNC] Updating status to offline in Supabase...")
+            sync_supabase_status(tunnel_url, "offline")
+        try:
+            tunnel_proc.terminate()
+            server_proc.terminate()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     main()

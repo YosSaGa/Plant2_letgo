@@ -172,26 +172,58 @@ export default function DiseaseDetection({ onBack }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [backendStatus, setBackendStatus] = useState('checking');
+  const [activeApiUrl, setActiveApiUrl] = useState(API_URL);
 
   useEffect(() => {
-    const checkServerHealth = () => {
-      fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(4000) })
-        .then((res) => (res.ok ? res.json() : Promise.reject()))
-        .then((data) => {
-          if (data.status === 'online' && data.model_loaded) {
-            setBackendStatus('online');
-          } else {
-            setBackendStatus('offline');
+    let isMounted = true;
+
+    const checkServerHealth = async () => {
+      try {
+        let currentTarget = API_URL;
+
+        // 1. Fetch live dynamic AI URL from Supabase ai_server_status
+        if (supabase) {
+          try {
+            const { data } = await supabase
+              .from('ai_server_status')
+              .select('url, status, updated_at')
+              .eq('id', 'active')
+              .maybeSingle();
+
+            if (data?.url) {
+              currentTarget = data.url.replace(/\/$/, '');
+              if (isMounted) setActiveApiUrl(currentTarget);
+            }
+            if (data?.status === 'offline') {
+              if (isMounted) setBackendStatus('offline');
+              return;
+            }
+          } catch (err) {
+            console.warn('Could not read ai_server_status from Supabase:', err);
           }
-        })
-        .catch(() => {
-          setBackendStatus('offline');
-        });
+        }
+
+        // 2. Ping /health of the live URL
+        const res = await fetch(`${currentTarget}/health`, { signal: AbortSignal.timeout(4000) });
+        if (res.ok) {
+          const info = await res.json();
+          if (info.status === 'online' && info.model_loaded) {
+            if (isMounted) setBackendStatus('online');
+            return;
+          }
+        }
+        if (isMounted) setBackendStatus('offline');
+      } catch {
+        if (isMounted) setBackendStatus('offline');
+      }
     };
 
     checkServerHealth();
-    const timer = setInterval(checkServerHealth, 10000);
-    return () => clearInterval(timer);
+    const timer = setInterval(checkServerHealth, 6000);
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
   }, []);
 
   const chooseFile = (file) => {
@@ -239,7 +271,8 @@ export default function DiseaseDetection({ onBack }) {
         formData.append('file', fileObj);
         formData.append('selected_plant', plant);
 
-        const fetchPromise = fetch(`${API_URL}/predict`, {
+        const targetEndpoint = activeApiUrl || API_URL;
+        const fetchPromise = fetch(`${targetEndpoint}/predict`, {
           method: 'POST',
           body: formData,
         }).then((res) => (res.ok ? res.json() : null));
