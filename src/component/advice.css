@@ -580,6 +580,24 @@
   background: #047857;
   box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35);
 }
+.adv-sync-action-btn.direct-link {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+.adv-sync-action-btn.direct-link:hover:not(:disabled) {
+  background: #1d4ed8;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+}
+.adv-sync-action-btn.ics-download {
+  background: #0d9488;
+  color: white;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+}
+.adv-sync-action-btn.ics-download:hover:not(:disabled) {
+  background: #0f766e;
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+}
 .adv-sync-action-btn.secondary {
   background: #f5f5f4;
   color: #292524;

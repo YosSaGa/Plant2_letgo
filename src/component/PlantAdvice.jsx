@@ -335,7 +335,7 @@ function PlantAdvice({ plant, weather, onBack }) {
     }
   };
 
-  const handleSyncSingleTask = async (d, t) => {
+  const handleSyncSingleTask = (d, t) => {
     const currentMonthEntry = monthsData[monthIndex];
     if (!currentMonthEntry) return;
     const y = currentMonthEntry.year;
@@ -343,33 +343,16 @@ function PlantAdvice({ plant, weather, onBack }) {
     const ev = buildEventPayload(y, m, d, t);
     const uKey = taskKey(y, m, d, t);
 
-    if (savedReminders[uKey]) {
-      const item = savedReminders[uKey];
-      window.open(item.htmlLink || 'https://calendar.google.com', '_blank');
+    if (savedReminders[uKey]?.htmlLink) {
+      window.open(savedReminders[uKey].htmlLink, '_blank');
       return;
     }
 
-    setIsSyncing(true);
-    try {
-      const res = await createGoogleCalendarEvent(ev);
-      saveReminderStatus(uKey, {
-        eventId: res.id,
-        htmlLink: res.htmlLink,
-        title: ev.title,
-      });
-      setSavedReminders(getSavedReminders());
-      setAlertData({
-        title: 'ตั้งเตือนสำเร็จ!',
-        desc: `บันทึกงาน "${TASK_TYPES[t]?.label}" ลงใน Google Calendar เรียบร้อยแล้ว`,
-        icon: '🔔',
-      });
-    } catch (err) {
+    if (ev) {
       const intentUrl = getGoogleCalendarWebIntentUrl(ev);
       window.open(intentUrl, '_blank');
-      saveReminderStatus(uKey, { title: ev.title, fallback: true });
+      saveReminderStatus(uKey, { title: ev.title, directLink: true });
       setSavedReminders(getSavedReminders());
-    } finally {
-      setIsSyncing(false);
     }
   };
 
@@ -671,49 +654,82 @@ function PlantAdvice({ plant, weather, onBack }) {
                     </div>
                   ) : (
                     <div className="adv-sync-options">
+                      {/* Option 1: Direct Web Intent (Zero OAuth friction, 100% reliable) */}
                       <div className="adv-sync-option-card adv-sync-primary-card">
                         <div className="adv-sync-option-top">
-                          <span className="adv-sync-card-badge">คลิกเดียวมาครบ 🌟</span>
-                          <span className="adv-sync-count">{allMonthEvents.length} กิจกรรม</span>
+                          <span className="adv-sync-card-badge">แนะนำ · ใช้งานได้ทันที 100% 🌟</span>
+                          <span className="adv-sync-count">ไม่ต้องขอสิทธิ์ OAuth</span>
                         </div>
                         <h4 className="adv-sync-option-title">
-                          📅 ตั้งเตือนทั้งเดือน {MONTH_LABELS[month]}
+                          🌐 เปิดบันทึกลง Google Calendar โดยตรง
                         </h4>
                         <p className="adv-sync-option-desc">
-                          บันทึกรอบรดน้ำ, ใส่ปุ๋ย, ตรวจศัตรูพืชตลอดทั้งเดือน {allMonthEvents.length} ครั้ง พร้อมคำแนะนำกรมวิชาการเกษตร และแจ้งเตือนล่วงหน้า 30 นาที
+                          เปิดหน้า Google Calendar ในแท็บใหม่ทันที พร้อมกรอกชื่องาน, วันเวลา และคำแนะนำการดูแลให้อัตโนมัติ (ไม่ติด Error 403 ใช้งานได้กับทุกคน)
                         </p>
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="adv-sync-action-btn primary"
-                          onClick={() => handleSyncBatch(allMonthEvents, `ทั้งเดือน ${MONTH_LABELS[month]}`)}
+                          className="adv-sync-action-btn direct-link"
+                          onClick={() => {
+                            const targetEvent = selectedDayEvents[0] || allMonthEvents[0];
+                            if (targetEvent) {
+                              window.open(getGoogleCalendarWebIntentUrl(targetEvent), '_blank');
+                              saveReminderStatus(targetEvent.uniqueKey || `direct_${Date.now()}`, {
+                                title: targetEvent.title,
+                                directLink: true,
+                              });
+                              setSavedReminders(getSavedReminders());
+                            }
+                          }}
                           disabled={allMonthEvents.length === 0}
                         >
-                          🚀 ตั้งเตือนทั้งเดือนนี้ลง Google Calendar ({allMonthEvents.length} งาน)
+                          🚀 เปิดบันทึกใน Google Calendar ↗
                         </motion.button>
                       </div>
 
+                      {/* Option 2: Download .ics for all events */}
                       <div className="adv-sync-option-card">
                         <div className="adv-sync-option-top">
-                          <span className="adv-sync-card-badge-neutral">งานเฉพาะวันนี้</span>
-                          <span className="adv-sync-count">{selectedDayEvents.length} กิจกรรม</span>
+                          <span className="adv-sync-card-badge-neutral">ครบทั้งเดือน 📅</span>
+                          <span className="adv-sync-count">{allMonthEvents.length} กิจกรรม</span>
                         </div>
                         <h4 className="adv-sync-option-title">
-                          🗓️ วันที่ {selectedDay} {MONTH_LABELS[month]}
+                          📥 ดาวน์โหลดไฟล์ปฏิทิน (.ics)
                         </h4>
                         <p className="adv-sync-option-desc">
-                          {selectedDayEvents.length > 0
-                            ? `มีงาน: ${selectedTasks.map((t) => TASK_TYPES[t]?.label).join(', ')}`
-                            : 'วันนี้ไม่มีงานที่ต้องดูแล'}
+                          นำเข้าตารางการดูแลพืชครบทั้งเดือน {allMonthEvents.length} งาน เข้าสู่ Google Calendar, Apple Calendar (iPhone/Mac) หรือ Outlook ในไฟล์เดียว
+                        </p>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="adv-sync-action-btn ics-download"
+                          onClick={() => handleDownloadIcs(allMonthEvents)}
+                          disabled={allMonthEvents.length === 0}
+                        >
+                          📅 ดาวน์โหลดไฟล์ .ics ({allMonthEvents.length} กิจกรรม)
+                        </motion.button>
+                      </div>
+
+                      {/* Option 3: OAuth Sync for approved testers */}
+                      <div className="adv-sync-option-card" style={{ background: '#fafaf9', borderStyle: 'dashed' }}>
+                        <div className="adv-sync-option-top">
+                          <span className="adv-sync-card-badge-neutral">สำหรับผู้ใช้ทดสอบ Google Cloud</span>
+                        </div>
+                        <h4 className="adv-sync-option-title" style={{ fontSize: '0.9rem' }}>
+                          ⚡ ซิงก์เบื้องหลังอัตโนมัติ (OAuth API)
+                        </h4>
+                        <p className="adv-sync-option-desc" style={{ fontSize: '0.8rem', marginBottom: '0.6rem' }}>
+                          ส่งกิจกรรมเข้าปฏิทินแบบรวดเร็วผ่าน API (สำหรับบัญชีที่เพิ่มไว้ใน Test Users แล้ว)
                         </p>
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className="adv-sync-action-btn secondary"
-                          onClick={() => handleSyncBatch(selectedDayEvents, `วันที่ ${selectedDay}`)}
-                          disabled={selectedDayEvents.length === 0}
+                          onClick={() => handleSyncBatch(allMonthEvents, `ทั้งเดือน ${MONTH_LABELS[month]}`)}
+                          disabled={allMonthEvents.length === 0}
+                          style={{ fontSize: '0.82rem', padding: '0.55rem' }}
                         >
-                          🔔 ตั้งเตือนเฉพาะงานวันนี้ ({selectedDayEvents.length})
+                          🔗 ซิงก์เบื้องหลังด้วย OAuth ({allMonthEvents.length} งาน)
                         </motion.button>
                       </div>
 
@@ -721,17 +737,9 @@ function PlantAdvice({ plant, weather, onBack }) {
                         <button
                           type="button"
                           className="adv-sync-text-btn"
-                          onClick={() => handleDownloadIcs(allMonthEvents)}
-                          title="ดาวน์โหลดไฟล์ .ics สำหรับเปิดในแอปปฏิทิน"
-                        >
-                          📥 ดาวน์โหลดไฟล์ปฏิทิน (.ics)
-                        </button>
-                        <button
-                          type="button"
-                          className="adv-sync-text-btn"
                           onClick={() => setShowSyncModal(false)}
                         >
-                          ยกเลิก
+                          ปิดหน้าต่าง
                         </button>
                       </div>
                     </div>
@@ -941,10 +949,20 @@ function PlantAdvice({ plant, weather, onBack }) {
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     className="adv-day-quick-sync-btn"
-                    onClick={() => handleSyncBatch(selectedDayEvents, `วันที่ ${selectedDay}`)}
-                    title="ตั้งเตือนเฉพาะงานของวันนี้ลง Google Calendar"
+                    onClick={() => {
+                      const ev = selectedDayEvents[0];
+                      if (ev) {
+                        window.open(getGoogleCalendarWebIntentUrl(ev), '_blank');
+                        saveReminderStatus(ev.uniqueKey || `direct_${Date.now()}`, {
+                          title: ev.title,
+                          directLink: true,
+                        });
+                        setSavedReminders(getSavedReminders());
+                      }
+                    }}
+                    title="เปิดบันทึกงานวันนี้ใน Google Calendar ทันที (ไม่ต้องขอสิทธิ์ OAuth)"
                   >
-                    🔔 ตั้งเตือนวันนี้ ({selectedDayEvents.length})
+                    🚀 เปิดใน Google Calendar
                   </motion.button>
                 )}
               </div>
