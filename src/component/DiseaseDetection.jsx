@@ -153,8 +153,7 @@ const diseaseDatabase = {
   },
 };
 
-const severityClass = { None: 'dd-low', Low: 'dd-low', Medium: 'dd-medium', High: 'dd-high' };
-const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const API_URL = (import.meta.env.VITE_API_URL || 'https://plant-disease-api-l93u.onrender.com').replace(/\/$/, '');
 
 const PLANT_TO_ID = {
   'Chili Pepper': 1,
