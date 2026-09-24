@@ -90,19 +90,41 @@ def main():
 
     # 1. Check cloudflared.exe
     cloudflared_path = os.path.join(dir_path, "cloudflared.exe")
-    if not os.path.exists(cloudflared_path):
-        print("\n[*] cloudflared.exe not found. Downloading automatically...")
+    is_valid_cloudflared = False
+    if os.path.exists(cloudflared_path):
+        try:
+            chk = subprocess.run([cloudflared_path, "--version"], capture_output=True, text=True, timeout=5)
+            if chk.returncode == 0:
+                is_valid_cloudflared = True
+        except Exception:
+            is_valid_cloudflared = False
+
+    if not is_valid_cloudflared:
+        if os.path.exists(cloudflared_path):
+            print("\n[!] Existing cloudflared.exe is incomplete or invalid. Deleting and re-downloading...")
+            try:
+                os.remove(cloudflared_path)
+            except Exception:
+                pass
+        print("\n[*] Downloading clean cloudflared.exe (~55MB, please wait)...")
         url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
         try:
+            opener = urllib.request.build_opener()
+            opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
+            urllib.request.install_opener(opener)
             urllib.request.urlretrieve(url, cloudflared_path)
-            print("[OK] Downloaded cloudflared.exe successfully!")
+            chk = subprocess.run([cloudflared_path, "--version"], capture_output=True, text=True, timeout=5)
+            if chk.returncode == 0:
+                print(f"[OK] Downloaded and verified cloudflared.exe successfully! ({chk.stdout.strip()})")
+            else:
+                raise Exception("Downloaded cloudflared.exe failed verification")
         except Exception as e:
             print(f"[ERROR] Failed to download cloudflared.exe: {e}")
-            print("Please download cloudflared-windows-amd64.exe manually and put it here.")
+            print("Please download cloudflared-windows-amd64.exe manually and place it in the api folder as cloudflared.exe.")
             input("Press Enter to exit...")
             return
     else:
-        print("[OK] cloudflared.exe is ready.")
+        print("[OK] cloudflared.exe is valid and ready.")
         
     # 2. Check dependencies
     print("\n[*] Checking required packages (PyTorch, FastAPI, etc.)...")
