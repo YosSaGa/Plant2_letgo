@@ -589,3 +589,242 @@
   color: white;
 }
 .sg-btn-confirm:hover { background: #059669; }
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES (Scoped strictly to max-width: 768px / 480px)
+   ZERO visual regression on desktop screens (>= 1024px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .sg-wrap {
+    padding: 0.85rem 0.75rem;
+  }
+  .sg-card {
+    padding: 1.25rem 1rem;
+    border-radius: 1.35rem;
+    margin-bottom: 1.25rem;
+  }
+  .sg-header {
+    gap: 0.75rem;
+  }
+  .sg-brand {
+    gap: 0.65rem;
+  }
+  .sg-logo {
+    width: 2.9rem;
+    height: 2.9rem;
+    font-size: 1.35rem;
+    border-radius: 0.85rem;
+  }
+  .sg-title {
+    font-size: 1.35rem;
+  }
+  .sg-header-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .sg-disease-nav {
+    font-size: 0.76rem;
+    padding: 0.45rem 0.75rem;
+    order: 1;
+  }
+  .sg-weather {
+    padding: 0.25rem 0.65rem 0.25rem 0.35rem;
+    gap: 0.45rem;
+    order: 2;
+  }
+  .sg-weather-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+  .sg-temp {
+    font-size: 0.85rem;
+  }
+  .sg-weather-label {
+    font-size: 0.68rem;
+  }
+  .sg-user-badge {
+    order: 3;
+    padding: 0.2rem 0.4rem;
+  }
+  .sg-btn-login-nav {
+    order: 3;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+  }
+  .sg-plant-grid {
+    grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+    gap: 0.45rem;
+  }
+  .sg-plant-btn {
+    padding: 0.6rem 0.3rem;
+    border-radius: 0.85rem;
+  }
+  .sg-plant-emoji {
+    font-size: 1.35rem;
+  }
+  .sg-plant-name {
+    font-size: 0.68rem;
+  }
+  .sg-plant-card {
+    padding: 1.15rem 1rem;
+    gap: 0.9rem;
+    border-radius: 1.25rem;
+    min-height: auto;
+  }
+  .sg-plant-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.45rem;
+    border-radius: 0.9rem;
+  }
+  .sg-plant-card h3 {
+    font-size: 1.1rem;
+  }
+  .sg-plant-card p {
+    font-size: 0.82rem;
+  }
+  .sg-plant-card button {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.85rem;
+  }
+  .sg-modal {
+    width: min(100%, 92vw);
+    padding: 1.6rem 1.2rem;
+    border-radius: 1.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sg-wrap {
+    padding: 0.65rem 0.5rem;
+  }
+  .sg-card {
+    padding: 1.1rem 0.85rem;
+    border-radius: 1.15rem;
+    margin-bottom: 1rem;
+  }
+  .sg-header {
+    gap: 0.65rem;
+  }
+  .sg-brand {
+    gap: 0.55rem;
+  }
+  .sg-logo {
+    width: 2.6rem;
+    height: 2.6rem;
+    font-size: 1.25rem;
+    border-radius: 0.75rem;
+  }
+  .sg-title {
+    font-size: 1.2rem;
+  }
+  .sg-location {
+    font-size: 0.75rem;
+  }
+  .sg-header-right {
+    gap: 0.35rem;
+  }
+  .sg-disease-nav {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.6rem;
+  }
+  .sg-section-title {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+  }
+  .sg-plant-groups {
+    gap: 0.6rem;
+    margin-bottom: 1.15rem;
+  }
+  .sg-plant-group {
+    padding: 0.65rem;
+    border-radius: 0.85rem;
+  }
+  .sg-plant-group-header {
+    margin-bottom: 0.5rem;
+    gap: 0.45rem;
+  }
+  .sg-plant-group-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.9rem;
+    border-radius: 0.55rem;
+  }
+  .sg-plant-group-title {
+    font-size: 0.78rem;
+  }
+  .sg-plant-grid {
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 0.35rem;
+  }
+  .sg-plant-btn {
+    padding: 0.5rem 0.2rem;
+    border-radius: 0.75rem;
+  }
+  .sg-plant-emoji {
+    font-size: 1.2rem;
+  }
+  .sg-plant-name {
+    font-size: 0.64rem;
+  }
+  .sg-row {
+    gap: 1rem;
+    margin-bottom: 1.15rem;
+  }
+  .sg-chip-group {
+    gap: 0.35rem;
+  }
+  .sg-chip {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.78rem;
+  }
+  .sg-pot-size {
+    padding: 0.7rem;
+    border-radius: 0.85rem;
+    margin-bottom: 1.15rem;
+  }
+  .sg-pot-size-options {
+    gap: 0.3rem;
+  }
+  .sg-pot-size-btn {
+    min-width: 2.2rem;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.72rem;
+  }
+  .sg-stepper {
+    margin-bottom: 1.25rem;
+  }
+  .sg-submit {
+    padding: 0.85rem;
+    font-size: 0.95rem;
+    border-radius: 0.85rem;
+  }
+  .sg-plant-card {
+    padding: 0.95rem 0.8rem;
+    gap: 0.7rem;
+    border-radius: 1.1rem;
+  }
+  .sg-plant-icon {
+    width: 2.85rem;
+    height: 2.85rem;
+    font-size: 1.35rem;
+    border-radius: 0.8rem;
+  }
+  .sg-plant-card h3 {
+    font-size: 1.05rem;
+  }
+  .sg-plant-count {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.7rem;
+  }
+  .sg-plant-card button {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.7rem;
+  }
+}
+

@@ -705,3 +705,141 @@
   color: #57534e;
   line-height: 1.5;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES (Scoped strictly to max-width: 768px / 480px)
+   ZERO impact on desktop (>= 1024px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .adv-wrap {
+    padding: 0.85rem 0.75rem;
+  }
+  .adv-card {
+    padding: 1.25rem 1rem;
+    border-radius: 1.35rem;
+  }
+  .adv-header {
+    gap: 0.85rem;
+    margin-bottom: 1.15rem;
+  }
+  .adv-plant-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.55rem;
+    border-radius: 0.95rem;
+  }
+  .adv-title {
+    font-size: 1.25rem;
+  }
+  .adv-sub {
+    font-size: 0.78rem;
+  }
+  .adv-dashboard {
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+  }
+  .adv-stat {
+    padding: 0.85rem 0.95rem;
+    border-radius: 1.1rem;
+  }
+  .adv-stat-value {
+    font-size: 1.05rem;
+  }
+  .adv-calendar-nav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .adv-calendar-title {
+    font-size: 1.1rem;
+  }
+  .adv-weekday-row,
+  .adv-grid {
+    gap: 0.25rem;
+  }
+  .adv-cell {
+    min-height: 2.75rem;
+    border-radius: 0.65rem;
+    padding: 0.25rem 0.15rem;
+  }
+  .adv-cell-day {
+    font-size: 0.82rem;
+  }
+  .adv-dot {
+    width: 0.35rem;
+    height: 0.35rem;
+  }
+  .adv-sync-modal {
+    width: min(100%, 94vw);
+    padding: 1.5rem 1.15rem;
+    border-radius: 1.35rem;
+  }
+  .adv-sync-actions {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .adv-sync-action-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .adv-wrap {
+    padding: 0.65rem 0.5rem;
+  }
+  .adv-card {
+    padding: 1.05rem 0.8rem;
+    border-radius: 1.15rem;
+  }
+  .adv-header {
+    gap: 0.7rem;
+  }
+  .adv-plant-icon {
+    width: 2.85rem;
+    height: 2.85rem;
+    font-size: 1.35rem;
+    border-radius: 0.85rem;
+  }
+  .adv-title {
+    font-size: 1.12rem;
+  }
+  .adv-stat {
+    padding: 0.7rem 0.75rem;
+  }
+  .adv-stat-label {
+    font-size: 0.72rem;
+  }
+  .adv-stat-value {
+    font-size: 0.95rem;
+  }
+  .adv-calendar-title {
+    font-size: 1rem;
+  }
+  .adv-weekday-row,
+  .adv-grid {
+    gap: 0.2rem;
+  }
+  .adv-cell {
+    min-height: 2.45rem;
+    border-radius: 0.5rem;
+    padding: 0.2rem 0.1rem;
+  }
+  .adv-cell-day {
+    font-size: 0.76rem;
+  }
+  .adv-legend {
+    gap: 0.35rem 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+  .adv-legend-item {
+    font-size: 0.72rem;
+  }
+  .adv-sync-btn-hero {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.9rem;
+  }
+  .adv-sync-action-btn {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.85rem;
+  }
+}
+

@@ -193,3 +193,28 @@ code {
   display: inline-block;
   vertical-align: middle;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE BASE ENHANCEMENTS (Scoped to max-width: 768px)
+   ZERO effect on desktop layouts (>= 1024px)
+   ============================================================ */
+@media (max-width: 768px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Prevent iOS automatic zoom on inputs with small font sizes */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+

@@ -278,3 +278,46 @@
   background: #f3f4f6;
   color: #1f2937;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES (Scoped strictly to max-width: 480px)
+   ZERO impact on desktop (>= 1024px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .plant-delete-backdrop {
+    padding: 12px;
+  }
+  .plant-delete-modal {
+    width: min(100%, 95vw);
+    border-radius: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .plant-delete-header {
+    padding: 16px 16px 12px;
+  }
+  .plant-delete-title-wrap {
+    gap: 10px;
+  }
+  .plant-delete-emoji-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    border-radius: 12px;
+  }
+  .plant-delete-title-wrap h3 {
+    font-size: 17px;
+  }
+  .plant-delete-body {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .plant-delete-footer {
+    padding: 12px 16px;
+  }
+  .plant-delete-cancel-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+

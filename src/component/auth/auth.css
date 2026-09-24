@@ -4,3 +4,49 @@
 .auth-back-home{margin-top:17px;border:0;background:transparent;color:#417462;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.auth-back-home:hover{color:#047857;text-decoration:underline}
 .auth-input input:-webkit-autofill,.auth-input input:-webkit-autofill:hover,.auth-input input:-webkit-autofill:focus{-webkit-text-fill-color:#022c22!important;-webkit-box-shadow:0 0 0 1000px #fff inset!important;box-shadow:0 0 0 1000px #fff inset!important}.auth-input input::selection{background:#bbf7d0;color:#022c22}
 .auth-form>button:not(.auth-admin-link){position:relative;overflow:hidden}.auth-form>button:not(.auth-admin-link):not(:disabled):after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#ffffff3d 50%,transparent 65%);translate:-120% 0;animation:auth-shimmer 3.5s ease-in-out infinite}@keyframes auth-shimmer{35%,100%{translate:120% 0}}
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES (Scoped strictly to max-width: 480px)
+   ZERO impact on desktop (>= 1024px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .auth-root {
+    padding: 12px;
+  }
+  .auth-card {
+    padding: 22px 16px !important;
+    border-radius: 20px !important;
+    width: 100%;
+  }
+  .auth-card h1 {
+    font-size: 24px !important;
+  }
+  .auth-mark {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    border-radius: 14px;
+  }
+  .auth-form {
+    gap: 11px;
+    margin-top: 18px;
+  }
+  .auth-form label {
+    font-size: 13px;
+    gap: 5px;
+  }
+  .auth-input {
+    padding: 0 11px;
+    border-radius: 12px;
+  }
+  .auth-input input {
+    font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+    padding: 11px 0;
+  }
+  .auth-form > button {
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+}
+

@@ -241,4 +241,37 @@
   .plant-master-form .form-row {
     grid-template-columns: 1fr;
   }
+  .plant-master-table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
 }
+
+@media (max-width: 480px) {
+  .plant-master-modal {
+    width: min(100%, 94vw);
+    max-height: 88vh;
+    border-radius: 16px;
+  }
+  .plant-master-modal header {
+    padding: 14px 16px;
+  }
+  .plant-master-modal h2 {
+    font-size: 19px;
+  }
+  .plant-master-form {
+    padding: 16px 14px;
+    gap: 12px;
+  }
+  .plant-master-form input,
+  .plant-master-form select {
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
+    padding: 9px;
+  }
+  .plant-master-modal footer {
+    padding: 14px 16px;
+  }
+}
+
