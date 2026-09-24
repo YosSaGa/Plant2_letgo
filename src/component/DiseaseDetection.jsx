@@ -328,9 +328,9 @@ export default function DiseaseDetection({ onBack }) {
                 <h3>เลือกชนิดพืชและภาพใบเพื่อตรวจสอบ</h3>
               </div>
               {backendStatus === 'online' ? (
-                <span className="dd-secure" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0', display: 'inline-flex', alignItems: 'center', gap: '7px', fontWeight: 600 }}>
+                <span className="dd-secure" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0', display: 'inline-flex', alignItems: 'center', gap: '7px', fontWeight: 600 }} title="ประมวลผลด้วย GPU Acceleration (CUDA)">
                   <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
-                  <Cpu size={16} /> โน๊ตบุ๊ก RTX 3050 พร้อมตรวจ (Online)
+                  <Cpu size={16} /> ระบบ AI พร้อมตรวจวินิจฉัย (Online)
                 </span>
               ) : backendStatus === 'checking' ? (
                 <span className="dd-secure" style={{ background: '#fefce8', color: '#ca8a04', borderColor: '#fef08a', display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
